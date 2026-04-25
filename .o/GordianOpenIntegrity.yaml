@@ -1,0 +1,21 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$defs:
+  envelope:
+    $ref: "https://datatracker.ietf.org/doc/draft-mcnally-envelope/"
+  mark:
+    $ref: "https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2025-001-provenance-mark.md"
+envelope: "ur:envelope/lptpsotanshdhdcxwtmtbzpmhhetwdehsknyvdrejphdntiavopycecmmuwzrlhecaiyprhhbylbytrnoytpsoksdtfljljpieinhsjtgwjoihjtgajtjyihiojpinjykkdmgmihjojljkinjyjljpkkgaieihjtjyiniyinihjptpsoksehieinieftjpihjojlftieeceyendyeeiyieideyehieieiyeyesiahseyeoesiaeeiadyiaenecideheyiheoeeeeiaieesetemoyaylftpsohdgltansgylftanshfhdcxfyonwttkhdtokngtjpbdiacwmejnintiwdpeadflmhpsdespynkbbkmsnydajsqdtansgrhdcxgubabwwzdsclswurecrhfmltsnhkhkamleptdywyamtydasgkivsqznsrnfpbdadoycsfncsfgoycsfztpsohdjktngdgmgwhflfaxhdimeejoothkcfmepmptmnzczojyfluybtkeyawzdasojyhtskwecaiywfgarhkgotcmhkvldpzctkhlsthyntsaaddijtmejeleetwnwmjohftyjknsoyimuowfahgmsabzrniobtsfdwlpetuoeyspcffdnnsrahaaclntgtpfhtcwkpzehgkkqzkomewpssvevdrhtlwftdhsvlesgybaoytpsoksctfljljpieinhsjtgwjoihjtgajtjyihiojpinjykkdmguiniojtinjtiogrihkktpsokshnjkjkisdpihieeyececehescxfpfpfpfpfxeoglknhsfxehjzhtfygaehglghfeecfpfpfpfpgagdjtgoknhkfxgokpkkgmflgmgleogsdniofdemksksghgaidhdethfjnjegtecfxfphfeeflkphdkkjzkogwfecxjyeeeedpjkiniojtinjtiodpjeihkktbwzytkk"
+mark: "5e65349a"
+---
+# Repository DID: did:repo:d52604fdb21ddf29ca239c4c0c65b12e344cd987
+# Current Mark: 5e65349a (🅑 HOLY INCH EDGE NAVY)
+# Inception Mark: cb0448a9 (🅑 STUB AQUA FUND PART)
+# XID(f09615ad) [
+#     "GordianOpenIntegrity.RepositoryIdentifier": "did:repo:d52604fdb21ddf29ca239c4c0c65b12e344cd987"
+#     'key': Bytes(78) [
+#         'allow': 'All'
+#     ]
+#     'provenance': Bytes(115)
+#     "GordianOpenIntegrity.SigningKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnUzYCUuyRGRN3L+gH7xxTIbX8VmkM5CAV4GuXylvOE t44-signing-key"
+# ]
+# Trust established using https://github.com/Stream44/t44-BlockchainCommons.com
