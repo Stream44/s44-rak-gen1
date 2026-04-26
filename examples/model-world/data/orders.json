@@ -1,7 +1,7 @@
 {
   "@context": "https://github.com/Stream44/s44-rak-gen1@1.0/L08-kinds/filesystem-space/1.0",
   "@type": "StorageBlob",
-  "@savedAt": "2026-04-26T04:07:45.963Z",
+  "@savedAt": "2026-04-26T04:46:03.440Z",
   "@bindings": {
     "order-records": {
       "@schemaVersion": "type://test.ecommerce.example/Order/1.0.0",
@@ -26,7 +26,7 @@
             "status": "shipped"
           },
           "transitionCount": 3,
-          "lastTransitionAt": "2026-04-26T04:07:45.963Z"
+          "lastTransitionAt": "2026-04-26T04:46:03.440Z"
         }
       }
     }

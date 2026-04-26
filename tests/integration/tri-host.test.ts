@@ -167,10 +167,13 @@ describe("tri-host integration", () => {
     });
 
     test("projections still declare session scope", async () => {
+        // Use `grep -rl --include=...` (POSIX-portable, works with both GNU
+        // and BSD grep) instead of ripgrep — `rg` is not guaranteed to be
+        // installed in every CI environment.
         expect(
             Number(
                 (
-                    await Bun.$`sh -lc "rg -l --glob 'projection*.yaml' 'session:' ${ROOT} | wc -l"`.text()
+                    await Bun.$`sh -lc "grep -rl --include='projection*.yaml' 'session:' ${ROOT} | wc -l"`.text()
                 ).trim(),
             ),
         ).toBeGreaterThan(0);

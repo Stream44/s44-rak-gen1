@@ -9,7 +9,7 @@
 
 ⚠️ **Disclaimer:** 1st generation (running concept) - Research Preview - Everything will change
 
-The Reflexive Algebraic Kernel
+The Reflexive Algebraic Kernel [![Tests](https://github.com/Stream44/s44-rak-gen1/actions/workflows/test.yaml/badge.svg)](https://github.com/Stream44/s44-rak-gen1/actions/workflows/test.yaml?query=branch%3Amain)
 ===
 
 > Content-addressed, algebraically-composable runtime for Stratified Homoiconic systems
