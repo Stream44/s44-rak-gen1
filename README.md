@@ -21,7 +21,7 @@ Nothing other than this readme has been touched by human hands.
 
 It is an early research preview released for feedback. The code has not been thoroughly reviewed yet as it still changes too much.
 
-See [PAPER.md](./PAPER.md) and [OVERVIEW.md](./OVERVIEW.md) for an introduction.
+See [PAPER.md](./PAPER.md) and [CONCEPTS.md](./CONCEPTS.md) for an introduction.
 
 You are encouraged to use AI to explore the project and have AI explain it to you.
 
