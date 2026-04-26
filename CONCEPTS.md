@@ -2,9 +2,7 @@
 
 (c) April 2026 by Christoph A. Dorn licensed under CC BY-SA 4.0
 
-# The Reflexive Algebraic Kernel
-
-*A conceptual overview*
+# The Reflexive Algebraic Kernel: A Conceptual Overvi
 
 ---
 
