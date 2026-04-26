@@ -23,7 +23,7 @@ It is an early research preview released for feedback. The code has not been tho
 
 You are encouraged to use AI to explore the project and have AI explain it to you. See [OVERVIEW.md](./OVERVIEW.md) for a conceptual introduction.
 
-Look at `examples/todomvc/` which is a simple complete example of the famous application. The other examples are only partially working.
+Look at [examples/todomvc/](./examples/todomvc/) which is a simple complete example of the famous application. The other examples are only partially working.
 
 Ask AI to make changes and see how it goes.
 
