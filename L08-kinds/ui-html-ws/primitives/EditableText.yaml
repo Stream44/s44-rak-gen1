@@ -1,0 +1,25 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/EditableText/1.0
+name: EditableText
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    value: { type: string }
+    editing: { type: boolean }
+    id: { type: string }
+    class: { type: string }
+    placeholder: { type: string }
+    onEditStart: { type: object }
+    onEditCommit: { type: object }
+    onEditCancel: { type: object }
+    onEditEnd: { type: object }
+  required: [value, editing, id]
+contract: render a span-or-input editable text control; dblclick starts edit; Enter or blur commits; Escape cancels
+render: module://./primitives/EditableText.ts#default
+implementation:
+  kind: module
+  module: "./EditableText.ts"
+  export: default

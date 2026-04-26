@@ -1,0 +1,24 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Split/1.0
+name: Split
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    left: {}
+    right: {}
+    orientation: { type: string, enum: [h, v] }
+    initialRatio: { type: number }
+contract: render a flex row or column split container
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Split" }
+    orientation: { op: get, path: "$input/orientation" }
+    initialRatio: { op: get, path: "$input/initialRatio" }
+implementation:
+  kind: module
+  module: "./Split.ts"
+  export: default

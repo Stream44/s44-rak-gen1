@@ -1,0 +1,49 @@
+name: library-catalog
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/examples/library-catalog"
+description: A library-catalog node — a second consumer of observatory, proving genericity.
+extends:
+  - ../observatory/sds.yaml
+
+models:
+  - { path: ./models/library.model.yaml, role: primary, initialBinding: true }
+
+acceptanceSuites:
+  - {
+      id: checkout-flow,
+      name: "Checkout Flow",
+      path: ./acceptance/checkout.acceptance.yaml,
+      default: true,
+    }
+
+seeds:
+  - {
+      targetKey: book-001,
+      state:
+        {
+          status: available,
+          title: "Gödel, Escher, Bach",
+          isbn: "0465026567",
+          authorId: hofstadter,
+        },
+    }
+  - {
+      targetKey: book-002,
+      state:
+        {
+          status: checked-out,
+          title: "Structure and Interpretation of Computer Programs",
+          isbn: "0262510871",
+          authorId: abelson,
+        },
+    }
+  - {
+      targetKey: book-003,
+      state:
+        { status: available, title: "A Pattern Language", isbn: "0195019199", authorId: alexander },
+    }
+  - {
+      targetKey: patron-alice,
+      state: { name: "Alice", memberSince: "2024-01-15", overdueCount: 0 },
+    }
+  - { targetKey: patron-bob, state: { name: "Bob", memberSince: "2025-03-20", overdueCount: 1 } }

@@ -1,0 +1,29 @@
+model: state-machine
+version: 1.0.0
+origin: https://fixture.kernel/state-machine
+
+entities:
+  Widget:
+    description: A widget with a lifecycle.
+    attributes:
+      id: { type: string, required: true }
+      status: { type: string, required: true, enum: [draft, ready, done] }
+
+lifecycle:
+  states: [draft, ready, done]
+  initial: draft
+  terminal: [done]
+  transitions:
+    - { from: draft, to: ready, verb: promote }
+    - { from: ready, to: done, verb: promote }
+
+actions:
+  PromoteWidget:
+    verb: promote
+    kind: mutate
+    targetField: widgetId
+    inputSchema:
+      type: object
+      required: [widgetId]
+      properties:
+        widgetId: { type: string }

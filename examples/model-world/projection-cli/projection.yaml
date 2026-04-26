@@ -1,0 +1,49 @@
+projector: orders-cli
+version: 0.1.0
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/cli.stdout/1.0
+session:
+  scope: orders-cli
+bindsModel: ecommerce@1.0.0
+title: "Orders (CLI)"
+
+actions:
+  - ConfirmOrder
+  - PayOrder
+  - ShipOrder
+
+morphism:
+  op: product
+  left:
+    op: ref
+    asset: asset://adk.example/cli.stdout/primitive/Heading/1.0
+    props:
+      level: 1
+      text: Orders
+  right:
+    op: product
+    left:
+      op: ref
+      asset: asset://adk.example/cli.stdout/primitive/Table/1.0
+      props:
+        columns: [Order, Status, Total]
+        rows: $bind.orderRows
+    right:
+      op: cond
+      if:
+        capability: cap://pii/view/1.0
+      then:
+        op: ref
+        asset: asset://adk.example/cli.stdout/primitive/Text/1.0
+        props:
+          text: "customer.email: $bind.customer.email"
+      else:
+        op: literal
+        value:
+          component: _guarded
+          props: {}
+          children:
+            - component: Text
+              props:
+                text: "customer.email: $bind.customer.email"
+              children: []

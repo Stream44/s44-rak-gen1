@@ -1,0 +1,8 @@
+model: analytics
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/analytics"
+entities:
+  Snapshot:
+    attributes:
+      id:
+        type: string

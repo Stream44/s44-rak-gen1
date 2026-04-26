@@ -1,0 +1,7 @@
+kind: storage-space
+version: 1.0.0
+conformsTo: kind://adk/storage-space/1.0
+abstract: true
+provides:
+  - keyed-value
+  - append-only-journal

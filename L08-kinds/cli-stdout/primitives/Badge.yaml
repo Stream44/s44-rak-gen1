@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/cli.stdout/primitive/Badge/1.0
+name: Badge
+assetKind: primitive
+conformsToKind: cli.stdout
+kind: cli.stdout
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    tone: { type: string, enum: [success, warn, error, info, neutral] }
+  required: [label]
+contract: "compact status badge with a tone-coded label"
+implementation:
+  kind: module
+  module: "./Badge.ts"
+  export: default
+render: module://./primitives/Badge.ts#default

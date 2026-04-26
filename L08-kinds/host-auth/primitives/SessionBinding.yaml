@@ -1,0 +1,123 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.auth/primitive/SessionBinding/1.0
+name: SessionBinding
+assetKind: primitive
+conformsToKind: host.auth
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    strategy:
+      type: string
+      enum: [session, jwt, both]
+    sessionStoreRef: {}
+    jwtVerifierRef: {}
+    keyRef: {}
+  required: [strategy]
+contract: "bind the capability record into a session, jwt, or both."
+render:
+  op: if
+  cond:
+    {
+      op: call,
+      fn: eq,
+      args: [{ op: get, path: "$input/capability/kind" }, { op: const, value: rejected }],
+    }
+  then:
+    op: record
+    fields:
+      kind: { op: const, value: rejected }
+      reason: { op: get, path: "$input/capability/reason" }
+      labels: { op: get, path: "$input/projection/labels" }
+  else:
+    op: match
+    scrutinee: { op: get, path: "$input/props/strategy" }
+    cases:
+      - pattern: { kind: const, value: session }
+        body:
+          op: let
+          name: $sessionId
+          value:
+            op: apply
+            fn: { op: var, name: $bindSession }
+            arg:
+              op: record
+              fields:
+                user:
+                  op: record
+                  fields:
+                    id: { op: get, path: "$input/capability/user" }
+                    capabilities: { op: get, path: "$input/capability/caps" }
+                caps: { op: get, path: "$input/capability/caps" }
+                scope: { op: get, path: "$input/projection/session/scope" }
+                store: { op: get, path: "$input/props/sessionStoreRef" }
+          body:
+            op: record
+            fields:
+              kind: { op: const, value: bound }
+              sessionId: { op: var, name: $sessionId }
+              labels: { op: get, path: "$input/projection/labels" }
+      - pattern: { kind: const, value: jwt }
+        body:
+          op: let
+          name: $jwtToken
+          value:
+            op: apply
+            fn: { op: var, name: $jwtSign }
+            arg:
+              op: record
+              fields:
+                payload:
+                  op: record
+                  fields:
+                    user: { op: get, path: "$input/capability/user" }
+                    caps: { op: get, path: "$input/capability/caps" }
+                keyRef: { op: get, path: "$input/props/keyRef" }
+                verifierRef: { op: get, path: "$input/props/jwtVerifierRef" }
+          body:
+            op: record
+            fields:
+              kind: { op: const, value: bound }
+              jwtToken: { op: var, name: $jwtToken }
+              labels: { op: get, path: "$input/projection/labels" }
+      - pattern: { kind: const, value: both }
+        body:
+          op: let
+          name: $sessionId
+          value:
+            op: apply
+            fn: { op: var, name: $bindSession }
+            arg:
+              op: record
+              fields:
+                user:
+                  op: record
+                  fields:
+                    id: { op: get, path: "$input/capability/user" }
+                    capabilities: { op: get, path: "$input/capability/caps" }
+                caps: { op: get, path: "$input/capability/caps" }
+                scope: { op: get, path: "$input/projection/session/scope" }
+                store: { op: get, path: "$input/props/sessionStoreRef" }
+          body:
+            op: let
+            name: $jwtToken
+            value:
+              op: apply
+              fn: { op: var, name: $jwtSign }
+              arg:
+                op: record
+                fields:
+                  payload:
+                    op: record
+                    fields:
+                      user: { op: get, path: "$input/capability/user" }
+                      caps: { op: get, path: "$input/capability/caps" }
+                  keyRef: { op: get, path: "$input/props/keyRef" }
+                  verifierRef: { op: get, path: "$input/props/jwtVerifierRef" }
+            body:
+              op: record
+              fields:
+                kind: { op: const, value: bound }
+                sessionId: { op: var, name: $sessionId }
+                jwtToken: { op: var, name: $jwtToken }
+                labels: { op: get, path: "$input/projection/labels" }

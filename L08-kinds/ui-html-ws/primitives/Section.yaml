@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Section/1.0
+name: Section
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    title: { type: string }
+contract: render a <section> container and prepend a <header> when props.title is present
+render: module://./primitives/Section.ts#default
+implementation:
+  kind: module
+  module: "./Section.ts"
+  export: default

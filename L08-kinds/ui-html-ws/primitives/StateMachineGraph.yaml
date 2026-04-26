@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/StateMachineGraph/1.0
+name: StateMachineGraph
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    states: { type: array }
+    transitions: { type: array }
+    currentStates: { type: object }
+    title: { type: string }
+contract: render a state transition matrix as an HTML table with row highlights for active states
+render: module://./primitives/StateMachineGraph.ts#default
+implementation:
+  kind: module
+  module: "./StateMachineGraph.ts"
+  export: default

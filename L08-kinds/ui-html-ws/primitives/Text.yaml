@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Text/1.0
+name: Text
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    text: { type: string }
+contract: render a <span> element containing escaped text content from props.text
+render: module://./primitives/Text.ts#default
+implementation:
+  kind: module
+  module: "./Text.ts"
+  export: default

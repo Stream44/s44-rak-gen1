@@ -1,0 +1,22 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Breadcrumb/1.0
+name: Breadcrumb
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    trail: { type: array }
+    stack: { type: array }
+contract: render breadcrumb trail segments with current-state and action metadata
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Breadcrumb" }
+    trail: { op: get, path: "$input/trail" }
+    stack: { op: get, path: "$input/stack" }
+implementation:
+  kind: module
+  module: "./Breadcrumb.ts"
+  export: default

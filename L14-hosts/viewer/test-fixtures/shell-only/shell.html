@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"/><title>{{title}}</title></head>
+<body data-testmode="shell-only">
+<div id="root">{{body}}</div>
+<script>
+window["__adkCustomAction"] = function(name, payload) {
+  console.log("custom:", name, payload);
+};
+</script>
+<script>{{handlersJs}}</script>
+</body></html>

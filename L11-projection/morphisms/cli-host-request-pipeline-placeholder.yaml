@@ -1,0 +1,18 @@
+id: morphism://github.com/Stream44/s44-rak-gen1@1.0/cliHostRequestPipeline/1.0-placeholder
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+discriminator: cli-host-pipeline
+schema:
+  morphisms:
+    cliHostRequestPipeline:
+      id: morphism://github.com/Stream44/s44-rak-gen1@1.0/cliHostRequestPipeline/1.0
+      input: type://github.com/Stream44/s44-rak-gen1@1.0/cli-host/request-context/1.0
+      output: type://github.com/Stream44/s44-rak-gen1@1.0/cli-host/run-result/1.0
+      impl:
+        kind: algebra
+        ast:
+          op: record
+          fields:
+            stdout: { op: const, value: "ok" }
+            stderr: { op: const, value: "" }
+            exitCode: { op: const, value: 0 }

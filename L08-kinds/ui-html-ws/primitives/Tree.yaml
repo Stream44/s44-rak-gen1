@@ -1,0 +1,27 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Tree/1.0
+name: Tree
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    node: {}
+    expandable: { type: boolean }
+    fetchChildren: { type: string }
+    expanded: {}
+  required: [node]
+contract: render a tree row with optional lazy-expand chevron and nested children
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Tree" }
+    node: { op: get, path: "$input/node" }
+    expandable: { op: get, path: "$input/expandable" }
+    fetchChildren: { op: get, path: "$input/fetchChildren" }
+    expanded: { op: get, path: "$input/expanded" }
+implementation:
+  kind: module
+  module: "./Tree.ts"
+  export: default

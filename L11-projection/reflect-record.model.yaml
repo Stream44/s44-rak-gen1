@@ -1,0 +1,66 @@
+document: ReflectRecordMorphisms
+version: "1.0"
+conformsTo: adk:MorphismDocument/1.0
+discriminator: reflectRecord
+origin: adk
+morphisms:
+  reflectRecord:
+    id: morphism://adk/reflect-record/1.0
+    input: type://adk/ReflectRecordInput/0.1.0
+    output: type://adk/ReflectRecordOutput/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$reflectRecord" }
+        arg: { op: var, name: "$input" }
+  isReference:
+    id: morphism://adk/isReference/1.0
+    input: type://adk/ReferenceProbeInput/0.1.0
+    output: type://adk/ReferenceProbeOutput/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$uriMatch"
+        value:
+          op: call
+          fn: matches
+          args:
+            - { op: var, name: "$input" }
+            - { op: const, value: { kind: wildcard } }
+        body:
+          op: let
+          name: "$cidMatch"
+          value:
+            op: call
+            fn: matches
+            args:
+              - { op: var, name: "$input" }
+              - { op: const, value: { kind: wildcard } }
+          body:
+            op: let
+            name: "$refMatch"
+            value:
+              op: call
+              fn: matches
+              args:
+                - { op: var, name: "$input" }
+                - { op: const, value: { kind: wildcard } }
+            body:
+              op: apply
+              fn: { op: var, name: "$isReference" }
+              arg: { op: var, name: "$input" }
+  listCategories:
+    id: morphism://adk/listCategories/1.0
+    input: type://adk/ListCategoriesInput/0.1.0
+    output: type://adk/CategoryList/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$listCategories" }
+        arg: { op: var, name: "$input" }

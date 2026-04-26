@@ -1,0 +1,163 @@
+document: ComposeMorphisms
+version: "1.0"
+conformsTo: adk:MorphismDocument/1.0
+discriminator: compose
+origin: adk
+morphisms:
+  deepMerge:
+    id: morphism://adk/deepMerge/1.0
+    input: type://adk/DeepMergeInput/0.1.0
+    output: type://adk/DeepMergeResult/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$composeMerge" }
+        arg: { op: var, name: "$input" }
+  resolveKindComposition:
+    id: morphism://adk/resolveKindComposition/1.0
+    input: type://adk/KindCompositionInput/0.1.0
+    output: type://adk/MergedKind/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$afterDefaults"
+        value:
+          op: apply
+          fn: { op: var, name: "$deepMerge" }
+          arg:
+            op: record
+            fields:
+              base: { op: get, path: "$input/defaults" }
+              overlay: { op: get, path: "$input/projection" }
+              opts:
+                op: record
+                fields:
+                  allowUnknownPaths: { op: const, value: false }
+        body:
+          op: let
+          name: "$afterInvariants"
+          value:
+            op: apply
+            fn: { op: var, name: "$deepMerge" }
+            arg:
+              op: record
+              fields:
+                base: { op: var, name: "$afterDefaults" }
+                overlay: { op: get, path: "$input/invariants" }
+                opts:
+                  op: record
+                  fields:
+                    allowUnknownPaths: { op: const, value: true }
+          body:
+            op: let
+            name: "$overlap"
+            value:
+              op: apply
+              fn: { op: var, name: "$findOverlap" }
+              arg:
+                op: record
+                fields:
+                  a: { op: get, path: "$input/projection" }
+                  b: { op: get, path: "$input/invariants" }
+            body:
+              op: let
+              name: "$warning"
+              value:
+                op: if
+                cond:
+                  op: call
+                  fn: gt
+                  args:
+                    - { op: call, fn: length, args: [{ op: get, path: "$overlap/paths" }] }
+                    - { op: const, value: 0 }
+                then:
+                  op: apply
+                  fn: { op: var, name: "$recordWarning" }
+                  arg:
+                    op: record
+                    fields:
+                      overlap: { op: get, path: "$overlap/paths" }
+                      context: { op: const, value: "kind-composition" }
+                else: { op: const, value: {} }
+              body: { op: var, name: "$afterInvariants" }
+  detectExtendsCycle:
+    id: morphism://adk/detectExtendsCycle/1.0
+    input: type://adk/ExtendsChain/0.1.0
+    output: type://adk/CycleDetection/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$detectCycle" }
+        arg: { op: var, name: "$input" }
+  mergeExtendsChain:
+    id: morphism://adk/mergeExtendsChain/1.0
+    input: type://adk/ExtendsChain/0.1.0
+    output: type://adk/ResolvedProjection/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$cycle"
+        value:
+          op: apply
+          fn: { op: var, name: "$detectExtendsCycle" }
+          arg: { op: var, name: "$input" }
+        body:
+          op: if
+          cond: { op: get, path: "$cycle/hasCycle" }
+          then:
+            op: apply
+            fn: { op: var, name: "$raiseExtendsCycle" }
+            arg: { op: var, name: "$cycle" }
+          else:
+            op: apply
+            fn: { op: var, name: "$mergeChain" }
+            arg: { op: get, path: "$input/chain" }
+  extendsResolver:
+    id: morphism://adk/extendsResolver/1.0
+    input: type://adk/ExtendsResolverInput/0.1.0
+    output: type://adk/ResolvedProjection/0.1.0
+    category: stateful
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$chain"
+        value:
+          op: apply
+          fn: { op: var, name: "$buildChain" }
+          arg:
+            op: record
+            fields:
+              doc: { op: get, path: "$input/doc" }
+              registry: { op: get, path: "$input/registry" }
+        body:
+          op: apply
+          fn: { op: var, name: "$mergeExtendsChain" }
+          arg:
+            op: record
+            fields:
+              chain: { op: var, name: "$chain" }
+  recordWarning:
+    id: morphism://adk/recordWarning/1.0
+    input: type://adk/WarningInput/0.1.0
+    output: type://adk/UnitResult/0.1.0
+    category: stateful
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$emitEvent" }
+        arg:
+          op: record
+          fields:
+            level: { op: const, value: "warning" }
+            overlap: { op: get, path: "$input/overlap" }
+            context: { op: get, path: "$input/context" }

@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Button/1.0
+name: Button
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    tone: { type: string, enum: [success, warn, error, info, neutral] }
+    disabled: {}
+  required: [label]
+contract: render a <button> element; when disabled is truthy, emit the disabled attribute; attach onClick action binding via data-action-ref
+render: module://./primitives/Button.ts#default
+implementation:
+  kind: module
+  module: "./Button.ts"
+  export: default

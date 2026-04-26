@@ -1,0 +1,288 @@
+projector: todomvc
+version: 1.0.0
+origin: https://github.com/Stream44/s44-rak-gen1@1.0/examples/todomvc
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/ui.html.ws/1.0
+session:
+  scope: page
+bindsModel: todomvc@1.0.0
+title: TodoMVC
+shell: ./shell.html
+
+actions:
+  - AddTodo
+  - ToggleTodo
+  - EditTodo
+  - DeleteTodo
+  - ToggleAll
+  - ClearCompleted
+
+routes:
+  - { path: /, page: todoapp }
+
+components:
+  activeTodos:
+    template:
+      op: filter
+      of: "$bind.instances"
+      predicate: { field: completed, equals: false }
+  completedTodos:
+    template:
+      op: filter
+      of: "$bind.instances"
+      predicate: { field: completed, equals: true }
+  visibleTodos:
+    template:
+      op: cond
+      if: { eq: ["$ctx.filter", "active"] }
+      then: { use: activeTodos }
+      else:
+        op: cond
+        if: { eq: ["$ctx.filter", "completed"] }
+        then: { use: completedTodos }
+        else:
+          op: literal
+          value: "$bind.instances"
+  activeCount:
+    template:
+      op: literal
+      value: "$bind.instances.length"
+  completedCount:
+    template:
+      op: literal
+      value: "$bind.instances.length"
+  allCompleted:
+    template:
+      op: literal
+      value:
+        and:
+          - { gt: ["$bind.instances.length", 0] }
+          - {
+              not:
+                {
+                  op: first,
+                  of:
+                    {
+                      op: filter,
+                      of: "$bind.instances",
+                      predicate: { field: completed, equals: false },
+                    },
+                },
+            }
+
+pages:
+  todoapp:
+    children:
+      - component: Context
+        props:
+          scope: page
+          initial: { filter: all, editingId: "" }
+        children:
+          - component: Section
+            props: { class: todoapp }
+            children:
+              - component: Toolbar
+                props: { class: header }
+                children:
+                  - component: Heading
+                    props: { level: 1, text: todos }
+                  - component: Input
+                    props:
+                      class: new-todo
+                      placeholder: "What needs to be done?"
+                      data-submit-action: AddTodo
+                      data-submit-payload-key: title
+                      data-clear-on-submit: "true"
+              - if: { gt: ["$bind.instances.length", 0] }
+                then:
+                  component: Stack
+                  props: { class: main }
+                  children:
+                    - component: Input
+                      props:
+                        id: toggle-all
+                        class: toggle-all
+                        type: checkbox
+                      onClick:
+                        action: ToggleAll
+                        payload:
+                          value:
+                            not:
+                              and:
+                                - { gt: ["$bind.instances.length", 0] }
+                                - {
+                                    not:
+                                      {
+                                        op: first,
+                                        of:
+                                          {
+                                            op: filter,
+                                            of: "$bind.instances",
+                                            predicate: { field: completed, equals: false },
+                                          },
+                                      },
+                                  }
+                    - component: List
+                      props: { class: todo-list }
+                      children:
+                        - for:
+                            if: { eq: ["$ctx.filter", "active"] }
+                            then:
+                              {
+                                op: filter,
+                                of: "$bind.instances",
+                                predicate: { field: completed, equals: false },
+                              }
+                            else:
+                              if: { eq: ["$ctx.filter", "completed"] }
+                              then:
+                                {
+                                  op: filter,
+                                  of: "$bind.instances",
+                                  predicate: { field: completed, equals: true },
+                                }
+                              else: "$bind.instances"
+                          as: t
+                          template:
+                            # The List primitive wraps each child in <li>, and
+                            # `dispatch.renderListChildren` hoists this Stack's
+                            # `class` onto the <li>. That's what lets the
+                            # TodoMVC CSS's `li.completed` / `li.editing`
+                            # selectors match without bespoke primitives.
+                            component: Stack
+                            props:
+                              class:
+                                if: { eq: ["$ctx.editingId", "$t.id"] }
+                                then:
+                                  if: { eq: ["$t.completed", true] }
+                                  then: "completed editing"
+                                  else: "editing"
+                                else:
+                                  if: { eq: ["$t.completed", true] }
+                                  then: completed
+                                  else: ""
+                              data-todo-id: "$t.id"
+                            children:
+                              - component: Row
+                                props: { class: view }
+                                children:
+                                  - component: Input
+                                    props:
+                                      class: toggle
+                                      type: checkbox
+                                      checked: "$t.completed"
+                                    onClick:
+                                      action: ToggleTodo
+                                      target: "$t.id"
+                                      payload: { id: "$t.id", completed: { not: "$t.completed" } }
+                                  - component: Text
+                                    props:
+                                      as: label
+                                      text: "$t.title"
+                                      data-action-ref: ui.set
+                                      data-ctx-path: page
+                                      data-ui-set-path: editingId
+                                      data-value: "$t.id"
+                                  - component: Button
+                                    props: { class: destroy, label: "" }
+                                    onClick:
+                                      action: DeleteTodo
+                                      target: "$t.id"
+                                      payload: { id: "$t.id" }
+                              # Sibling of .view so `.editing .view {display:none}`
+                              # hides the label while `.editing .edit {display:block}`
+                              # shows this input. Rendered only when editing this row
+                              # so we never have two titles in DOM at once.
+                              - if: { eq: ["$ctx.editingId", "$t.id"] }
+                                then:
+                                  component: EditableText
+                                  props:
+                                    class: edit
+                                    id: "$t.id"
+                                    value: "$t.title"
+                                    editing: true
+                                  onEditCommit:
+                                    action: EditTodo
+                                    target: "$t.id"
+                                    payload: { id: "$t.id", title: "$event.value" }
+                                  onEditCancel:
+                                    action: ui.set
+                                    payload: { path: editingId, value: "" }
+                                  onEditEnd:
+                                    action: ui.set
+                                    payload: { path: editingId, value: "" }
+              - if: { gt: ["$bind.instances.length", 0] }
+                then:
+                  component: Toolbar
+                  props: { class: footer }
+                  children:
+                    - component: Text
+                      props:
+                        class: todo-count
+                        text:
+                          if:
+                            {
+                              eq:
+                                [
+                                  {
+                                    op: length,
+                                    of:
+                                      {
+                                        op: filter,
+                                        of: "$bind.instances",
+                                        predicate: { field: completed, equals: false },
+                                      },
+                                  },
+                                  1,
+                                ],
+                            }
+                          then: "1 item left"
+                          else:
+                            op: concat
+                            args:
+                              - op: length
+                                of:
+                                  {
+                                    op: filter,
+                                    of: "$bind.instances",
+                                    predicate: { field: completed, equals: false },
+                                  }
+                              - " items left"
+                    - component: List
+                      props: { class: filters }
+                      children:
+                        - component: Link
+                          props:
+                            href: "#/"
+                            label: All
+                            class: { if: { eq: ["$ctx.filter", "all"] }, then: selected, else: "" }
+                        - component: Link
+                          props:
+                            href: "#/active"
+                            label: Active
+                            class:
+                              { if: { eq: ["$ctx.filter", "active"] }, then: selected, else: "" }
+                        - component: Link
+                          props:
+                            href: "#/completed"
+                            label: Completed
+                            class:
+                              { if: { eq: ["$ctx.filter", "completed"] }, then: selected, else: "" }
+                    - if:
+                        {
+                          op: first,
+                          of:
+                            {
+                              op: filter,
+                              of: "$bind.instances",
+                              predicate: { field: completed, equals: true },
+                            },
+                        }
+                      then:
+                        component: Button
+                        props: { class: clear-completed, label: "Clear completed" }
+                        onClick: { action: ClearCompleted }
+              # Deferred until the projection runtime supports `{ use: X }` as a value source:
+              # - use: visibleTodos
+              # - use: activeCount
+              # - use: allCompleted

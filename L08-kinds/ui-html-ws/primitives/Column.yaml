@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Column/1.0
+name: Column
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+contract: render a <div class="column"> container around child nodes
+render: module://./primitives/Column.ts#default
+implementation:
+  kind: module
+  module: "./Column.ts"
+  export: default

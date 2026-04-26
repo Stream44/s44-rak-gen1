@@ -1,0 +1,28 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Inspector/1.0
+name: Inspector
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    kind: { type: string }
+    title: { type: string }
+    subtitle: { type: string }
+    selected: {}
+    sections: { type: array }
+    emptyState: { type: string }
+    emptyLabel: { type: string }
+contract: render inspector sections from declarative section specs with empty-state fallback
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Inspector" }
+    title: { op: get, path: "$input/title" }
+    subtitle: { op: get, path: "$input/subtitle" }
+    selected: { op: get, path: "$input/selected" }
+    sections: { op: get, path: "$input/sections" }
+    emptyState: { op: get, path: "$input/emptyState" }
+    emptyLabel: { op: get, path: "$input/emptyLabel" }
+implementation: { kind: module, module: "./Inspector.ts", export: default }

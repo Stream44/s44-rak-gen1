@@ -1,0 +1,14 @@
+- id: alice
+  name: Patron Alice
+  role: patron
+  verbs: [checkout, return, reserve]
+
+- id: bob
+  name: Patron Bob
+  role: patron
+  verbs: [checkout, return, reserve]
+
+- id: librarian
+  name: Librarian
+  role: librarian
+  verbs: [checkout, return, reserve, fulfill, reportLost, cancel]

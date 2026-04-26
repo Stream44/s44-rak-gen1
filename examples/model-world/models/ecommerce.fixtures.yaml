@@ -1,0 +1,353 @@
+conformsTo: adk:ModelWorld/1.0
+origin: test.ecommerce.example
+version: 1.0.0
+
+types:
+  - id: type://test.ecommerce.example/Customer/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: Customer
+    version: "1.0"
+    schema:
+      type: object
+      required: [id, name, email]
+      properties:
+        id: { type: string }
+        name: { type: string, minLength: 1 }
+        email: { type: string, pattern: "^[^@]+@[^@]+$" }
+        tier: { type: string, enum: [bronze, silver, gold, platinum] }
+  - id: type://test.ecommerce.example/Product/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: Product
+    version: "1.0"
+    schema:
+      type: object
+      required: [sku, name, price, currency]
+      properties:
+        sku: { type: string }
+        name: { type: string, minLength: 1 }
+        price: { type: number, minimum: 0 }
+        currency: { type: string, enum: [USD, EUR, GBP] }
+        stock: { type: integer, minimum: 0 }
+        category: { type: string }
+  - id: type://test.ecommerce.example/OrderItem/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: OrderItem
+    version: "1.0"
+    schema:
+      type: object
+      required: [product, quantity, unitPrice]
+      properties:
+        product: { type: string, $typeRef: type://test.ecommerce.example/Product/1.0 }
+        quantity: { type: integer, minimum: 1 }
+        unitPrice: { type: number, minimum: 0 }
+  - id: type://test.ecommerce.example/Order/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: Order
+    version: "1.0"
+    schema:
+      type: object
+      required: [id, customer, items, status, total]
+      properties:
+        id: { type: string }
+        customer: { type: string, $typeRef: type://test.ecommerce.example/Customer/1.0 }
+        items:
+          type: array
+          items:
+            type: object
+            required: [product, quantity, unitPrice]
+            properties:
+              product: { type: string, $typeRef: type://test.ecommerce.example/Product/1.0 }
+              quantity: { type: integer, minimum: 1 }
+              unitPrice: { type: number, minimum: 0 }
+        status:
+          type: string
+          enum: [pending, confirmed, paid, shipped, delivered, cancelled, refunded]
+        total: { type: number, minimum: 0 }
+        placedAt: { type: string }
+  - id: type://test.ecommerce.example/Invoice/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: Invoice
+    version: "1.0"
+    schema:
+      type: object
+      required: [id, order, amount, currency]
+      properties:
+        id: { type: string }
+        order: { type: string, $typeRef: type://test.ecommerce.example/Order/1.0 }
+        amount: { type: number, minimum: 0 }
+        currency: { type: string, enum: [USD, EUR, GBP] }
+        issuedAt: { type: string }
+  - id: type://test.ecommerce.example/Shipment/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: Shipment
+    version: "1.0"
+    schema:
+      type: object
+      required: [id, order, carrier, trackingNumber]
+      properties:
+        id: { type: string }
+        order: { type: string, $typeRef: type://test.ecommerce.example/Order/1.0 }
+        carrier: { type: string }
+        trackingNumber: { type: string }
+        shippedAt: { type: string }
+        deliveredAt: { type: string }
+  - id: type://test.ecommerce.example/OrderStatus/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/enum/1.0
+    name: OrderStatus
+    version: "1.0"
+    schema:
+      type: string
+      enum: [pending, confirmed, paid, shipped, delivered, cancelled, refunded]
+  - id: type://test.ecommerce.example/Currency/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/enum/1.0
+    name: Currency
+    version: "1.0"
+    schema: { type: string, enum: [USD, EUR, GBP] }
+  - id: type://test.ecommerce.example/CustomerTier/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/enum/1.0
+    name: CustomerTier
+    version: "1.0"
+    schema: { type: string, enum: [bronze, silver, gold, platinum] }
+  - id: type://test.ecommerce.example/OrderStateRecord/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: OrderStateRecord
+    version: "1.0"
+    schema:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, paid, shipped, delivered, cancelled, refunded]
+  - id: type://test.ecommerce.example/OrderEvent/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    name: OrderEvent
+    version: "1.0"
+    schema:
+      type: object
+      required: [verb]
+      properties:
+        verb: { type: string, enum: [confirm, pay, ship, deliver, cancel, refund] }
+  - id: type://test.ecommerce.example/Number/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/scalar/1.0
+    name: Number
+    version: "1.0"
+    schema: { type: number }
+  - id: type://test.ecommerce.example/NumberArray/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/collection/1.0
+    name: NumberArray
+    version: "1.0"
+    schema:
+      type: array
+      items: { type: number }
+  - id: type://test.ecommerce.example/Integer/1.0
+    level: 1
+    conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/scalar/1.0
+    name: Integer
+    version: "1.0"
+    schema: { type: integer }
+
+stateMachine:
+  id: sm://test.ecommerce.example/OrderLifecycle/1.0
+  name: OrderLifecycle
+  stateType: type://test.ecommerce.example/OrderStateRecord/1.0
+  eventType: type://test.ecommerce.example/OrderEvent/1.0
+  initialState:
+    status: pending
+  transitions:
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: pending }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: confirm }
+      to:
+        op: const
+        value: { status: confirmed }
+      label: confirm
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: confirmed }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: pay }
+      to:
+        op: const
+        value: { status: paid }
+      label: pay
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: paid }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: ship }
+      to:
+        op: const
+        value: { status: shipped }
+      label: ship
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: shipped }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: deliver }
+      to:
+        op: const
+        value: { status: delivered }
+      label: deliver
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: pending }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: cancel }
+      to:
+        op: const
+        value: { status: cancelled }
+      label: cancel-pending
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: confirmed }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: cancel }
+      to:
+        op: const
+        value: { status: cancelled }
+      label: cancel-confirmed
+    - from:
+        kind: record
+        fields:
+          status: { kind: const, value: paid }
+      event:
+        kind: record
+        fields:
+          verb: { kind: const, value: refund }
+      to:
+        op: const
+        value: { status: refunded }
+      label: refund
+
+refinements:
+  - name: PositivePrice
+    version: "1.0"
+    base: type://test.ecommerce.example/Number/1.0
+    predicate:
+      op: call
+      fn: gt
+      args:
+        - { op: var, name: $self }
+        - { op: const, value: 0 }
+  - name: NonEmptyOrder
+    version: "1.0"
+    base: type://test.ecommerce.example/NumberArray/1.0
+    predicate:
+      op: call
+      fn: gt
+      args:
+        - op: call
+          fn: length
+          args:
+            - { op: var, name: $self }
+        - { op: const, value: 0 }
+
+brands:
+  - { name: USD, version: "1.0", base: type://test.ecommerce.example/Number/1.0, brand: USD }
+  - { name: EUR, version: "1.0", base: type://test.ecommerce.example/Number/1.0, brand: EUR }
+  - { name: GBP, version: "1.0", base: type://test.ecommerce.example/Number/1.0, brand: GBP }
+
+morphisms:
+  - name: computeOrderTotal
+    from: type://test.ecommerce.example/NumberArray/1.0
+    to: type://test.ecommerce.example/Number/1.0
+    body:
+      op: call
+      fn: fold
+      args:
+        - { op: var, name: $input }
+        - { op: const, value: 0 }
+        - op: lambda
+          param: acc
+          body:
+            op: lambda
+            param: x
+            body:
+              op: call
+              fn: add
+              args:
+                - { op: var, name: acc }
+                - { op: var, name: x }
+  - name: applyDiscount
+    from: type://test.ecommerce.example/Number/1.0
+    to: type://test.ecommerce.example/Number/1.0
+    body:
+      op: call
+      fn: mul
+      args:
+        - { op: var, name: $input }
+        - op: call
+          fn: sub
+          args:
+            - { op: const, value: 1 }
+            - { op: var, name: discountRate }
+  - name: eurToUsd
+    from: type://test.ecommerce.example/Number/1.0
+    to: type://test.ecommerce.example/Number/1.0
+    body:
+      op: call
+      fn: mul
+      args:
+        - { op: var, name: $input }
+        - { op: const, value: 1.08 }
+
+dependentTypes:
+  - name: StockLevel
+    indices:
+      - { name: max, type: type://test.ecommerce.example/Integer/1.0 }
+    baseSchema: { type: integer, minimum: 0 }
+    refineJs: "{ type: 'integer', minimum: 0, maximum: indices.max }"
+
+propositions:
+  - name: order-total-non-negative
+    predicate:
+      op: call
+      fn: gte
+      args:
+        - { op: var, name: $self }
+        - { op: const, value: 0 }
+    witness:
+      total: type://test.ecommerce.example/Number/1.0
+  - name: stock-non-negative
+    predicate:
+      op: call
+      fn: gte
+      args:
+        - { op: var, name: $self }
+        - { op: const, value: 0 }
+    witness:
+      stock: type://test.ecommerce.example/Number/1.0

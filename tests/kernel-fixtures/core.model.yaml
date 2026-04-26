@@ -1,0 +1,26 @@
+model: core
+version: 1.0.0
+origin: https://fixture.kernel/core
+
+entities:
+  Model:
+    attributes:
+      model: { type: string, required: true }
+      version: { type: string, required: true }
+      conformsTo: { type: string }
+      entities: { type: object }
+
+  Entity:
+    attributes:
+      description: { type: string }
+      attributes: { type: object }
+      required: { type: array }
+
+  Attribute:
+    attributes:
+      type: { type: string, required: true }
+      required: { type: boolean }
+      enum: { type: array }
+      minimum: { type: number }
+      maximum: { type: number }
+      pattern: { type: string }

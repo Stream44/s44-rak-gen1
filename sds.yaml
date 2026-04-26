@@ -1,0 +1,4 @@
+name: reflexive-algebraic-kernel
+version: 0.1.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0"
+description: "The Reflexive Algebraic Kernel — content-addressed, algebraically-composable runtime for Stratified Homoiconic systems."

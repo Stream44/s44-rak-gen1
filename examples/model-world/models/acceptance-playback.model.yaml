@@ -1,0 +1,108 @@
+model: acceptance-playback
+version: 1.0.0
+origin: https://adk.example/acceptance
+conformsTo: core
+description: Stepwise playback state for an AcceptanceSuite scenario trace.
+
+entities:
+  Playback:
+    description: A single playback instance bound to a scenario trace.
+    attributes:
+      id: { type: string, required: true }
+      scenarioId: { type: string, required: true }
+      traceIndex: { type: integer, required: true, minimum: 0 }
+      currentStepIndex: { type: integer, required: true, minimum: 0 }
+      totalSteps: { type: integer, required: true, minimum: 0 }
+      passed: { type: boolean, required: true }
+      lastStepResult: { type: string, required: true, enum: [pending, passed, failed, skipped] }
+      status: { type: string, required: true, enum: [idle, playing, stepPassed, stepFailed, ended] }
+
+enums:
+  PlaybackStatus:
+    values: [idle, playing, stepPassed, stepFailed, ended]
+  PlaybackStepResult:
+    values: [pending, passed, failed, skipped]
+
+lifecycle:
+  states: [idle, playing, stepPassed, stepFailed, ended]
+  initial: idle
+  terminal: [ended]
+  transitions:
+    - { from: idle, to: playing, verb: play }
+    - { from: playing, to: stepPassed, verb: stepForward }
+    - { from: stepPassed, to: stepFailed, verb: stepForward }
+    - { from: stepFailed, to: ended, verb: stepForward }
+    - { from: stepPassed, to: stepPassed, verb: stepBack }
+    - { from: stepFailed, to: stepPassed, verb: stepBack }
+    - { from: idle, to: idle, verb: reset }
+    - { from: playing, to: idle, verb: reset }
+    - { from: stepPassed, to: idle, verb: reset }
+    - { from: stepFailed, to: idle, verb: reset }
+    - { from: ended, to: idle, verb: reset }
+    - { from: idle, to: playing, verb: seek }
+    - { from: playing, to: playing, verb: seek }
+    - { from: stepPassed, to: playing, verb: seek }
+    - { from: stepFailed, to: stepPassed, verb: seek }
+    - { from: ended, to: playing, verb: seek }
+
+contracts:
+  playback-step-index-non-negative:
+    claim: "currentStepIndex >= 0"
+  playback-total-steps-non-negative:
+    claim: "totalSteps >= 0"
+
+actions:
+  PlayScenario:
+    verb: play
+    description: Begin playback at step 0 for a scenario trace.
+    inputSchema:
+      type: object
+      required: [scenarioId]
+      properties:
+        scenarioId: { type: string }
+        traceIndex: { type: integer, default: 0, minimum: 0 }
+  StepForward:
+    verb: stepForward
+    description: Execute the next step in the current trace.
+    inputSchema:
+      type: object
+      properties: {}
+  StepBack:
+    verb: stepBack
+    description: Silently replay to the previous step.
+    inputSchema:
+      type: object
+      properties: {}
+  Seek:
+    verb: seek
+    description: Jump to a specific step id within the scenario trace.
+    inputSchema:
+      type: object
+      required: [scenarioId, traceIndex, stepId]
+      properties:
+        scenarioId: { type: string }
+        traceIndex: { type: integer, minimum: 0 }
+        stepId: { type: string }
+  Reset:
+    verb: reset
+    description: Return to idle; re-seed any target ModelBoot.
+    inputSchema:
+      type: object
+      properties: {}
+
+morphisms:
+  PlaybackBuildView:
+    id: morphism://adk.example/acceptance/playbackBuildView/1.0
+    impl:
+      kind: module
+      uri: module://./../observatory/morphisms/playback/playback-build-view.ts
+  PlaybackReseedScenario:
+    id: morphism://adk.example/acceptance/playbackReseedScenario/1.0
+    impl:
+      kind: module
+      uri: module://./../observatory/morphisms/playback/playback-reseed-scenario.ts
+  PlaybackExecuteStep:
+    id: morphism://adk.example/acceptance/playbackExecuteStep/1.0
+    impl:
+      kind: module
+      uri: module://./../observatory/morphisms/playback/playback-execute-step.ts

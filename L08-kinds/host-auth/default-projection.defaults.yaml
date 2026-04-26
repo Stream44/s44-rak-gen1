@@ -1,0 +1,36 @@
+conformsTo: adk:Projection/1.0
+conformsToKind: host.auth
+projector: host-auth-default
+id: projection://adk.example/host-auth/default/1.0
+version: 1.0.0
+bindsModel: ""
+labels:
+  user: user
+  capabilities: capabilities
+presentation:
+  brand: Host Auth
+  fieldDescriptors:
+    challenge: Test user challenge
+    verifyCredential: Self-issued verifier
+    issueCapability: Capability issuer
+    sessionBinding: Session or JWT binding
+session:
+  scope: auth-primary
+primitives:
+  Challenge:
+    props:
+      method: queryParams
+      paramNames: [test_user, test_caps]
+  VerifyCredential:
+    props:
+      verifier: self-issue
+  IssueCapability:
+    props:
+      capScope: api-primary
+      ttlSec: 3600
+  SessionBinding:
+    props:
+      strategy: session
+      sessionStoreRef: asset://adk.example/session-store/MemorySessionStore/1.0
+      jwtVerifierRef: asset://adk.example/jwt-verifier/MemoryHS256JwtVerifier/1.0
+      keyRef: asset://adk.example/key-asset/InlineKeyAsset/1.0

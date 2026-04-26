@@ -1,0 +1,6 @@
+- targetKey: ord-001
+  state:
+    status: pending
+- targetKey: ord-002
+  state:
+    status: confirmed

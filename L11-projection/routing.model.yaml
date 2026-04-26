@@ -1,0 +1,34 @@
+document: RoutingMorphisms
+version: "1.0"
+conformsTo: adk:MorphismDocument/1.0
+discriminator: routing
+origin: adk
+morphisms:
+  routeRequest:
+    id: morphism://adk/routeRequest/1.0
+    input: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    output: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    impl:
+      kind: algebra
+      ast: { op: get, path: "$input" }
+  decodeCliInvocation:
+    id: morphism://adk/decodeCliInvocation/1.0
+    input: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    output: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    impl:
+      kind: algebra
+      ast: { op: get, path: "$input" }
+  aggregateOpenApi:
+    id: morphism://adk/aggregateOpenApi/1.0
+    input: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    output: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    impl:
+      kind: algebra
+      ast: { op: get, path: "$input" }
+  renderHostResponse:
+    id: morphism://adk/renderHostResponse/1.0
+    input: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    output: type://github.com/Stream44/s44-rak-gen1@1.0/record/1.0
+    impl:
+      kind: algebra
+      ast: { op: get, path: "$input" }

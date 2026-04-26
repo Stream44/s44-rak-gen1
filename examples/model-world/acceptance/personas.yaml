@@ -1,0 +1,21 @@
+- id: alice
+  name: Customer Alice
+  role: customer
+  verbs: [confirm, cancel]
+  metadata:
+    tier: gold
+
+- id: bob
+  name: Warehouse Manager Bob
+  role: warehouse-manager
+  verbs: [ship, deliver]
+
+- id: payment-system
+  name: Payment Gateway
+  role: payment-system
+  verbs: [pay]
+
+- id: admin
+  name: System Administrator
+  role: admin
+  verbs: [confirm, pay, ship, deliver, cancel]

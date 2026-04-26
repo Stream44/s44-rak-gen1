@@ -1,0 +1,10 @@
+name: seeded-node
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/seeded-node"
+extends:
+  - ../basic-node/sds.yaml
+seeds:
+  - targetKey: ignored
+    state:
+      status: ignored
+    from: ../seeds/orders.yaml

@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/cli.stdout/primitive/Heading/1.0
+name: Heading
+assetKind: primitive
+conformsToKind: cli.stdout
+kind: cli.stdout
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    text: { type: string }
+    level: { type: integer, minimum: 1, maximum: 3 }
+  required: [text]
+contract: "## text with underline of '=' / '-' / '~' depending on level (1/2/3)"
+implementation:
+  kind: module
+  module: "./Heading.ts"
+  export: default
+render: module://./primitives/Heading.ts#default

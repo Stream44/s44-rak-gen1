@@ -1,0 +1,20 @@
+projector: kernel-inspector
+version: 0.1.0
+origin: https://fixture.kernel/projections/inspector
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/ui.html.ws/1.0
+session:
+  scope: kernel-inspector
+bindsModel: ""
+title: Kernel Inspector
+shell: ./shell.html
+routes:
+  - path: /
+    page: home
+pages:
+  home:
+    children:
+      - component: Heading
+        props: { level: 1, text: "Inspector" }
+      - component: Text
+        props: { text: "Synthetic inspector fixture" }

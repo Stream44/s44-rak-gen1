@@ -1,0 +1,33 @@
+model: beta
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/beta"
+entities:
+  BetaRecord:
+    attributes:
+      id:
+        type: string
+      status:
+        type: string
+enums:
+  BetaStatus:
+    values: [queued, done]
+contracts:
+  BetaMustExist:
+    claim: "id != null"
+actions:
+  FinishBeta:
+    verb: finish
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+lifecycle:
+  states: [queued, done]
+  initial: queued
+  terminal: [done]
+  transitions:
+    - from: queued
+      to: done
+      verb: finish

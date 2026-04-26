@@ -1,0 +1,100 @@
+conformsTo: adk:MorphismDocument/1.0
+discriminator: intent
+id: adk:IntentMorphisms/1.0
+version: 1.0
+types:
+  IntentStageInput:
+    type: object
+    required: [action, target, targetKey, payload]
+    properties:
+      action: { type: string }
+      target: { type: string }
+      targetKey: { type: string }
+      payload: { type: object }
+      issuer: { type: string }
+  IntentStageCarrier:
+    type: object
+    required: [intent, action]
+    properties:
+      intent: { type: object }
+      action: {}
+      currentState: {}
+      previousState: {}
+      abort:
+        type: object
+        required: [error]
+        properties:
+          error: { type: string }
+  IntentResult:
+    type: object
+    required: [success, intent, emittedEvents]
+    properties:
+      success: { type: boolean }
+      intent: { type: object }
+      previousState: {}
+      newState: {}
+      emittedEvents:
+        type: array
+        items: { type: object }
+      error: { type: string }
+morphisms:
+  validatePayload:
+    id: validatePayload
+    input: IntentStageInput
+    output: IntentStageCarrier
+    impl:
+      kind: module
+      uri: module://./modules/validate-payload.ts
+      export: default
+    category: pure
+  checkPreconditions:
+    id: checkPreconditions
+    input: IntentStageCarrier
+    output: IntentStageCarrier
+    impl:
+      kind: module
+      uri: module://./modules/check-preconditions.ts
+      export: default
+    category: pure
+  authorizeCapability:
+    id: authorizeCapability
+    input: IntentStageCarrier
+    output: IntentStageCarrier
+    impl:
+      kind: module
+      uri: module://./modules/authorize-capability.ts
+      export: default
+    category: pure
+  emitEvents:
+    id: emitEvents
+    input: IntentStageCarrier
+    output: IntentResult
+    impl:
+      kind: module
+      uri: module://./modules/emit-events.ts
+      export: default
+    category: stateful
+  submitIntent:
+    id: submitIntent
+    input: IntentStageInput
+    output: IntentResult
+    impl:
+      kind: algebra
+      ast:
+        kind: compose
+        f:
+          kind: name
+          name: validatePayload
+        g:
+          kind: compose
+          f:
+            kind: name
+            name: checkPreconditions
+          g:
+            kind: compose
+            f:
+              kind: name
+              name: authorizeCapability
+            g:
+              kind: name
+              name: emitEvents

@@ -1,0 +1,14 @@
+- id: alice
+  name: Customer Alice (PII cap holder)
+  role: customer
+  verbs: [confirm]
+  capabilityUris:
+    - cap://commerce/orders/view/1.0
+    - cap://pii/view/1.0
+
+- id: bob
+  name: Customer Bob (no PII cap)
+  role: customer
+  verbs: [confirm]
+  capabilityUris:
+    - cap://commerce/orders/view/1.0

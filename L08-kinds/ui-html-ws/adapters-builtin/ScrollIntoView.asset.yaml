@@ -1,0 +1,15 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/adapter/ScrollIntoView/1.0
+name: scroll-into-view
+assetKind: adapter
+conformsToKind: ui.html.ws
+version: 1.0.0
+argsShape:
+  type: object
+  properties:
+    targetRef: { type: string }
+    behavior: { enum: [auto, smooth] }
+implementation:
+  kind: module
+  module: "../runtime/adapters-builtin.ts"
+  export: "scroll-into-view"

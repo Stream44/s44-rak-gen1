@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/KeyValueList/1.0
+name: KeyValueList
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    items: { type: array }
+contract: render a compact <dl class="kv-list"> from items or KV children
+render: module://./primitives/KeyValueList.ts#default
+implementation:
+  kind: module
+  module: "./KeyValueList.ts"
+  export: default

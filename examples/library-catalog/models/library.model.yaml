@@ -1,0 +1,99 @@
+model: library
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/library"
+description: A library-catalog book + patron + loan domain.
+
+surface:
+  labels:
+    lifecycle: "Book Status"
+    instances: "Books & Patrons"
+    actions: "Library Verbs"
+  inspectors:
+    - kind: instance
+      sections:
+        - { heading: "Current State", kind: keyvalue, items: "$selected.bookMetadata" }
+        - { heading: "Author", kind: text, text: "$selected.authorName" }
+
+entities:
+  Book:
+    description: A catalog item.
+    attributes:
+      id: { type: string, required: true }
+      title: { type: string, required: true }
+      isbn: { type: string, required: true }
+      authorId: { type: string }
+      status: { type: string, enum: [available, checked-out, reserved, lost] }
+  Patron:
+    description: A library member.
+    attributes:
+      id: { type: string, required: true }
+      name: { type: string, required: true }
+      memberSince: { type: string }
+      overdueCount: { type: integer }
+  Author:
+    description: A book's author.
+    attributes:
+      id: { type: string, required: true }
+      name: { type: string, required: true }
+
+enums:
+  BookStatus:
+    values: [available, checked-out, reserved, lost]
+
+relations:
+  authored:
+    description: Book authored by Author.
+    roles: { book: Book, author: Author }
+  borrowed:
+    description: Patron currently holds Book.
+    roles: { patron: Patron, book: Book }
+
+lifecycle:
+  machine: book-lifecycle
+  states: [available, checked-out, reserved, lost]
+  initial: available
+  terminal: [lost]
+  transitions:
+    - { from: available, to: checked-out, verb: checkout }
+    - { from: checked-out, to: available, verb: return }
+    - { from: available, to: reserved, verb: reserve }
+    - { from: reserved, to: checked-out, verb: fulfill }
+    - { from: checked-out, to: lost, verb: reportLost }
+    - { from: reserved, to: available, verb: cancel }
+
+actions:
+  Checkout:
+    verb: checkout
+    description: A patron checks out an available book.
+    targetMachine: book-lifecycle
+    inputSchema:
+      type: object
+      required: [patronId]
+      properties:
+        patronId: { type: string }
+  Return:
+    verb: return
+    description: A patron returns a checked-out book.
+    targetMachine: book-lifecycle
+    inputSchema: { type: object, properties: {} }
+  Reserve:
+    verb: reserve
+    description: A patron reserves an available book.
+    targetMachine: book-lifecycle
+    inputSchema:
+      type: object
+      required: [patronId]
+      properties: { patronId: { type: string } }
+  ReportLost:
+    verb: reportLost
+    description: A checked-out book is reported lost.
+    targetMachine: book-lifecycle
+    inputSchema: { type: object, properties: {} }
+
+contracts:
+  patron-overdue-limit:
+    claim: "A patron cannot check out while over overdue limit."
+    expression: "state.overdueCount < 3"
+  book-has-title:
+    claim: "Every book must have a non-empty title."
+    expression: "state.title != ''"

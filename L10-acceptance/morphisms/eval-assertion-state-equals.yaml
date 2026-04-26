@@ -1,0 +1,17 @@
+id: morphism://adk/evalAssertionStateEquals/1.0-document
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+schema:
+  morphisms:
+    evalAssertionStateEquals:
+      id: morphism://adk/evalAssertionStateEquals/1.0
+      input: type://adk/AcceptanceStateEqualsAssertionInput/0.1.0
+      output: type://adk/AcceptanceAssertionResult/0.1.0
+      impl:
+        kind: module
+        uri: module://adk/L10-acceptance/morphisms/eval-assertion-state-equals.ts
+        export: default
+      category: pure
+discriminator: acceptance
+name: AcceptanceStateEqualsLift
+version: "1.0"

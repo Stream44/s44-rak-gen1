@@ -1,0 +1,798 @@
+projector: observatory
+version: 0.1.0
+origin: adk.example/projections
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/ui.html.ws/1.0
+exportWithDebug: true
+snapshots:
+  - { name: kernel/types, page: observatory, path: /observatory, ctx: { activeTab: kernel, activeNestedTab: types } }
+  - { name: kernel/morphisms, page: observatory, path: /observatory, ctx: { activeTab: kernel, activeNestedTab: morphisms } }
+  - { name: kernel/operators, page: observatory, path: /observatory, ctx: { activeTab: kernel, activeNestedTab: operators } }
+  - { name: runtime/machines, page: observatory, path: /observatory, ctx: { activeTab: runtime, activeNestedTab: machines } }
+  - { name: runtime/actions, page: observatory, path: /observatory, ctx: { activeTab: runtime, activeNestedTab: actions } }
+  - { name: runtime/capabilities, page: observatory, path: /observatory, ctx: { activeTab: runtime, activeNestedTab: capabilities } }
+  - { name: runtime/instances, page: observatory, path: /observatory, ctx: { activeTab: runtime, activeNestedTab: instances } }
+  - { name: meta/bundles, page: observatory, path: /observatory, ctx: { activeTab: meta, activeNestedTab: bundles } }
+  - { name: meta/audit, page: observatory, path: /observatory, ctx: { activeTab: meta, activeNestedTab: audit } }
+  - { name: meta/pluggables, page: observatory, path: /observatory, ctx: { activeTab: meta, activeNestedTab: pluggables } }
+  - { name: meta/projections, page: observatory, path: /observatory, ctx: { activeTab: meta, activeNestedTab: projections } }
+  - { name: dynamics, page: observatory, path: /observatory, ctx: { activeTab: dynamics, activeNestedTab: machines } }
+  - { name: acceptance, page: observatory, path: /observatory, ctx: { activeTab: acceptance, activeNestedTab: actions } }
+  - { name: kernel/operators-empty, page: observatory, path: /observatory, ctx: { activeTab: kernel, activeNestedTab: operators } }
+  - { name: runtime/capabilities-empty, page: observatory, path: /observatory, ctx: { activeTab: runtime, activeNestedTab: capabilities } }
+  - name: kernel/types/selected
+    page: observatory
+    path: /observatory
+    ctx:
+      activeTab: kernel
+      activeNestedTab: types
+      selectedTypeId: { op: first, of: { op: get, path: "$bind.modelTypes" }, field: id }
+  - { name: kernel/morphisms/selected, page: observatory, path: /observatory, ctx: { activeTab: kernel, activeNestedTab: morphisms, selectedMorphismId: "morphism://adk/authorize/1.0" } }
+  - name: kernel/types/types-conformed-by
+    page: observatory
+    path: /observatory
+    ctx:
+      activeTab: kernel
+      activeNestedTab: types
+      crossRefOpen: true
+      selectedTypeId: { op: at, of: { op: get, path: "$bind.modelTypes" }, index: 0, field: id }
+  - name: kernel/morphisms/used-in
+    page: observatory
+    path: /observatory
+    ctx:
+      activeTab: kernel
+      activeNestedTab: morphisms
+      usedInOpen: true
+      selectedMorphismId: { op: at, of: { op: get, path: "$bind.morphisms" }, index: 1, field: id }
+  - { name: reflective/core, page: model-world-v2, path: /model-world-v2, ctx: { selectedModelId: core, selectedTypeId: "type://adk/Type7/1.0", treeExpanded: true } }
+  - { name: reflective/ecommerce, page: model-world-v2, path: /model-world-v2, ctx: { selectedModelId: ecommerce, selectedTypeId: "type://adk/Order/1.0", treeExpanded: true } }
+session:
+  scope: observatory
+title: ADK Observatory
+shell: ./shell.html
+actions:
+  - { name: tab.select, kind: custom }
+  - { name: model.select, kind: custom }
+  - { name: acceptance.runAll, kind: custom }
+  - { name: acceptance.runUseCase, kind: custom }
+  - { name: acceptance.reset, kind: custom }
+  - { name: acceptance.play, kind: custom }
+  - { name: acceptance.pause, kind: custom }
+  - { name: acceptance.resume, kind: custom }
+  - { name: acceptance.stepForward, kind: custom }
+  - { name: acceptance.stepBack, kind: custom }
+  - { name: acceptance.seek, kind: custom }
+  - { name: acceptance.load, kind: custom }
+  - { name: acceptance.loadSuite, kind: custom }
+  - { name: intent.submit, kind: custom }
+routes:
+  - { path: /, page: observatory }
+  - { path: /model-world-v2, page: model-world-v2 }
+components:
+  activeTracePanel:
+    template:
+      component: Stack
+      props: { class: panel-body active-trace }
+      children:
+        - op: iter
+          for: "$bind.playback.session.steps"
+          as: step
+          emptyFallback:
+            op: literal
+            value:
+              component: EmptyState
+              props: { message: "Click ▶ on a scenario trace below to start a playback session." }
+          template:
+            component: Card
+            props:
+              class: step-card
+              data-step-id: "$step.stepId"
+              data-step-status: "$step.status"
+              data-selected: { if: {eq: ["$step.stepId", "$bind.selection.stepId"]}, then: "true", else: "false" }
+              data-action-ref: ui.set
+              data-ctx-path: page
+              data-ui-set-path: selection.stepId
+              data-value: "$step.stepId"
+            children:
+              - component: Row
+                props: { class: step-summary }
+                children:
+                  - component: Pill
+                    props:
+                      label: "$step.status"
+                      tone:
+                        op: lookup
+                        of: "$step.status"
+                        map: { passed: success, failed: error, error: warning, pending: neutral }
+                  - component: Text
+                    props: { text: "#$i  $step.persona.id • $step.verb  $step.targetKey  $step.payloadJson" }
+              - op: iter
+                for: "$step.assertionResults"
+                as: assertion
+                template:
+                  component: Row
+                  props:
+                    class: assertion-row
+                    data-passed: "$assertion.passed"
+                  children:
+                    - component: Pill
+                      props:
+                        label: "$assertion.kind"
+                        tone:
+                          op: lookup
+                          of: "$assertion.passed"
+                          map: { true: success, false: error }
+                    - component: KeyValueList
+                      props:
+                        items:
+                          - { label: expected, value: "$assertion.expected" }
+                          - { label: actual, value: "$assertion.actual" }
+              - if: { eq: ["$step.status", error] }
+                then:
+                  component: Row
+                  props: { class: assertion-row, data-passed: false }
+                  children:
+                    - component: Pill
+                      props: { label: authorization, tone: warning }
+                    - component: Text
+                      props: { text: "$step.error" }
+  liveStatePanel:
+    template:
+      component: Stack
+      props: { class: panel-body live-state }
+      children:
+        - component: Section
+          props: { title: Instances }
+          children:
+            - component: Table
+              props: { columns: [key, state] }
+              children:
+                - op: iter
+                  for: "$bind.runtime.instances"
+                  as: instance
+                  template:
+                    component: TableRow
+                    props:
+                      data-instance-key: "$instance.key"
+                      data-recent: { eq: ["$instance.key", "$bind.playback.session.lastChangedKey"] }
+                      data-selected: { if: {eq: ["$instance.key", "$bind.runtime.selection.effectiveInstanceId"]}, then: "true", else: "false" }
+                      data-action-ref: ui.set
+                      data-ctx-path: page
+                      data-ui-set-path: selection.instanceId
+                      data-value: "$instance.key"
+                    children:
+                      - component: TableCell
+                        children:
+                          - component: Text
+                            props: { text: "$instance.key" }
+                      - component: TableCell
+                        children:
+                          - component: Code
+                            props: { value: "$instance.state.status" }
+        - component: Section
+          props: { title: Machine }
+          children:
+            - op: iter
+              for: "$bind.runtime.machines"
+              as: machine
+              template:
+                component: DescriptionList
+                props:
+                  items:
+                    - { term: id, detail: "$machine.id" }
+                    - { term: states, detail: "$machine.states" }
+                    - { term: currentStates, detail: " $machine.currentStates" }
+        - component: Section
+          props: { title: "Recent events (this session)" }
+          children:
+            - op: iter
+              for: "$bind.runtime.recentEvents"
+              as: event
+              emptyFallback:
+                op: literal
+                value:
+                  component: EmptyState
+                  props: { message: "No events yet this session." }
+              template:
+                component: Row
+                children:
+                  - component: Text
+                    props: { text: "$event.timestamp" }
+                  - component: Pill
+                    props: { label: "$event.action", tone: info }
+                  - component: Text
+                    props: { text: "$event.targetKey" }
+  modelWorldPanel:
+    template:
+      component: Context
+      props:
+        scope: modelWorldPanel
+        initial:
+          sharedQuery: ""
+      children:
+        - component: Stack
+          props:
+            data-tab: reflective
+            data-tab-active: { if: {eq: ["$ctx.activeTab", "reflective"]}, then: "true", else: "false" }
+            class: tab-panel
+          children:
+            - component: Toolbar
+              props: { class: observatory-header }
+              children:
+                - component: Heading
+                  props: { level: 2, text: Reflective }
+                - component: Text
+                  props: { text: "Live model-world projection · $bind.selectedModelId", class: shared-query }
+            - component: Breadcrumb
+              props: { trail: "$bind.runtime.breadcrumb" }
+            - component: Split
+              props: { orientation: h, ratio: "30 70", class: tab-split }
+              children:
+                - component: Stack
+                  props: { class: list-pane }
+                  children:
+                    - component: Heading
+                      props: { level: 3, text: Models }
+                    - component: Table
+                      props: { columns: [Model, Version, Types, Enums, Relations, Actions] }
+                      children:
+                        - op: iter
+                          for: "$bind.models"
+                          as: item
+                          emptyFallback:
+                            op: literal
+                            value: { component: EmptyState, props: { message: "No models loaded." } }
+                          template:
+                            op: literal
+                            value:
+                              component: TableRow
+                              props:
+                                data-selected: { if: {eq: ["$item.modelId", "$bind.selectedModelId"]}, then: "true", else: "false" }
+                              onClick:
+                                action: model.select
+                                payload: { modelId: "$item.modelId" }
+                              children:
+                                - component: TableCell
+                                  children: [{ component: Text, props: { text: "$item.modelId" } }]
+                                - component: TableCell
+                                  children: [{ component: Code, props: { value: "$item.version" } }]
+                                - component: TableCell
+                                  children: [{ component: Text, props: { text: "$item.typeCount" } }]
+                                - component: TableCell
+                                  children: [{ component: Text, props: { text: "$item.enumCount" } }]
+                                - component: TableCell
+                                  children: [{ component: Text, props: { text: "$item.relationCount" } }]
+                                - component: TableCell
+                                  children: [{ component: Text, props: { text: "$item.actionCount" } }]
+                - component: Stack
+                  props: { class: inspector-pane reflective-detail }
+                  children:
+                    - component: Inspector
+                      props:
+                        kind: reflectiveModel
+                        title: "Model · $bind.selectedModelView.summary.modelId"
+                        subtitle: "v$bind.selectedModelView.summary.version · $bind.selectedModelView.summary.origin"
+                        selected: "$bind.selectedModelView"
+                        emptyState: "Select a model on the left to inspect its world."
+                        sections:
+                          - heading: Overview
+                            kind: keyvalue
+                            items:
+                              - { label: modelId, value: "$bind.selectedModelView.summary.modelId" }
+                              - { label: version, value: "$bind.selectedModelView.summary.version" }
+                              - { label: origin, value: "$bind.selectedModelView.summary.origin" }
+                              - { label: conformsTo, value: "$bind.selectedModelView.summary.conformsTo" }
+                              - { label: types, value: "$bind.selectedModelView.summary.typeCount" }
+                              - { label: enums, value: "$bind.selectedModelView.summary.enumCount" }
+                              - { label: relations, value: "$bind.selectedModelView.summary.relationCount" }
+                              - { label: actions, value: "$bind.selectedModelView.summary.actionCount" }
+                              - { label: hasLifecycle, value: "$bind.selectedModelView.summary.hasLifecycle" }
+                    - component: Section
+                      props: { title: Types, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [name, description, attributes, referencedBy] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.types"
+                              as: t
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No types." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$t.name" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$t.description" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$t.attributes" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$t.referencedBy" } }]
+                    - component: Section
+                      props: { title: Enums, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [name, description, values] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.enums"
+                              as: e
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No enums." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$e.name" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$e.description" } }]
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$e.values" } }]
+                    - component: Section
+                      props: { title: Relations, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [name, description, roles] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.relations"
+                              as: r
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No relations." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$r.name" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$r.description" } }]
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$r.roles" } }]
+                    - component: Section
+                      props: { title: "State Machines", class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [id, states, initial, terminal] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.stateMachines"
+                              as: sm
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No state machines." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$sm.id" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$sm.states" } }]
+                                    - component: TableCell
+                                      children: [{ component: Pill, props: { label: "$sm.initial", tone: info } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$sm.terminal" } }]
+                    - component: Section
+                      props: { title: Actions, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [name, verb, targetMachine, description] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.actions"
+                              as: a
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No actions." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$a.name" } }]
+                                    - component: TableCell
+                                      children: [{ component: Pill, props: { label: "$a.verb", tone: neutral } }]
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$a.targetMachine" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$a.description" } }]
+                    - component: Section
+                      props: { title: Contracts, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [name, claim] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.contracts"
+                              as: c
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No contracts." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$c.name" } }]
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$c.claim" } }]
+                    - component: Section
+                      props: { title: Morphisms, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [name, kind, uri, assets] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.morphisms"
+                              as: m
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No morphisms." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$m.name" } }]
+                                    - component: TableCell
+                                      children: [{ component: Pill, props: { label: "$m.kind", tone: info } }]
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$m.uri" } }]
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$m.assets" } }]
+                    - component: Section
+                      props: { title: Lifecycle, class: reflective-section }
+                      children:
+                        - component: Table
+                          props: { columns: [field, value] }
+                          children:
+                            - op: iter
+                              for: "$bind.selectedModelView.lifecycle"
+                              as: l
+                              emptyFallback:
+                                op: literal
+                                value: { component: EmptyState, props: { message: "No lifecycle." } }
+                              template:
+                                op: literal
+                                value:
+                                  component: TableRow
+                                  children:
+                                    - component: TableCell
+                                      children: [{ component: Text, props: { text: "$l.label" } }]
+                                    - component: TableCell
+                                      children: [{ component: Code, props: { value: "$l.value" } }]
+pages:
+  observatory:
+    children:
+      - component: Context
+        props:
+          scope: observatory
+          initial:
+            activeTab: kernel
+            activeNestedTab: types
+        children:
+          - component: Toolbar
+            props: { class: observatory-header }
+            children:
+              - component: Heading
+                props: { level: 1, text: "ADK Observatory" }
+              - component: Button
+                props: { label: "🔗 Copy URL", data-copy-url: true, class: copy-url-button }
+              - component: Text
+                props: { text: "$bind.runtime.model.name v$bind.runtime.model.version" }
+              - component: Text
+                props: { text: connected, data-connection-state: true }
+          - component: TabsNested
+            props:
+              class: observatory-tabs
+              ctxPath: page
+              parentPath: activeTab
+              childPath: activeNestedTab
+              activeParent: $ctx.activeTab
+              activeChild: $ctx.activeNestedTab
+              groups:
+                - { id: kernel, label: Kernel, children: [{ id: types, label: Types }, { id: morphisms, label: Morphisms }, { id: operators, label: Operators }] }
+                - { id: runtime, label: Runtime, children: [{ id: machines, label: Machines }, { id: actions, label: Actions }, { id: capabilities, label: Capabilities }, { id: instances, label: Instances }] }
+                - { id: meta, label: Meta, children: [{ id: bundles, label: Bundles }, { id: audit, label: Audit }, { id: pluggables, label: Pluggables }, { id: projections, label: Projections }] }
+                - { id: dynamics, label: Dynamics, children: [] }
+                - { id: acceptance, label: Acceptance, children: [] }
+                - { id: reflective, label: Reflective, children: [] }
+          - component: Stack
+            props:
+              data-tab: kernel
+              data-tab-active: { if: {eq: ["$ctx.activeTab", "kernel"]}, then: "true", else: "false" }
+              class: tab-panel
+            children:
+              - component: Toolbar
+                children:
+                  - component: Heading
+                    props: { level: 2, text: "Kernel · $ctx.activeNestedTab" }
+              - component: Breadcrumb
+                props: { trail: "$bind.runtime.breadcrumb" }
+              - component: Split
+                props: { orientation: h, ratio: "60 40", class: "tab-split" }
+                children:
+                  - component: Stack
+                    props: { class: list-pane }
+                    children:
+                      - component: Table
+                        props: { columns: [Name, ConformsTo, propertyCount, level] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.modelTypes", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No model types available." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveTypeId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.typeId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }, { component: Pill, props: { label: "conforms-to ▸ $item.conformsTo", tone: info } }, { component: Pill, props: { label: "referenced-by $bind.runtime.edges.length", tone: neutral } }] }, { component: TableCell, children: [{ component: Code, props: { value: "$item.conformsTo" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "3" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.level" } }] }] } } }
+                      - component: Table
+                        props: { columns: [id, "sourceType → targetType", "impl.kind", cid] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.morphisms", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No morphisms registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveMorphismId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.morphismId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.id" } }, { component: Pill, props: { label: "used-in $bind.runtime.actions.length", tone: neutral } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.conformsTo → $item.outputKind" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.impl" } }] }, { component: TableCell, children: [{ component: Code, props: { value: "$item.id" } }] }] } } }
+                      - component: Table
+                        props: { columns: [name, arity, inputKinds, outputKind, laws] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.algebraOperators", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No algebra operators available." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveOperatorId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.operatorId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.arity" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.inputKinds" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.outputKind" } }] }, { component: TableCell, children: [{ component: Pill, props: { label: "referenced-by $bind.runtime.morphisms.length", tone: neutral } }] }] } } }
+                  - component: Stack
+                    props: { class: inspector-pane }
+                    children:
+                      - component: Inspector
+                        props: { kind: type, title: "Type · $bind.runtime.panels.selectedType.name", subtitle: "$bind.runtime.panels.selectedType.id", selected: "$bind.runtime.panels.selectedType", sections: "$bind.runtime.inspectorByKind.type.sections", emptyState: "Select a type on the left." }
+                      - component: Inspector
+                        props: { kind: morphism, title: "Morphism · $bind.runtime.panels.selectedMorphism.name", subtitle: "$bind.runtime.panels.selectedMorphism.id", selected: "$bind.runtime.panels.selectedMorphism", sections: "$bind.runtime.inspectorByKind.morphism.sections", emptyState: "Select a morphism on the left." }
+                      - component: Inspector
+                        props: { kind: operator, title: "Operator · $bind.runtime.panels.selectedOperator.name", subtitle: "$bind.runtime.panels.selectedOperator.id", selected: "$bind.runtime.panels.selectedOperator", sections: "$bind.runtime.inspectorByKind.operator.sections", emptyState: "Select an operator on the left." }
+          - component: Stack
+            props:
+              data-tab: runtime
+              data-tab-active: { if: {eq: ["$ctx.activeTab", "runtime"]}, then: "true", else: "false" }
+              class: tab-panel
+            children:
+              - component: Toolbar
+                children:
+                  - component: Heading
+                    props: { level: 2, text: "Runtime · $ctx.activeNestedTab" }
+              - component: Breadcrumb
+                props: { trail: "$bind.runtime.breadcrumb" }
+              - component: Split
+                props: { orientation: h, ratio: "60 40", class: "tab-split" }
+                children:
+                  - component: Stack
+                    props: { class: list-pane }
+                    children:
+                      - component: Table
+                        props: { columns: [id, name, "states.length", "transitions.length"] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.machines", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No machines registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveMachineId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.machineId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.id" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.states.length" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.transitions.length" } }] }] } } }
+                      - component: Table
+                        props: { columns: [verb, name, targetMachine] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.actions", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No runtime actions registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveActionId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.actionId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.verb" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.targetMachine" } }] }] } } }
+                      - component: Table
+                        props: { columns: [id, action, issuer] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.capabilities", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No capabilities registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveCapabilityId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.capabilityId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.id" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.verbs" } }] }] } } }
+                      - component: Table
+                        props: { columns: [key, modelName, state] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.instances", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No instances loaded." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.key", "$bind.runtime.selection.effectiveInstanceId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.instanceId, data-value: "$item.key" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.key" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.modelName" } }] }, { component: TableCell, children: [{ component: Code, props: { value: "$item.state" } }] }] } } }
+                  - component: Stack
+                    props: { class: inspector-pane }
+                    children:
+                      - component: Inspector
+                        props: { kind: machine, title: "Machine · $bind.runtime.panels.selectedMachine.name", subtitle: "$bind.runtime.panels.selectedMachine.id", selected: "$bind.runtime.panels.selectedMachine", sections: "$bind.runtime.inspectorByKind.machine.sections", emptyState: "Select a machine on the left." }
+                      - component: Inspector
+                        props: { kind: action, title: "Action · $bind.runtime.panels.selectedAction.name", subtitle: "$bind.runtime.panels.selectedAction.id", selected: "$bind.runtime.panels.selectedAction", sections: "$bind.runtime.inspectorByKind.action.sections", emptyState: "Select an action on the left." }
+                      - component: Inspector
+                        props: { kind: capability, title: "Capability · $bind.runtime.panels.selectedCapability.name", subtitle: "$bind.runtime.panels.selectedCapability.id", selected: "$bind.runtime.panels.selectedCapability", sections: "$bind.runtime.inspectorByKind.capability.sections", emptyState: "Select a capability on the left." }
+                      - component: Inspector
+                        props: { kind: instance, title: "Instance · $bind.runtime.panels.selectedInstance.key", subtitle: "$bind.runtime.panels.selectedInstance.modelName", selected: "$bind.runtime.panels.selectedInstance", sections: "$bind.runtime.inspectorByKind.instance.sections", emptyState: "Select an instance on the left." }
+          - component: Stack
+            props:
+              data-tab: meta
+              data-tab-active: { if: {eq: ["$ctx.activeTab", "meta"]}, then: "true", else: "false" }
+              class: tab-panel
+            children:
+              - component: Toolbar
+                children:
+                  - component: Heading
+                    props: { level: 2, text: "Meta · $ctx.activeNestedTab" }
+              - component: Breadcrumb
+                props: { trail: "$bind.runtime.breadcrumb" }
+              - component: Split
+                props: { orientation: h, ratio: "60 40", class: "tab-split" }
+                children:
+                  - component: Stack
+                    props: { class: list-pane }
+                    children:
+                      - component: Table
+                        props: { columns: [cid, compilerVersion, registerCount, "code.length"] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.bundles", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No bundles exported." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveBundleId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.bundleId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Code, props: { value: "$item.id" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "1.0.0" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$bind.runtime.morphisms.length" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.byteLength" } }] }] } } }
+                      - component: Table
+                        props: { columns: [ts, op, name, cid] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.auditLog", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No audit log entries." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.cid", "$bind.runtime.selection.effectiveAuditId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.auditId, data-value: "$item.cid" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.ts" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.op" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }] }, { component: TableCell, children: [{ component: Code, props: { value: "$item.cid" } }] }] } } }
+                      - component: Table
+                        props: { columns: [id, kind, role] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.pluggableInterfaces", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No pluggable interfaces registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectivePluggableId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.pluggableId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.id" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.kind" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.impls" } }] }] } } }
+                      - component: Table
+                        props: { columns: [id, conformsToKind, pageCount] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.projections", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No projections registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveProjectionId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.projectionId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.id" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.targetKind" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.pages.length" } }] }] } } }
+                  - component: Stack
+                    props: { class: inspector-pane }
+                    children:
+                      - component: Inspector
+                        props: { kind: bundle, title: "Bundle · $bind.runtime.panels.selectedBundle.id", subtitle: "$bind.runtime.panels.selectedBundle.morphism", selected: "$bind.runtime.panels.selectedBundle", sections: "$bind.runtime.inspectorByKind.bundle.sections", emptyState: "Select a bundle on the left." }
+                      - component: Inspector
+                        props: { kind: audit, title: "Audit · $bind.runtime.panels.selectedAudit.op", subtitle: "$bind.runtime.panels.selectedAudit.cid", selected: "$bind.runtime.panels.selectedAudit", sections: "$bind.runtime.inspectorByKind.audit.sections", emptyState: "Select an audit row on the left." }
+                      - component: Inspector
+                        props: { kind: pluggable, title: "Pluggable · $bind.runtime.panels.selectedPluggable.name", subtitle: "$bind.runtime.panels.selectedPluggable.id", selected: "$bind.runtime.panels.selectedPluggable", sections: "$bind.runtime.inspectorByKind.pluggable.sections", emptyState: "Select a pluggable on the left." }
+                      - component: Inspector
+                        props: { kind: projection, title: "Projection · $bind.runtime.panels.selectedProjection.name", subtitle: "$bind.runtime.panels.selectedProjection.id", selected: "$bind.runtime.panels.selectedProjection", sections: "$bind.runtime.inspectorByKind.projection.sections", emptyState: "Select a projection on the left." }
+                      - component: Inspector
+                        props: { kind: contract, title: "Contract · $bind.runtime.panels.selectedContract.name", subtitle: "$bind.runtime.panels.selectedContract.claim", selected: "$bind.runtime.panels.selectedContract", sections: "$bind.runtime.inspectorByKind.contract.sections", emptyState: "Select a contract on the left." }
+          - component: Stack
+            props:
+              data-tab: dynamics
+              data-tab-active: { if: {eq: ["$ctx.activeTab", "dynamics"]}, then: "true", else: "false" }
+              class: tab-panel
+            children:
+              - component: Toolbar
+                children:
+                  - component: Heading
+                    props: { level: 2, text: Dynamics }
+              - component: Breadcrumb
+                props: { trail: "$bind.runtime.breadcrumb" }
+              - component: Split
+                props: { orientation: h, ratio: "60 40", class: "tab-split" }
+                children:
+                  - component: Stack
+                    props: { class: list-pane }
+                    children:
+                      - component: Table
+                        props: { columns: [id, name, "states.length", "transitions.length"] }
+                        children:
+                          - { op: iter, for: "$bind.runtime.machines", as: item, emptyFallback: { op: literal, value: { component: EmptyState, props: { message: "No machines registered." } } }, template: { op: literal, value: { component: TableRow, props: { data-selected: { if: {eq: ["$item.id", "$bind.runtime.selection.effectiveMachineId"]}, then: "true", else: "false" }, data-action-ref: ui.set, data-ctx-path: page, data-ui-set-path: selection.machineId, data-value: "$item.id" }, children: [{ component: TableCell, children: [{ component: Text, props: { text: "$item.id" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.name" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.states.length" } }] }, { component: TableCell, children: [{ component: Text, props: { text: "$item.transitions.length" } }] }] } } }
+                  - component: Stack
+                    props: { class: inspector-pane }
+                    children:
+                      - op: iter
+                        for: { op: filter, of: "$bind.runtime.inspectors", predicate: { field: tabs, contains: "$ctx.activeTab/$ctx.activeNestedTab" } }
+                        as: spec
+                        template:
+                          component: Inspector
+                          props:
+                            kind: "$spec.kind"
+                            title: "$spec.selected.name"
+                            subtitle: "$spec.selected.id"
+                            sections: "$spec.sections"
+                            selected: "$spec.selected"
+                            emptyState: "Select a row on the left."
+                      - component: StateMachineGraph
+                        props:
+                          states: "$bind.runtime.panels.selectedMachine.states"
+                          transitions: "$bind.runtime.panels.selectedMachine.transitions"
+                          currentStates: "$bind.runtime.panels.selectedMachine.currentStates"
+                          title: "$bind.runtime.panels.selectedMachine.name"
+          - component: Stack
+            props:
+              data-tab: acceptance
+              data-tab-active: { if: {eq: ["$ctx.activeTab", "acceptance"]}, then: "true", else: "false" }
+              class: tab-panel
+            children:
+              - component: Toolbar
+                props: { class: acceptance-toolbar }
+                children:
+                  - component: Heading
+                    props: { level: 2, text: Acceptance }
+                  - component: Select
+                    props:
+                      class: suite-selector
+                      actionRef: acceptance.loadSuite
+                      payloadKey: suiteId
+                      value: { op: first, of: { op: filter, of: "$bind.playback.suites", predicate: { field: active, equals: true } }, field: id }
+                      options:
+                        op: map
+                        of: "$bind.playback.suites"
+                        to: { value: "$item.id", label: "$item.name" }
+                    onChange: { action: acceptance.loadSuite, payload: { suiteId: "$event.value" } }
+                  - component: Pill
+                    props:
+                      label: "$bind.playback.session.status"
+                      tone:
+                        op: lookup
+                        of: "$bind.playback.session.status"
+                        map: { passed: success, failed: error, stepPassed: success, stepFailed: error, stepError: warning, ended: success, idle: neutral, playing: info, paused: neutral }
+                      data-session-status: "$bind.playback.session.status"
+                  - component: Button
+                    props: { label: "▶ Play", data-session-action: play, disabled: { eq: ["$bind.playback.session.status", idle] } }
+                    onClick: { action: acceptance.resume }
+                  - component: Button
+                    props: { label: "⏸ Pause", data-session-action: pause }
+                    onClick: { action: acceptance.pause }
+                  - component: Button
+                    props: { label: "Next ⟶", data-session-action: next }
+                    onClick: { action: acceptance.stepForward }
+                  - component: Button
+                    props: { label: "⟵ Back", data-session-action: back }
+                    onClick: { action: acceptance.stepBack }
+                  - component: Button
+                    props: { label: "↻ Reset", data-session-action: reset }
+                    onClick: { action: acceptance.reset }
+              - component: Stack
+                props: { class: panel-body acceptance-shell }
+                children:
+                  - component: Split
+                    props: { orientation: h, ratio: "40 30 30", class: acceptance-body }
+                    children:
+                      - use: activeTracePanel
+                      - use: liveStatePanel
+                      - component: Stack
+                        props: { class: inspector-pane }
+                        children:
+                          - component: Inspector
+                            props:
+                              kind: acceptanceStep
+                              selected: "$bind.runtime.panels.selectedAcceptance"
+                              emptyState: "Select a step or instance to inspect."
+                  - component: Stack
+                    props: { class: suite-catalogue }
+                    children:
+                      - component: Heading
+                        props: { level: 3, text: "Suite · $bind.playback.suite.name" }
+                      - op: iter
+                        for: "$bind.playback.suite.useCases"
+                        as: useCase
+                        emptyFallback:
+                          op: literal
+                          value:
+                            component: EmptyState
+                            props: { message: "No acceptance use cases loaded." }
+                        template:
+                          component: Card
+                          props: { class: acceptance-use-case, data-use-case-id: "$useCase.id", data-suite-node-count: "$bind.playback.suite.nodes.length" }
+                          children:
+                            - component: Heading
+                              props: { level: 4, text: "$useCase.name" }
+                            - op: iter
+                              for: "$useCase.scenarios"
+                              as: scenario
+                              template:
+                                component: Row
+                                props: { class: scenario-row, data-scenario-id: "$scenario.id" }
+                                children:
+                                  - component: Text
+                                    props: { text: "$scenario.name" }
+                                  - if: { eq: ["$scenario.traceCount", 1] }
+                                    then:
+                                      component: Button
+                                      props: { label: "▶ Play", data-acceptance-trace-play: true }
+                                      onClick: { action: acceptance.play, payload: { scenarioId: "$scenario.id", traceIndex: 0 } }
+                                    else:
+                                      - op: iter
+                                        for: "$scenario.traceButtons"
+                                        as: traceButton
+                                        template:
+                                          component: Button
+                                          props: { label: "$traceButton.label", data-acceptance-trace-play: true }
+                                          onClick: { action: acceptance.play, payload: { scenarioId: "$traceButton.scenarioId", traceIndex: "$traceButton.traceIndex" } }
+          - use: modelWorldPanel
+  model-world-v2:
+    children:
+      - component: Context
+        props:
+          scope: page
+          initial: { activeTab: reflective }
+        children:
+          - use: modelWorldPanel

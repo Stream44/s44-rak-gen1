@@ -1,0 +1,5 @@
+extends: [./sds.yaml]
+
+storageSpaces:
+  - { name: orders-fs, kind: ephemeral }
+  - { name: order-journal, kind: ephemeral-journal }

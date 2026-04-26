@@ -1,0 +1,20 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/cli.stdout/primitive/Prompt/1.0
+name: Prompt
+assetKind: primitive
+conformsToKind: cli.stdout
+kind: cli.stdout
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    name: { type: string }
+    type: { type: string, enum: [string, number, boolean] }
+  required: [name, type]
+contract: "prompt declaration for collecting a typed stdin value"
+implementation:
+  kind: module
+  module: "./Prompt.ts"
+  export: default
+render: module://./primitives/Prompt.ts#default

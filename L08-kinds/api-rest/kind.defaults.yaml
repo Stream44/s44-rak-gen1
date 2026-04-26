@@ -1,0 +1,30 @@
+targetCategory: "OpenAPI 3.1 document + handler table"
+primitives:
+  - asset://adk.example/api.rest/primitive/Endpoint/1.0
+  - asset://adk.example/api.rest/primitive/RouteParam/1.0
+  - asset://adk.example/api.rest/primitive/QueryParam/1.0
+  - asset://adk.example/api.rest/primitive/RequestBody/1.0
+  - asset://adk.example/api.rest/primitive/ResponseShape/1.0
+  - asset://adk.example/api.rest/primitive/ErrorCase/1.0
+  - asset://adk.example/api.rest/primitive/AuthZ/1.0
+primitiveAssets:
+  - ./primitives/Endpoint.yaml
+  - ./primitives/RouteParam.yaml
+  - ./primitives/QueryParam.yaml
+  - ./primitives/RequestBody.yaml
+  - ./primitives/ResponseShape.yaml
+  - ./primitives/ErrorCase.yaml
+  - ./primitives/AuthZ.yaml
+backends:
+  - asset://adk.example/api.rest/backend/openapi/1.0
+optionsSchema:
+  type: object
+  properties:
+    basePath: { type: string, default: "/v1" }
+    servers:
+      type: array
+      items:
+        type: object
+        properties:
+          url: { type: string }
+    security: { type: array }

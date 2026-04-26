@@ -1,0 +1,79 @@
+model: todomvc
+version: 1.0.0
+origin: https://github.com/Stream44/s44-rak-gen1@1.0/examples/todomvc
+conformsTo: core
+
+entities:
+  Todo:
+    attributes:
+      id: { type: string, required: true }
+      title: { type: string, required: true }
+      completed: { type: boolean, required: true }
+
+actions:
+  AddTodo:
+    verb: add
+    kind: create
+    defaults: { completed: false }
+    inputSchema:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1 }
+
+  ToggleTodo:
+    verb: toggle
+    kind: mutate
+    targetField: id
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+
+  EditTodo:
+    verb: edit
+    kind: mutate
+    targetField: id
+    inputSchema:
+      type: object
+      required: [id, title]
+      properties:
+        id: { type: string }
+        title: { type: string }
+
+  DeleteTodo:
+    verb: delete
+    kind: remove
+    targetField: id
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+
+  ToggleAll:
+    verb: toggleAll
+    kind: batch
+    selector: { op: get, path: "$bind.instances" }
+    submit: { verb: toggle, target: "$item.id", payload: { completed: "$payload.value" } }
+    inputSchema:
+      type: object
+      required: [value]
+      properties:
+        value: { type: boolean }
+
+  ClearCompleted:
+    verb: clearCompleted
+    kind: batch
+    selector:
+      op: filter
+      of: "$bind.instances"
+      where: { eq: ["$item.completed", true] }
+    submit: { verb: delete, target: "$item.id" }
+    inputSchema: { type: object, properties: {} }
+
+contracts:
+  title-non-empty:
+    claim: "state.title is non-empty after trim"
+    expression: "length(trim(state.title)) > 0"

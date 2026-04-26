@@ -1,0 +1,47 @@
+projector: viewer-root-frame
+version: 0.1.0
+origin: adk.example/projections
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/ui.html.ws/1.0
+session:
+  scope: viewer-root-frame
+
+bindsModel: ""
+title: ADK Viewer
+
+shell: ./shell.html
+
+actions:
+  - name: tab.select
+    kind: custom
+
+routes:
+  - path: /
+    page: home
+
+pages:
+  home:
+    children:
+      - component: Row
+        children:
+          - component: Button
+            props: { label: "Workspace" }
+            onClick:
+              action: tab.select
+              payload: { url: "/workspace", tab: "workspace" }
+          - component: Button
+            props: { label: "Inspector" }
+            onClick:
+              action: tab.select
+              payload: { url: "/inspector", tab: "inspector" }
+          - component: Button
+            props: { label: "Projection Engine (tests)" }
+            onClick:
+              action: tab.select
+              payload: { url: "/projection", tab: "projection" }
+
+      - component: Iframe
+        props:
+          src: "/workspace"
+          title: "ADK Tab"
+          style: "width:100%;height:calc(100vh - 80px);border:none;margin-top:12px"

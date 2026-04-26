@@ -1,0 +1,18 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Icon/1.0
+name: Icon
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    glyph: { type: string }
+    svg: { type: string }
+    label: { type: string }
+contract: render a trusted glyph or inline SVG icon span, or an error shape when glyph and svg are mis-specified
+render: module://./primitives/Icon.ts#default
+implementation:
+  kind: module
+  module: "./Icon.ts"
+  export: default

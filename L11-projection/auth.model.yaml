@@ -1,0 +1,540 @@
+# Bootstrap order note: bootstrap.ts registers this document before downstream host pipelines depend on $resolveAuth.
+document: AuthMorphisms
+version: "1.0"
+conformsTo: adk:MorphismDocument/1.0
+discriminator: auth
+origin: adk
+morphisms:
+  extractAuthHeader:
+    id: morphism://adk/extractAuthHeader/1.0
+    input: type://adk/AuthExtractInput/0.1.0
+    output: type://adk/AuthExtractResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $result
+        value:
+          op: call
+          fn: fold
+          args:
+            - { op: get, path: $input/authZPrimitives }
+            - {
+                op: record,
+                fields:
+                  {
+                    caps: { op: const, value: {} },
+                    found: { op: const, value: null },
+                    rawToken: { op: const, value: null },
+                    authHeader: { op: const, value: null },
+                  },
+              }
+            - op: lambda
+              param: $acc
+              body:
+                op: lambda
+                param: $edge
+                body:
+                  op: if
+                  cond: { op: get, path: $acc/found }
+                  then: { op: var, name: $acc }
+                  else:
+                    op: if
+                    cond:
+                      {
+                        op: call,
+                        fn: has,
+                        args:
+                          [
+                            { op: get, path: $input/request/headers },
+                            { op: get, path: $edge/header },
+                          ],
+                      }
+                    then:
+                      op: let
+                      name: $headerValue
+                      value:
+                        op: call
+                        fn: eval
+                        args:
+                          - op: record
+                            fields:
+                              op: { op: const, value: get }
+                              path:
+                                op: call
+                                fn: concat
+                                args:
+                                  [
+                                    { op: const, value: $input/request/headers/ },
+                                    { op: get, path: $edge/header },
+                                  ]
+                          - op: record
+                            fields:
+                              $input: { op: var, name: $input }
+                      body:
+                        op: let
+                        name: $pattern
+                        value:
+                          op: match
+                          scrutinee: { op: get, path: $edge/format }
+                          cases:
+                            - pattern: { kind: const, value: bearer }
+                              body:
+                                op: const
+                                value:
+                                  kind: record
+                                  fields:
+                                    scheme: { kind: const, value: Bearer }
+                                    credentials: { kind: var, name: $token }
+                            - pattern: { kind: const, value: raw }
+                              body: { op: const, value: { kind: var, name: $token } }
+                            - pattern: { kind: const, value: basic }
+                              body:
+                                op: const
+                                value:
+                                  kind: record
+                                  fields:
+                                    scheme: { kind: const, value: Basic }
+                                    credentials: { kind: var, name: $token }
+                        body:
+                          op: match
+                          scrutinee:
+                            op: call
+                            fn: matches
+                            args: [{ op: var, name: $headerValue }, { op: var, name: $pattern }]
+                          cases:
+                            - pattern:
+                                kind: record
+                                fields:
+                                  matched: { kind: const, value: true }
+                                  bindings:
+                                    kind: record
+                                    fields:
+                                      $token: { kind: var, name: $token }
+                              body:
+                                op: record
+                                fields:
+                                  found: { op: const, value: true }
+                                  rawToken: { op: var, name: $token }
+                                  authHeader: { op: get, path: $edge/header }
+                                  caps: { op: get, path: $edge/mapsTo/caps }
+                            - pattern: { kind: wildcard }
+                              body: { op: var, name: $acc }
+                    else: { op: var, name: $acc }
+        body:
+          op: record
+          fields:
+            rawToken: { op: get, path: $result/rawToken }
+            authHeader: { op: get, path: $result/authHeader }
+            caps: { op: get, path: $result/caps }
+            found:
+              op: if
+              cond:
+                {
+                  op: call,
+                  fn: eq,
+                  args: [{ op: get, path: $result/found }, { op: const, value: true }],
+                }
+              then: { op: const, value: true }
+              else: { op: const, value: false }
+    category: pure
+  jwtVerify:
+    id: morphism://adk/jwtVerify/1.0
+    input: type://adk/JwtVerifyInput/0.1.0
+    output: type://adk/JwtVerifyResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: if
+        cond:
+          {
+            op: call,
+            fn: eq,
+            args: [{ op: get, path: $input/rawToken }, { op: const, value: null }],
+          }
+        then:
+          {
+            op: record,
+            fields: { valid: { op: const, value: false }, error: { op: const, value: no-token } },
+          }
+        else:
+          op: apply
+          fn: { op: var, name: $jwtVerifier }
+          arg:
+            {
+              op: record,
+              fields:
+                {
+                  token: { op: get, path: $input/rawToken },
+                  keyRef: { op: get, path: $input/keyAssetRef },
+                },
+            }
+    category: stateful
+  mergeSessionScopes:
+    id: morphism://adk/mergeSessionScopes/1.0
+    input: type://adk/MergeSessionScopesInput/0.1.0
+    output: type://adk/MergeSessionScopesResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: call
+        fn: fold
+        args:
+          - { op: get, path: $input/declaredScopes }
+          - {
+              op: record,
+              fields:
+                {
+                  caps: { op: const, value: {} },
+                  capabilityScopes: { op: const, value: {} },
+                  ephemeral: { op: const, value: {} },
+                },
+            }
+          - op: lambda
+            param: $acc
+            body:
+              op: lambda
+              param: $edge
+              body:
+                op: let
+                name: $scope
+                value: { op: var, name: $edge }
+                body:
+                  op: if
+                  cond:
+                    {
+                      op: call,
+                      fn: has,
+                      args: [{ op: get, path: $input/sessionIds }, { op: var, name: $scope }],
+                    }
+                  then:
+                    op: let
+                    name: $record
+                    value:
+                      op: apply
+                      fn: { op: var, name: $store }
+                      arg:
+                        op: record
+                        fields:
+                          scope: { op: var, name: $scope }
+                          sessionId:
+                            op: call
+                            fn: eval
+                            args:
+                              - op: record
+                                fields:
+                                  op: { op: const, value: get }
+                                  path:
+                                    op: call
+                                    fn: concat
+                                    args:
+                                      [
+                                        { op: const, value: $input/sessionIds/ },
+                                        { op: var, name: $scope },
+                                      ]
+                              - op: record
+                                fields:
+                                  $input: { op: var, name: $input }
+                    body:
+                      op: record
+                      fields:
+                        caps:
+                          {
+                            op: call,
+                            fn: merge,
+                            args: [{ op: get, path: $acc/caps }, { op: get, path: $record/caps }],
+                          }
+                        capabilityScopes:
+                          {
+                            op: call,
+                            fn: merge,
+                            args:
+                              [
+                                { op: get, path: $acc/capabilityScopes },
+                                { op: get, path: $record/capabilityScopes },
+                              ],
+                          }
+                        # Ephemeral collisions remain later-wins; canonicalize is unnecessary because merge order is already deterministic over declaredScopes.
+                        ephemeral:
+                          {
+                            op: call,
+                            fn: merge,
+                            args:
+                              [
+                                { op: get, path: $acc/ephemeral },
+                                { op: get, path: $record/ephemeral },
+                              ],
+                          }
+                  else: { op: var, name: $acc }
+        # Future-proofing: if session-id arrays are introduced here later, pass them through with arrayConcat rather than object-merge semantics.
+    category: stateful
+  emitResolvedAuth:
+    id: morphism://adk/emitResolvedAuth/1.0
+    input: type://adk/EmitResolvedAuthInput/0.1.0
+    output: type://adk/ResolvedAuth/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $hasSession
+        value:
+          op: call
+          fn: or
+          args:
+            - op: call
+              fn: gt
+              args:
+                - op: call
+                  fn: length
+                  args:
+                    [{ op: call, fn: keys, args: [{ op: get, path: $input/sessionResult/caps }] }]
+                - { op: const, value: 0 }
+            - op: call
+              fn: or
+              args:
+                - op: call
+                  fn: gt
+                  args:
+                    - op: call
+                      fn: length
+                      args:
+                        [
+                          {
+                            op: call,
+                            fn: keys,
+                            args: [{ op: get, path: $input/sessionResult/capabilityScopes }],
+                          },
+                        ]
+                    - { op: const, value: 0 }
+                - op: call
+                  fn: gt
+                  args:
+                    - op: call
+                      fn: length
+                      args:
+                        [
+                          {
+                            op: call,
+                            fn: keys,
+                            args: [{ op: get, path: $input/sessionResult/ephemeral }],
+                          },
+                        ]
+                    - { op: const, value: 0 }
+        body:
+          op: match
+          scrutinee:
+            op: record
+            fields:
+              jwtValid: { op: get, path: $input/jwtResult/valid }
+              hasSession: { op: var, name: $hasSession }
+          cases:
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: true },
+                      hasSession: { kind: const, value: false },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: jwt }
+                  caps: { op: get, path: $input/jwtResult/claims/caps }
+                  capabilityScopes: { op: get, path: $input/jwtResult/claims/scopes }
+                  jwtClaims: { op: get, path: $input/jwtResult/claims }
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: true },
+                      hasSession: { kind: const, value: true },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: jwt+session }
+                  caps:
+                    {
+                      op: call,
+                      fn: merge,
+                      args:
+                        [
+                          { op: get, path: $input/jwtResult/claims/caps },
+                          { op: get, path: $input/sessionResult/ephemeral },
+                        ],
+                    }
+                  capabilityScopes:
+                    {
+                      op: call,
+                      fn: merge,
+                      args:
+                        [
+                          { op: get, path: $input/jwtResult/claims/scopes },
+                          { op: get, path: $input/sessionResult/capabilityScopes },
+                        ],
+                    }
+                  jwtClaims: { op: get, path: $input/jwtResult/claims }
+                  ephemeral: { op: get, path: $input/sessionResult/ephemeral }
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: false },
+                      hasSession: { kind: const, value: true },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: session }
+                  caps: { op: get, path: $input/sessionResult/caps }
+                  capabilityScopes: { op: get, path: $input/sessionResult/capabilityScopes }
+                  ephemeral: { op: get, path: $input/sessionResult/ephemeral }
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: false },
+                      hasSession: { kind: const, value: false },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: anonymous }
+                  caps: { op: const, value: {} }
+                  capabilityScopes: { op: const, value: {} }
+    category: pure
+  resolveAuth:
+    id: morphism://adk/resolveAuth/1.0
+    input: type://adk/ResolveAuthInput/0.1.0
+    output: type://adk/ResolvedAuth/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $extracted
+        value:
+          op: apply
+          fn: { op: var, name: $extractAuthHeader }
+          arg:
+            {
+              op: record,
+              fields:
+                {
+                  request: { op: get, path: $input/request },
+                  authZPrimitives: { op: get, path: $input/context/authZPrimitives },
+                },
+            }
+        body:
+          op: let
+          name: $jwtResult
+          value:
+            op: apply
+            fn: { op: var, name: $jwtVerify }
+            arg:
+              {
+                op: record,
+                fields:
+                  {
+                    rawToken: { op: get, path: $extracted/rawToken },
+                    keyAssetRef: { op: get, path: $input/context/keyAssetRef },
+                  },
+              }
+          body:
+            op: let
+            name: $sessionResult
+            value:
+              op: apply
+              fn: { op: var, name: $mergeSessionScopes }
+              arg:
+                {
+                  op: record,
+                  fields:
+                    {
+                      sessionIds: { op: get, path: $input/request/sessionIds },
+                      declaredScopes: { op: get, path: $input/context/declaredScopes },
+                      store: { op: get, path: $input/context/store },
+                    },
+                }
+            body:
+              op: apply
+              fn: { op: var, name: $emitResolvedAuth }
+              arg:
+                {
+                  op: record,
+                  fields:
+                    {
+                      jwtResult: { op: var, name: $jwtResult },
+                      sessionResult: { op: var, name: $sessionResult },
+                      extracted: { op: var, name: $extracted },
+                    },
+                }
+    category: stateful
+  bindSession:
+    id: morphism://adk/bindSession/1.0
+    input: type://adk/BindSessionInput/0.1.0
+    output: type://adk/SessionId/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $sessionId
+        value:
+          op: apply
+          fn: { op: var, name: $store }
+          arg:
+            {
+              op: record,
+              fields:
+                {
+                  op: { op: const, value: create },
+                  user: { op: get, path: $input/user },
+                  scope: { op: get, path: $input/scope },
+                },
+            }
+        body:
+          op: let
+          name: $_
+          value:
+            op: apply
+            fn: { op: var, name: $store }
+            arg:
+              {
+                op: record,
+                fields:
+                  {
+                    op: { op: const, value: attach },
+                    sessionId: { op: var, name: $sessionId },
+                    caps: { op: get, path: $input/caps },
+                  },
+              }
+          body: { op: var, name: $sessionId }
+    category: stateful
+  jwtSign:
+    id: morphism://adk/jwtSign/1.0
+    input: type://adk/JwtSignInput/0.1.0
+    output: type://adk/JwtToken/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $signed
+        value:
+          op: apply
+          fn: { op: var, name: $jwtVerifier }
+          arg:
+            op: record
+            fields:
+              op: { op: const, value: sign }
+              claims: { op: get, path: $input/payload }
+              keyRef: { op: get, path: $input/keyRef }
+              verifierRef: { op: get, path: $input/verifierRef }
+        body: { op: get, path: $signed/token }
+    category: stateful

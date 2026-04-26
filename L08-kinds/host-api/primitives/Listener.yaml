@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/Listener/1.0
+name: Listener
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    port: { type: number }
+    idleTimeout: { type: number }
+  required: [port]
+contract: "declare a listener binding for an API host port and optional idle timeout."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "listener" }
+    port: { op: get, path: "$input/port" }
+    idleTimeout: { op: get, path: "$input/idleTimeout" }

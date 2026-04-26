@@ -1,0 +1,17 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Pill/1.0
+name: Pill
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    tone: { type: string, enum: [info, warning, error, success, neutral], default: neutral }
+contract: render an escaped label inside a tone-tagged pill, falling back unknown tones to neutral with a data-tone-fallback marker
+render: module://./primitives/Pill.ts#default
+implementation:
+  kind: module
+  module: "./Pill.ts"
+  export: default

@@ -1,0 +1,96 @@
+suite: library-checkout
+name: Library Checkout Flow
+model: library
+version: 1.0.0
+
+personas: ./personas.yaml
+seeds: ./seeds.yaml
+
+useCases:
+  - id: uc-checkout-return
+    name: Basic checkout and return
+    description: Alice borrows a book and returns it.
+    scenarios:
+      - id: sc-alice-borrows-geb
+        name: Alice borrows GEB
+        tags: [smoke, happy-path]
+        seeds: [book-001]
+        steps:
+          - id: step-checkout
+            description: Alice checks out book-001
+            persona: librarian
+            verb: checkout
+            targetKey: book-001
+            payload: { patronId: alice }
+            assertions:
+              - kind: state-equals
+                targetKey: book-001
+                expected:
+                  {
+                    status: checked-out,
+                    title: "Gödel, Escher, Bach",
+                    isbn: "0465026567",
+                    authorId: hofstadter,
+                  }
+            branches:
+              - label: return book
+                step:
+                  id: step-return
+                  description: Alice returns book-001
+                  persona: librarian
+                  verb: return
+                  targetKey: book-001
+                  assertions:
+                    - kind: state-equals
+                      targetKey: book-001
+                      expected:
+                        {
+                          status: available,
+                          title: "Gödel, Escher, Bach",
+                          isbn: "0465026567",
+                          authorId: hofstadter,
+                        }
+
+  - id: uc-reserve-fulfill
+    name: Reserve then fulfill
+    description: Patron reserves a book; librarian fulfills the reservation.
+    scenarios:
+      - id: sc-bob-reserves
+        name: Bob reserves Pattern Language
+        tags: [reserve]
+        seeds: [book-003]
+        steps:
+          - id: step-reserve
+            description: Bob reserves book-003
+            persona: librarian
+            verb: reserve
+            targetKey: book-003
+            payload: { patronId: bob }
+            assertions:
+              - kind: state-equals
+                targetKey: book-003
+                expected:
+                  {
+                    status: reserved,
+                    title: "A Pattern Language",
+                    isbn: "0195019199",
+                    authorId: alexander,
+                  }
+            branches:
+              - label: librarian fulfills reservation
+                step:
+                  id: step-fulfill
+                  description: Librarian fulfills reservation
+                  persona: librarian
+                  verb: fulfill
+                  targetKey: book-003
+                  assertions:
+                    - kind: state-equals
+                      targetKey: book-003
+                      expected:
+                        {
+                          status: checked-out,
+                          title: "A Pattern Language",
+                          isbn: "0195019199",
+                          authorId: alexander,
+                        }

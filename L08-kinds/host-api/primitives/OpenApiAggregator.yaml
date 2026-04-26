@@ -1,0 +1,18 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/OpenApiAggregator/1.0
+name: OpenApiAggregator
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    title: { type: string }
+    version: { type: string }
+contract: "declare the OpenAPI aggregation target exposed by the host transport."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "openApiAggregator" }
+    title: { op: get, path: "$input/title" }
+    version: { op: get, path: "$input/version" }

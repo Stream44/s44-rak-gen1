@@ -1,0 +1,23 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/cli.stdout/primitive/Table/1.0
+name: Table
+assetKind: primitive
+conformsToKind: cli.stdout
+kind: cli.stdout
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    columns:
+      type: array
+      items: { type: string }
+    rows:
+      type: array
+      items: { type: array }
+  required: [columns, rows]
+contract: "aligned table via a minimal layout algorithm"
+implementation:
+  kind: module
+  module: "./Table.ts"
+  export: default
+render: module://./primitives/Table.ts#default

@@ -1,0 +1,24 @@
+conformsTo: adk:RulesDocument/1.0
+discriminator: conformance
+sealed: true
+# When sealed: true, the kernel refuses extendRules() calls that target any
+# rule id declared in this file.
+rules:
+  - id: mof.m3-self-reference
+    description: M3 conforms to itself; (child.level=3, parent.level=3, child.id=parent.id) passes.
+    when:
+      childLevel: 3
+      parentLevel: 3
+      childIdEqualsParentId: true
+    outcome: pass
+  - id: mof.child-plus-one-equals-parent
+    description: For any child not caught by m3-self-reference, child.level + 1 must equal parent.level.
+    when:
+      predicate: level-gap
+    outcome:
+      onFail:
+        message: "Type at level {childLevel} must conform to level {childLevel+1}, not {parentLevel}"
+        keyword: level
+        params:
+          childLevel: "{childLevel}"
+          parentLevel: "{parentLevel}"

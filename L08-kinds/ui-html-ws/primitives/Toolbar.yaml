@@ -1,0 +1,20 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Toolbar/1.0
+name: Toolbar
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    align: { type: string, enum: [start, end, between] }
+contract: render a dense toolbar row with optional alignment data hook
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Toolbar" }
+    align: { op: get, path: "$input/align" }
+implementation:
+  kind: module
+  module: "./Toolbar.ts"
+  export: default

@@ -1,0 +1,152 @@
+document: AcceptanceMorphisms
+version: 1.0
+conformsTo: adk:MorphismDocument/1.0
+discriminator: acceptance
+origin: adk
+morphisms:
+  runStep:
+    id: runStep
+    input: type://adk/StepContext/0.1.0
+    output: type://adk/StepResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./modules/run-step.ts
+      export: default
+    category: stateful
+  runTrace:
+    id: runTrace
+    input: type://adk/Trace/0.1.0
+    output: type://adk/TraceResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: fold
+        note: fold steps, apply reset seeds, call runStep, and stop after the first failure
+        source: $input/steps
+        seed:
+          passed: true
+          halted: false
+          seedCtx: $input/seedCtx
+          results: []
+        step:
+          op: if
+          cond: { op: get, path: $acc/halted }
+          then: { op: var, name: $acc }
+          else:
+            op: let
+            name: $seeded
+            value:
+              op: if
+              cond: { op: get, path: $edge/resetBeforeCycle }
+              then:
+                op: apply
+                fn: { op: var, name: $applySeed }
+                arg:
+                  {
+                    op: record,
+                    fields:
+                      { app: { op: get, path: $input/app }, seed: { op: get, path: $step/seed } },
+                  }
+              else: { op: const, value: null }
+            body:
+              op: let
+              name: $stepResult
+              value:
+                op: apply
+                fn: { op: var, name: $runStep }
+                arg:
+                  {
+                    op: record,
+                    fields:
+                      {
+                        step: { op: var, name: $step },
+                        persona: { op: get, path: $input/personaByStep/$step/personaId },
+                        app: { op: get, path: $input/app },
+                        projectorSession: { op: get, path: $input/projectorSession },
+                        capturedEvents: { op: get, path: $input/capturedEvents },
+                      },
+                  }
+              body:
+                op: record
+                fields:
+                  passed: { op: get, path: $stepResult/passed }
+                  halted: { op: call, fn: not, args: [{ op: get, path: $stepResult/passed }] }
+                  seedCtx: { op: get, path: $acc/seedCtx }
+                  results:
+                    op: call
+                    fn: concat
+                    args:
+                      [
+                        { op: get, path: $acc/results },
+                        { op: array, elements: [{ op: var, name: $stepResult }] },
+                      ]
+    category: stateful
+  runScenario:
+    id: runScenario
+    input: type://adk/Scenario/0.1.0
+    output: type://adk/ScenarioResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $traces
+        value:
+          { op: apply, fn: { op: var, name: $extractTraces }, arg: { op: get, path: $input/root } }
+        body:
+          op: let
+          name: $results
+          value:
+            op: call
+            fn: map
+            args:
+              - { op: var, name: $traces }
+              - {
+                  op: lambda,
+                  param: $trace,
+                  body:
+                    { op: apply, fn: { op: var, name: $runTrace }, arg: { op: var, name: $trace } },
+                }
+          body:
+            op: record
+            fields:
+              scenarioId: { op: get, path: $input/id }
+              name: { op: get, path: $input/name }
+              passed:
+                op: call
+                fn: fold
+                args:
+                  - { op: var, name: $results }
+                  - { op: const, value: true }
+                  - {
+                      op: lambda,
+                      param: $pair,
+                      body:
+                        {
+                          op: call,
+                          fn: and,
+                          args: [{ op: get, path: $pair/1 }, { op: get, path: $pair/0/passed }],
+                        },
+                    }
+              traceCount: { op: call, fn: length, args: [{ op: var, name: $traces }] }
+              traces: { op: var, name: $results }
+    category: stateful
+  runUseCase:
+    id: runUseCase
+    input: type://adk/UseCaseBoot/0.1.0
+    output: type://adk/UseCaseResult/0.1.0
+    impl:
+      kind: module
+      # TODO: create module leaf and wire loader dispatch.
+      uri: module://./modules/run-use-case.ts
+      export: default
+    category: stateful
+  runSuite:
+    id: runSuite
+    input: type://adk/SuiteBoot/0.1.0
+    output: type://adk/SuiteResult/0.1.0
+    impl:
+      kind: module
+      # TODO: create module leaf and wire loader dispatch.
+      uri: module://./modules/run-suite.ts
+      export: default
+    category: stateful

@@ -1,0 +1,128 @@
+# Uses top-level customerEmail and stress-tests nested customer.pii.
+projector: ecommerce-api
+version: 1.0.0
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/api.rest/1.0
+session:
+  scope: ecommerce-api
+bindsModel: ecommerce@1.0.0
+requires:
+  - cap://commerce/orders/view/1.0
+actions:
+  - ConfirmOrder
+morphism:
+  op: product
+  left:
+    op: ref
+    asset: asset://adk.example/api.rest/primitive/Endpoint/1.0
+    props:
+      method: GET
+      path: /orders
+      summary: List orders
+      requires:
+        - cap://commerce/orders/view/1.0
+      onRequest:
+        read:
+          orders:
+            - id: ord-001
+              status: pending
+            - id: ord-002
+              status: pending
+      children:
+        - op: ref
+          asset: asset://adk.example/api.rest/primitive/ResponseShape/1.0
+          props:
+            status: "200"
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+  right:
+    op: product
+    left:
+      op: ref
+      asset: asset://adk.example/api.rest/primitive/Endpoint/1.0
+      props:
+        method: GET
+        path: /orders/{id}
+        summary: Fetch one order
+        requires:
+          - cap://commerce/orders/view/1.0
+        onRequest:
+          read:
+            id: $route.id
+            status: confirmed
+            customerEmail:
+              {
+                source: { value: ada@example.com },
+                projections:
+                  [{ path: value, requires: ["cap://pii/view/1.0"], fallback: "(redacted)" }],
+              }
+              # Pre-sugar form; kept for review.
+              # op: guard
+              # requires:
+              #   - cap://pii/view/1.0
+              # f: ada@example.com
+              # fallback: "(redacted)"
+        children:
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/RouteParam/1.0
+            props:
+              name: id
+              required: true
+              schema:
+                type: string
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/ResponseShape/1.0
+            props:
+              status: "200"
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                  customerEmail:
+                    type: string
+    right:
+      op: ref
+      asset: asset://adk.example/api.rest/primitive/Endpoint/1.0
+      props:
+        method: POST
+        path: /orders/{id}/confirm
+        summary: Confirm an order
+        requires:
+          - cap://commerce/orders/view/1.0
+        onRequest:
+          action: ConfirmOrder
+          target: $route.id
+          payload:
+            id: $route.id
+          read:
+            customerEmail:
+              {
+                source: { value: ada@example.com },
+                projections:
+                  [{ path: value, requires: ["cap://pii/view/1.0"], fallback: "(redacted)" }],
+              }
+        children:
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/RouteParam/1.0
+            props:
+              name: id
+              required: true
+              schema:
+                type: string
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/ResponseShape/1.0
+            props:
+              status: "200"
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  customerEmail:
+                    type: string

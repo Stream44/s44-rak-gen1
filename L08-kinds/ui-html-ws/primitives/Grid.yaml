@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Grid/1.0
+name: Grid
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+contract: render a <div class="grid"> container around child nodes
+render: module://./primitives/Grid.ts#default
+implementation:
+  kind: module
+  module: "./Grid.ts"
+  export: default

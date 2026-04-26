@@ -1,0 +1,17 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/SessionStoreRef/1.0
+name: SessionStoreRef
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    ref: { type: string }
+  required: [ref]
+contract: "declare the session-store asset reference used by the host request pipeline."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "sessionStoreRef" }
+    ref: { op: get, path: "$input/ref" }

@@ -1,0 +1,20 @@
+document: ProjectionIllustrativeMorphisms
+version: "1.0"
+conformsTo: adk:MorphismDocument/1.0
+discriminator: projectionIllustrative
+origin: adk
+morphisms:
+  concatRequirementArrays:
+    id: morphism://adk/concatRequirementArrays/1.0
+    input: type://adk/CapabilityRequirementConcatInput/0.1.0
+    output: type://adk/CapabilityRequirementArray/0.1.0
+    impl:
+      {
+        kind: algebra,
+        ast:
+          {
+            op: call,
+            fn: arrayConcat,
+            args: [{ op: get, path: $input/left }, { op: get, path: $input/right }],
+          },
+      }

@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/Port/1.0
+name: Port
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    port: { type: number }
+    hostname: { type: string }
+  required: [port]
+contract: "declare the socket port and optional hostname for the host transport."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "port" }
+    port: { op: get, path: "$input/port" }
+    hostname: { op: get, path: "$input/hostname" }

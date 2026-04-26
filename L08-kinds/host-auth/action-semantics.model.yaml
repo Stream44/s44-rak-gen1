@@ -1,0 +1,157 @@
+conformsTo: adk:MorphismDocument/1.0
+id: morphism://adk.example/host-auth/action-semantics/1.0
+document: HostAuthMorphisms
+version: "1.0"
+discriminator: host-auth
+origin: adk
+morphisms:
+  dispatchChallenge:
+    id: morphism://adk.example/host-auth/dispatchChallenge/1.0
+    input: type://adk/HostAuthPipelineInput/1.0
+    output: type://adk/HostAuthStageAccumulator/1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $challenge
+        value:
+          op: call
+          fn: eval
+          args:
+            - { op: get, path: $input/projection/primitives/Challenge/render }
+            - op: record
+              fields:
+                $input:
+                  op: record
+                  fields:
+                    request: { op: get, path: $input/request }
+                    props: { op: get, path: $input/projection/primitives/Challenge/props }
+        body:
+          op: record
+          fields:
+            request: { op: get, path: $input/request }
+            projection: { op: get, path: $input/projection }
+            challenge: { op: var, name: $challenge }
+  dispatchVerifyCredential:
+    id: morphism://adk.example/host-auth/dispatchVerifyCredential/1.0
+    input: type://adk/HostAuthStageAccumulator/1.0
+    output: type://adk/HostAuthStageAccumulator/1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $verifyResult
+        value:
+          op: call
+          fn: eval
+          args:
+            - { op: get, path: $input/projection/primitives/VerifyCredential/render }
+            - op: record
+              fields:
+                $env: { op: get, path: $input/projection/env }
+                $input:
+                  op: record
+                  fields:
+                    challenge: { op: get, path: $input/challenge }
+                    props: { op: get, path: $input/projection/primitives/VerifyCredential/props }
+        body:
+          op: record
+          fields:
+            request: { op: get, path: $input/request }
+            projection: { op: get, path: $input/projection }
+            challenge: { op: get, path: $input/challenge }
+            verifyResult: { op: var, name: $verifyResult }
+  dispatchIssueCapability:
+    id: morphism://adk.example/host-auth/dispatchIssueCapability/1.0
+    input: type://adk/HostAuthStageAccumulator/1.0
+    output: type://adk/HostAuthStageAccumulator/1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $capability
+        value:
+          op: call
+          fn: eval
+          args:
+            - { op: get, path: $input/projection/primitives/IssueCapability/render }
+            - op: record
+              fields:
+                $normalizeCaps: { op: var, name: $normalizeCaps }
+                $input:
+                  op: record
+                  fields:
+                    verifyResult: { op: get, path: $input/verifyResult }
+                    props: { op: get, path: $input/projection/primitives/IssueCapability/props }
+        body:
+          op: record
+          fields:
+            request: { op: get, path: $input/request }
+            projection: { op: get, path: $input/projection }
+            challenge: { op: get, path: $input/challenge }
+            verifyResult: { op: get, path: $input/verifyResult }
+            capability: { op: var, name: $capability }
+  dispatchSessionBinding:
+    id: morphism://adk.example/host-auth/dispatchSessionBinding/1.0
+    input: type://adk/HostAuthStageAccumulator/1.0
+    output: type://adk/AuthResult/1.0
+    category: stateful
+    impl:
+      kind: algebra
+      ast:
+        op: call
+        fn: eval
+        args:
+          - { op: get, path: $input/projection/primitives/SessionBinding/render }
+          - op: record
+            fields:
+              $bindSession: { op: var, name: $bindSession }
+              $jwtSign: { op: var, name: $jwtSign }
+              $input:
+                op: record
+                fields:
+                  projection: { op: get, path: $input/projection }
+                  capability: { op: get, path: $input/capability }
+                  props: { op: get, path: $input/projection/primitives/SessionBinding/props }
+  hostAuthPipeline:
+    id: morphism://adk.example/host-auth/hostAuthPipeline/1.0
+    input: type://adk/HostAuthPipelineInput/1.0
+    output: type://adk/AuthResult/1.0
+    pipeline:
+      op: compose
+      stages:
+        - dispatchChallenge
+        - dispatchVerifyCredential
+        - dispatchIssueCapability
+        - dispatchSessionBinding
+    category: stateful
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $stage1
+        value:
+          op: apply
+          fn: { op: var, name: $dispatchChallenge }
+          arg: { op: var, name: $input }
+        body:
+          op: let
+          name: $stage2
+          value:
+            op: apply
+            fn: { op: var, name: $dispatchVerifyCredential }
+            arg: { op: var, name: $stage1 }
+          body:
+            op: let
+            name: $stage3
+            value:
+              op: apply
+              fn: { op: var, name: $dispatchIssueCapability }
+              arg: { op: var, name: $stage2 }
+            body:
+              op: apply
+              fn: { op: var, name: $dispatchSessionBinding }
+              arg: { op: var, name: $stage3 }

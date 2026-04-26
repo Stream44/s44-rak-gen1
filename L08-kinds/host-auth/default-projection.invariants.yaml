@@ -1,0 +1,24 @@
+projector: host-auth-default
+conformsTo: adk:Projection/1.0
+conformsToKind: host.auth
+id: projection://adk.example/host-auth/default/1.0
+version: 1.0.0
+bindsModel: ""
+session:
+  scope: auth-primary
+primitives:
+  Challenge:
+    asset: asset://adk.example/host.auth/primitive/Challenge/1.0
+    renderRef: module://./primitives/Challenge.yaml#render
+  VerifyCredential:
+    asset: asset://adk.example/host.auth/primitive/VerifyCredential/1.0
+    renderRef: module://./primitives/VerifyCredential.yaml#render
+    props:
+      safetyEnv:
+        allowInProduction: false
+  IssueCapability:
+    asset: asset://adk.example/host.auth/primitive/IssueCapability/1.0
+    renderRef: module://./primitives/IssueCapability.yaml#render
+  SessionBinding:
+    asset: asset://adk.example/host.auth/primitive/SessionBinding/1.0
+    renderRef: module://./primitives/SessionBinding.yaml#render

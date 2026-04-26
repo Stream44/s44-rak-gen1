@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/key-asset/EnvKeyAsset/1.0
+name: EnvKeyAsset
+assetKind: handler
+conformsToKind: key-asset
+version: 1.0.0
+propSchema:
+  type: object
+  required: [env, format]
+  properties:
+    env:
+      type: string
+    format:
+      type: string
+contract: "Resolves a key from process.env at load()"
+implementation:
+  kind: module
+  module: "./env-key-asset.ts"
+  export: default

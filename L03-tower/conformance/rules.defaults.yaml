@@ -1,0 +1,15 @@
+conformsTo: adk:RulesDocument/1.0
+discriminator: conformance
+# No sealed: true — entries here are overridable via extendRules().
+rules:
+  - id: messages.default-level-mismatch
+    description: Error-message template for level-mismatch failures.
+    kind: message-template
+    template: "Type at level {childLevel} must conform to level {childLevel+1}, not {parentLevel}"
+  - id: predicates.level-gap
+    description: Predicate implementation for the level-gap check referenced by invariants.
+    kind: predicate-hook
+    impl:
+      # evaluated by the engine; implementation-side hook, not a module leaf in this WP
+      shape: builtin
+      name: levelGap

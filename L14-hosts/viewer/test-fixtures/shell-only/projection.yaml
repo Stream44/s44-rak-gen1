@@ -1,0 +1,26 @@
+projector: test-shell-only
+version: 0.1.0
+session:
+  scope: test-shell-only
+bindsModel: ""
+title: Shell Only
+shell: ./shell.html
+
+actions:
+  - name: tab.select
+    kind: custom
+
+routes:
+  - path: /
+    page: home
+
+pages:
+  home:
+    children:
+      - component: Heading
+        props: { level: 1, text: "Shell-Only Tabs" }
+      - component: Button
+        props: { label: "Open A" }
+        onClick:
+          action: tab.select
+          payload: { url: "/a" }

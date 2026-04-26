@@ -1,0 +1,8 @@
+conformsTo: adk:ProjectionKind/1.0
+id: kind://adk.example/cli.stdout/1.0
+name: "CLI, stdout, ANSI"
+version: 1.0.0
+backend: module://./dispatch.ts#default
+actionSemantics: asset://adk.example/cli.stdout/action-semantics/arg-commands/1.0
+actionSemanticsImpl: module://./arg-action.ts#default
+backendHelpers: module://./backend-helpers.ts

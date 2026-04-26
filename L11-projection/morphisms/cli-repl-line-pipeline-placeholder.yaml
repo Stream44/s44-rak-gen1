@@ -1,0 +1,30 @@
+id: morphism://github.com/Stream44/s44-rak-gen1@1.0/cliReplLinePipeline/1.0-placeholder
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+discriminator: cli-repl-pipeline
+schema:
+  morphisms:
+    cliReplLinePipeline:
+      id: morphism://github.com/Stream44/s44-rak-gen1@1.0/cliReplLinePipeline/1.0
+      input: type://github.com/Stream44/s44-rak-gen1@1.0/cli-host/repl-context/1.0
+      output: type://github.com/Stream44/s44-rak-gen1@1.0/cli-host/repl-result/1.0
+      impl:
+        kind: algebra
+        ast:
+          op: record
+          fields:
+            stdout:
+              op: call
+              fn: concat
+              args:
+                - op: call
+                  fn: concat
+                  args:
+                    - op: const
+                      value: "<echo: "
+                    - op: get
+                      path: "$input/line"
+                - op: const
+                  value: ">"
+            stderr: { op: const, value: "" }
+            exitCode: { op: const, value: null }

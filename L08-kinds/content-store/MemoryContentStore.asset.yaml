@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/content-store/MemoryContentStore/1.0
+name: MemoryContentStore
+assetKind: handler
+conformsToKind: content-store
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: "implements ContentStore M1 (get + put + has + delete) via Map<string, Uint8Array>; size getter and clear() are implementation-only helpers not declared on the M1"
+implementation:
+  kind: module
+  module: "./memory-content-store.ts"
+  export: default

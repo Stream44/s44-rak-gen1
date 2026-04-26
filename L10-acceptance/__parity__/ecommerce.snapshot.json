@@ -1,0 +1,1011 @@
+{
+  "modelId": "ecommerce",
+  "modelVersion": "1.0.0",
+  "passed": true,
+  "stats": {
+    "passedScenarios": 16,
+    "passedSteps": 35,
+    "passedTraces": 19,
+    "totalScenarios": 16,
+    "totalSteps": 35,
+    "totalTraces": 19
+  },
+  "suiteId": "ecommerce-acceptance",
+  "timestamp": "<TIMESTAMP>",
+  "useCases": [
+    {
+      "name": "Happy Path — Full Order Fulfillment",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Complete Order Lifecycle",
+          "passed": true,
+          "scenarioId": "sc-full-lifecycle",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    },
+                    {
+                      "actual": "[{\"status\":\"confirmed\"}]",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "event-emitted",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"paid\"}",
+                      "expected": "{\"status\":\"paid\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay",
+                  "submitResult": {
+                    "newState": {
+                      "status": "paid"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"shipped\"}",
+                      "expected": "{\"status\":\"shipped\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-ship",
+                  "submitResult": {
+                    "newState": {
+                      "status": "shipped"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"delivered\"}",
+                      "expected": "{\"status\":\"delivered\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    },
+                    {
+                      "actual": "[{\"status\":\"delivered\"}]",
+                      "expected": "{\"status\":\"delivered\"}",
+                      "kind": "event-emitted",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-deliver",
+                  "submitResult": {
+                    "newState": {
+                      "status": "delivered"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Alice confirms her order -> Payment system processes payment -> Bob ships the order -> Bob delivers the order"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-happy-path"
+    },
+    {
+      "name": "Cancellation Before Payment",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Cancel a Pending Order",
+          "passed": true,
+          "scenarioId": "sc-cancel-pending",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"cancelled\"}",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    },
+                    {
+                      "actual": "[{\"status\":\"cancelled\"}]",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "event-emitted",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-cancel-pending",
+                  "submitResult": {
+                    "newState": {
+                      "status": "cancelled"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Alice cancels the pending order"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-cancel-before-payment"
+    },
+    {
+      "name": "Cancellation After Confirmation",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Confirm Then Branch — Pay or Cancel",
+          "passed": true,
+          "scenarioId": "sc-confirm-then-branch",
+          "traceCount": 2,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-first",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"paid\"}",
+                      "expected": "{\"status\":\"paid\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-branch",
+                  "submitResult": {
+                    "newState": {
+                      "status": "paid"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Alice confirms her order -> Payment system processes payment"
+            },
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-first",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"cancelled\"}",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-cancel-branch",
+                  "submitResult": {
+                    "newState": {
+                      "status": "cancelled"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Alice confirms her order -> Alice cancels after confirmation"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-cancel-after-confirm"
+    },
+    {
+      "name": "Refund Boundary Verification",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "From Paid — Ship Then Deliver or Attempt Refund",
+          "passed": true,
+          "scenarioId": "sc-paid-branch-ship-or-refund",
+          "traceCount": 2,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"shipped\"}",
+                      "expected": "{\"status\":\"shipped\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-from-paid",
+                  "submitResult": {
+                    "newState": {
+                      "status": "shipped"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"delivered\"}",
+                      "expected": "{\"status\":\"delivered\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-deliver-after-ship",
+                  "submitResult": {
+                    "newState": {
+                      "status": "delivered"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Admin ships the paid order -> Admin delivers the shipped order"
+            },
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"shipped\"}",
+                      "expected": "{\"status\":\"shipped\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-from-paid",
+                  "submitResult": {
+                    "newState": {
+                      "status": "shipped"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"shipped\"}",
+                      "expected": "{\"status\":\"shipped\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-refund-shipped-fail",
+                  "submitResult": {
+                    "error": "Authorization denied: persona \"System Administrator\" (admin) has no capability for verb \"refund\"",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin ships the paid order -> Admin attempts refund from shipped — not a model verb"
+            }
+          ]
+        },
+        {
+          "name": "Refund From Paid — verb not in model",
+          "passed": true,
+          "scenarioId": "sc-refund-from-paid",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [],
+                  "passed": true,
+                  "stepId": "step-refund-paid",
+                  "submitResult": {
+                    "error": "Authorization denied: persona \"System Administrator\" (admin) has no capability for verb \"refund\"",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin attempts refund from paid — verb not in model"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-refund-boundary"
+    },
+    {
+      "name": "Invalid Actions",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Unknown Verb Rejected",
+          "passed": true,
+          "scenarioId": "sc-unknown-verb",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"pending\"}",
+                      "expected": "{\"status\":\"pending\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-unknown-verb",
+                  "submitResult": {
+                    "error": "Authorization denied: persona \"System Administrator\" (admin) has no capability for verb \"archive\"",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin submits a nonexistent verb 'archive'"
+            }
+          ]
+        },
+        {
+          "name": "Wrong State Transition Rejected",
+          "passed": true,
+          "scenarioId": "sc-wrong-state-transition",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "No matching transition",
+                      "expected": "transition",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"pending\"}",
+                      "expected": "{\"status\":\"pending\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-ship-pending",
+                  "submitResult": {
+                    "error": "No matching transition",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin attempts to ship a pending order"
+            }
+          ]
+        },
+        {
+          "name": "Unauthorized Persona Rejected",
+          "passed": true,
+          "scenarioId": "sc-unauthorized-persona",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"pending\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-bob-confirms",
+                  "submitResult": {
+                    "error": "Authorization denied: persona \"Warehouse Manager Bob\" (warehouse-manager) has no capability for verb \"confirm\"",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Bob attempts to confirm — denied"
+            }
+          ]
+        },
+        {
+          "name": "Deliver Before Ship Rejected",
+          "passed": true,
+          "scenarioId": "sc-deliver-before-ship",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "No matching transition",
+                      "expected": "transition",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"paid\"}",
+                      "expected": "{\"status\":\"paid\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-deliver-paid",
+                  "submitResult": {
+                    "error": "No matching transition",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin attempts to deliver a paid (not shipped) order"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-invalid-actions"
+    },
+    {
+      "name": "Multiple Orders — Independent Processing",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Two Orders — One Delivered, One Cancelled",
+          "passed": true,
+          "scenarioId": "sc-two-orders-diverge",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    },
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"pending\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-ord1",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"cancelled\"}",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-cancel-ord2",
+                  "submitResult": {
+                    "newState": {
+                      "status": "cancelled"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"paid\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"cancelled\"}",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-ord1",
+                  "submitResult": {
+                    "newState": {
+                      "status": "paid"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"shipped\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-ship-ord1",
+                  "submitResult": {
+                    "newState": {
+                      "status": "shipped"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"delivered\"}",
+                      "expected": "{\"status\":\"delivered\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"cancelled\"}",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-deliver-ord1",
+                  "submitResult": {
+                    "newState": {
+                      "status": "delivered"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Alice confirms order 1 -> Alice cancels order 2 -> Pay order 1 -> Bob ships order 1 -> Bob delivers order 1"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-multiple-orders"
+    },
+    {
+      "name": "Schema Validation",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Valid Payload Accepted",
+          "passed": true,
+          "scenarioId": "sc-valid-payload-accepted",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-valid-confirm",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Admin confirms with valid payload"
+            }
+          ]
+        },
+        {
+          "name": "Missing Required Field Rejected",
+          "passed": true,
+          "scenarioId": "sc-missing-required-field",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "validation failed",
+                      "expected": "validation",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-no-amount",
+                  "submitResult": {
+                    "error": "validation failed",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin submits pay without required amount"
+            }
+          ]
+        },
+        {
+          "name": "Negative Amount Rejected",
+          "passed": true,
+          "scenarioId": "sc-negative-amount-rejected",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "validation failed",
+                      "expected": "any error",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-negative",
+                  "submitResult": {
+                    "error": "validation failed",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin submits pay with a negative amount"
+            }
+          ]
+        },
+        {
+          "name": "Valid Confirm Then Branch — Valid Pay vs Invalid Pay",
+          "passed": true,
+          "scenarioId": "sc-valid-then-invalid-branching",
+          "traceCount": 2,
+          "traces": [
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-valid",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"paid\"}",
+                      "expected": "{\"status\":\"paid\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-valid",
+                  "submitResult": {
+                    "newState": {
+                      "status": "paid"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Admin confirms the order (valid) -> Admin pays with valid amount"
+            },
+            {
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-valid",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "validation failed",
+                      "expected": "any error",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-invalid",
+                  "submitResult": {
+                    "error": "validation failed",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin confirms the order (valid) -> Admin pays without amount (schema violation)"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-schema-validation"
+    },
+    {
+      "name": "Reorder After Cancellation",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Customer Cancels Then Reorders",
+          "passed": true,
+          "scenarioId": "sc-reorder-after-cancel",
+          "traceCount": 1,
+          "traces": [
+            {
+              "cycleTo": "step-confirm-initial",
+              "cyclic": true,
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-initial",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"cancelled\"}",
+                      "expected": "{\"status\":\"cancelled\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-cancel-for-reorder",
+                  "submitResult": {
+                    "newState": {
+                      "status": "cancelled"
+                    },
+                    "success": true
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-confirm-initial",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "Alice confirms her initial order -> Alice cancels the confirmed order -> Alice confirms her initial order ↺ step-confirm-initial"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-reorder-after-cancel"
+    },
+    {
+      "name": "Retry After Invalid Payment",
+      "passed": true,
+      "scenarios": [
+        {
+          "name": "Invalid Pay Then Retry",
+          "passed": true,
+          "scenarioId": "sc-retry-invalid-pay",
+          "traceCount": 1,
+          "traces": [
+            {
+              "cycleTo": "step-pay-attempt",
+              "cyclic": true,
+              "passed": true,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "validation failed",
+                      "expected": "any error",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-attempt",
+                  "submitResult": {
+                    "error": "validation failed",
+                    "success": false
+                  }
+                },
+                {
+                  "assertions": [
+                    {
+                      "actual": "validation failed",
+                      "expected": "any error",
+                      "kind": "error-expected",
+                      "passed": true
+                    },
+                    {
+                      "actual": "{\"status\":\"confirmed\"}",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-equals",
+                      "passed": true
+                    }
+                  ],
+                  "passed": true,
+                  "stepId": "step-pay-attempt",
+                  "submitResult": {
+                    "error": "validation failed",
+                    "success": false
+                  }
+                }
+              ],
+              "traceLabel": "Admin attempts payment with invalid (missing) amount -> Admin attempts payment with invalid (missing) amount ↺ step-pay-attempt"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-retry-invalid-pay"
+    }
+  ]
+}

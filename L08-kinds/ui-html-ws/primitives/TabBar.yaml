@@ -1,0 +1,25 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/TabBar/1.0
+name: TabBar
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    tabs: { type: array, items: { type: string } }
+    active: {}
+    onSelect: {}
+  required: [tabs]
+contract: render a tab button row with aria-selected on the active tab
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "TabBar" }
+    tabs: { op: get, path: "$input/tabs" }
+    active: { op: get, path: "$input/active" }
+    onSelect: { op: get, path: "$input/onSelect" }
+implementation:
+  kind: module
+  module: "./TabBar.ts"
+  export: default

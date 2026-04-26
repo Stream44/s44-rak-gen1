@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>{{title}}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0b0b1a;color:#d0d0e0;padding:24px;line-height:1.5}
+#root{max-width:920px;margin:0 auto}
+h1,h2,h3{color:#caf;letter-spacing:0.5px}
+h1{font-size:22px;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid #2a2a4a}
+section{background:#0f0f20;border:1px solid #2a2a4a;border-radius:6px;padding:16px;margin:16px 0}
+section>header{font-size:11px;color:#86a;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1a1a3a;font-weight:600}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card{background:#161630;border:1px solid #222244;border-radius:6px;padding:12px}
+span{font-size:13px}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:#223366;color:#6af}
+.badge[data-tone=info]{background:#1a2a3a;color:#6af}
+button{background:#2a1a3a;border:1px solid #4a2a6a;color:#caf;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit}
+button:hover:not([disabled]){background:#4a2a6a}
+button[disabled]{opacity:0.3;cursor:not-allowed}
+#conn{position:fixed;top:16px;right:20px;font-size:11px;color:#668}
+#conn .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;background:#c44}
+#conn.on .dot{background:#4c4}
+</style>
+</head>
+<body>
+<div id="conn"><span class="dot"></span><span id="conn-lbl">offline</span></div>
+<div id="root">{{body}}</div>
+<script>
+(function(){
+  var mount = "{{mount}}";
+  var root = document.getElementById("root");
+  var conn = document.getElementById("conn");
+  var connLbl = document.getElementById("conn-lbl");
+  function connect(){
+    window.ws = new WebSocket("ws://" + location.host + mount + "/ws");
+    window.ws.onopen = function(){ conn.className = "on"; connLbl.textContent = "live"; };
+    window.ws.onclose = function(){ conn.className = ""; connLbl.textContent = "offline"; setTimeout(connect, 1000); };
+    window.ws.onmessage = function(e){
+      var f = JSON.parse(e.data);
+      if (f.type === "rerender") {
+        root.innerHTML = f.html;
+        try { new Function(f.handlersJs)(); } catch (err) { console.error(err); }
+      }
+    };
+  }
+  connect();
+})();
+</script>
+<script>{{handlersJs}}</script>
+</body>
+</html>

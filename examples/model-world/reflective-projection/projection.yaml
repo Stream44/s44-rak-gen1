@@ -1,0 +1,115 @@
+projector: reflective-default
+version: 1.0.0
+origin: adk
+id: projection://adk/reflective-model/1.0
+conformsTo: projection-kernel/kind/ui.html.ws/1.0
+conformsToKind: kind://adk/ui.html.ws/1.0
+session:
+  scope: reflectiveRoot
+bindsModel: ""
+actions:
+  - name: xref.pivot
+    kind: custom
+morphism:
+  op: literal
+  value:
+    component: Context
+    props:
+      scope: reflectiveRoot
+    children:
+      - component: Breadcrumb
+        props:
+          stack: "$bind.pathStack"
+      - component: SearchBox
+        props:
+          bind: "$bind.searchQuery"
+      - component: Split
+        props:
+          chain: "Context -> Split -> List -> Tree -> Inspector"
+        children:
+          - component: List
+            props:
+              children:
+                op: iter
+                for: "$bind.categories"
+                as: category
+                template:
+                  op: literal
+                  value:
+                    component: Section
+                    props:
+                      title: "$category.name"
+                    children:
+                      - component: List
+                        props:
+                          children:
+                            op: cond
+                            if: "$category.records"
+                            then:
+                              op: iter
+                              for: "$category.records"
+                              as: record
+                              template:
+                                op: literal
+                                value:
+                                  component: Card
+                                  props:
+                                    children: "$record.rendered"
+                            else:
+                              op: literal
+                              value:
+                                component: Text
+                                props:
+                                  text: "No items yet."
+          - component: Inspector
+            props:
+              selected: "$bind.selectedPath"
+              children: "$bind.inspectorChildren"
+body:
+  - component: Context
+    scope: reflectiveRoot
+    initial:
+      selectedPath: null
+      expandedPaths: {}
+    children:
+      - component: Breadcrumb
+        stack: $ctx.pathStack
+      - component: SearchBox
+        bind: $ctx.searchQuery
+      - component: Split
+        left:
+          - component: List
+            for:
+              op: call
+              fn: listCategories
+              args:
+                - op: get
+                  path: "$ws.doc"
+            as: category
+            key: $category.name
+            children:
+              - component: Section
+                title: $category.name
+                children:
+                  - component: List
+                    for: $category.records
+                    as: record
+                    key: $record.id
+                    children:
+                      - component: Tree
+                        node: $record
+                        expandable: true
+                        expanded:
+                          op: get
+                          path: "$ctx.expandedPaths.$record.id"
+                        fetchChildren: morphism://adk/reflect-record/1.0
+        right:
+          - component: Inspector
+            selected: $ctx.selectedPath
+            children:
+              - component: Call
+                morphism: morphism://adk/reflect-record/1.0
+                args:
+                  record: $ctx.selected
+                  depth: 0
+                  maxDepth: 5

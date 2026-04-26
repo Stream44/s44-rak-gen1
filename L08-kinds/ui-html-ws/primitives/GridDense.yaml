@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/GridDense/1.0
+name: GridDense
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    cols: { type: number, minimum: 1, maximum: 12, default: 4 }
+contract: render a dense grid with a clamped --cols custom property and child nodes
+render: module://./primitives/GridDense.ts#default
+implementation:
+  kind: module
+  module: "./GridDense.ts"
+  export: default

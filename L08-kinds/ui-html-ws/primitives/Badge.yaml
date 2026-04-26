@@ -1,0 +1,17 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Badge/1.0
+name: Badge
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    tone: { type: string }
+contract: render a badge <span> with data-tone and escaped label text
+render: module://./primitives/Badge.ts#default
+implementation:
+  kind: module
+  module: "./Badge.ts"
+  export: default

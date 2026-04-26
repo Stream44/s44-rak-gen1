@@ -1,0 +1,4 @@
+extends: [./sds.yaml]
+
+storageSpaces:
+  - { name: todos-fs, kind: ephemeral }

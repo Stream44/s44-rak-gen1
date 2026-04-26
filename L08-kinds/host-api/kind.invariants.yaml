@@ -1,0 +1,13 @@
+conformsTo: adk:ProjectionKind/1.0
+id: host.api
+version: 1.0.0
+backend: module://./dispatch.ts#default
+actionSemanticsImpl: module://./http-host-action.ts#default
+primitives:
+  - asset://adk.example/host.api/primitive/Port/1.0
+  - asset://adk.example/host.api/primitive/Mount/1.0
+  - asset://adk.example/host.api/primitive/Listener/1.0
+  - asset://adk.example/host.api/primitive/DrainTimeout/1.0
+  - asset://adk.example/host.api/primitive/SessionStoreRef/1.0
+  - asset://adk.example/host.api/primitive/JwtConfig/1.0
+  - asset://adk.example/host.api/primitive/OpenApiAggregator/1.0

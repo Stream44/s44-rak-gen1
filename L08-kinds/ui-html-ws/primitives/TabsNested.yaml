@@ -1,0 +1,27 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/TabsNested/1.0
+name: TabsNested
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    activeParent: { type: string }
+    activeChild: { type: string }
+    groups:
+      type: array
+      items:
+        type: object
+contract: render parent and child tab rows with aria-selected metadata
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "TabsNested" }
+    activeParent: { op: get, path: "$input/activeParent" }
+    activeChild: { op: get, path: "$input/activeChild" }
+    groups: { op: get, path: "$input/groups" }
+implementation:
+  kind: module
+  module: "./TabsNested.ts"
+  export: default

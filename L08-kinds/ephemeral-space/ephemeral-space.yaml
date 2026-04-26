@@ -1,0 +1,5 @@
+kind: ephemeral-space
+version: 1.0.0
+conformsTo: kind://adk/storage-space/1.0
+implements: keyed-value
+provides: [open, get, put, delete, has, snapshot, hydrate, flush, close]

@@ -1,0 +1,15 @@
+projector: projection-auth
+conformsTo: adk:Projection/1.0
+conformsToKind: host.auth
+id: projection://fixture.kernel/auth/projection-auth/1.0
+version: 1.0.0
+extends:
+  - ../../../L08-kinds/host-auth/default-projection
+session:
+  scope: auth-primary
+bindsModel: ""
+labels:
+  user: alice
+  capabilities: can confirm + pay
+presentation:
+  brand: Demo Commerce Auth

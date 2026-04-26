@@ -1,0 +1,17 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/DrainTimeout/1.0
+name: DrainTimeout
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    timeoutMs: { type: number }
+  required: [timeoutMs]
+contract: "declare the graceful drain timeout for host shutdown handling."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "drainTimeout" }
+    timeoutMs: { op: get, path: "$input/timeoutMs" }

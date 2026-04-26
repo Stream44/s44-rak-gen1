@@ -1,0 +1,97 @@
+targetCategory: "HTML DOM tree with WebSocket reactive patches"
+primitives:
+  - asset://adk.example/ui.html.ws/primitive/Button/1.0
+  - asset://adk.example/ui.html.ws/primitive/Heading/1.0
+  - asset://adk.example/ui.html.ws/primitive/Text/1.0
+  - asset://adk.example/ui.html.ws/primitive/Badge/1.0
+  - asset://adk.example/ui.html.ws/primitive/StatusDot/1.0
+  - asset://adk.example/ui.html.ws/primitive/Link/1.0
+  - asset://adk.example/ui.html.ws/primitive/Input/1.0
+  - asset://adk.example/ui.html.ws/primitive/Form/1.0
+  - asset://adk.example/ui.html.ws/primitive/Stack/1.0
+  - asset://adk.example/ui.html.ws/primitive/Row/1.0
+  - asset://adk.example/ui.html.ws/primitive/Column/1.0
+  - asset://adk.example/ui.html.ws/primitive/Grid/1.0
+  - asset://adk.example/ui.html.ws/primitive/GridDense/1.0
+  - asset://adk.example/ui.html.ws/primitive/Card/1.0
+  - asset://adk.example/ui.html.ws/primitive/Table/1.0
+  - asset://adk.example/ui.html.ws/primitive/DescriptionList/1.0
+  - asset://adk.example/ui.html.ws/primitive/EditableText/1.0
+  - asset://adk.example/ui.html.ws/primitive/KeyValueList/1.0
+  - asset://adk.example/ui.html.ws/primitive/Section/1.0
+  - asset://adk.example/ui.html.ws/primitive/List/1.0
+  - asset://adk.example/ui.html.ws/primitive/Iframe/1.0
+  - asset://adk.example/ui.html.ws/primitive/Effect/1.0
+  - asset://adk.example/ui.html.ws/primitive/Context/1.0
+  - asset://adk.example/ui.html.ws/primitive/Tree/1.0
+  - asset://adk.example/ui.html.ws/primitive/Breadcrumb/1.0
+  - asset://adk.example/ui.html.ws/primitive/SearchBox/1.0
+  - asset://adk.example/ui.html.ws/primitive/Select/1.0
+  - asset://adk.example/ui.html.ws/primitive/Inspector/1.0
+  - asset://adk.example/ui.html.ws/primitive/Split/1.0
+  - asset://adk.example/ui.html.ws/primitive/TabBar/1.0
+  - asset://adk.example/ui.html.ws/primitive/Code/1.0
+  - asset://adk.example/ui.html.ws/primitive/Icon/1.0
+  - asset://adk.example/ui.html.ws/primitive/Pill/1.0
+  - asset://adk.example/ui.html.ws/primitive/EmptyState/1.0
+  - asset://adk.example/ui.html.ws/primitive/EventTimeline/1.0
+  - asset://adk.example/ui.html.ws/primitive/Timeline/1.0
+  - asset://adk.example/ui.html.ws/primitive/StateMachineGraph/1.0
+  - asset://adk.example/ui.html.ws/primitive/SchemaForm/1.0
+  - asset://adk.example/ui.html.ws/primitive/Toolbar/1.0
+  - asset://adk.example/ui.html.ws/primitive/Splitter/1.0
+  - asset://adk.example/ui.html.ws/primitive/TabsNested/1.0
+  - asset://adk.example/ui.html.ws/primitive/StickyHeader/1.0
+primitiveAssets:
+  - ./primitives/Button.yaml
+  - ./primitives/Heading.yaml
+  - ./primitives/Text.yaml
+  - ./primitives/Badge.yaml
+  - ./primitives/StatusDot.yaml
+  - ./primitives/Link.yaml
+  - ./primitives/Input.yaml
+  - ./primitives/Form.yaml
+  - ./primitives/Stack.yaml
+  - ./primitives/Row.yaml
+  - ./primitives/Column.yaml
+  - ./primitives/Grid.yaml
+  - ./primitives/GridDense.yaml # asset://adk.example/ui.html.ws/primitive/GridDense/1.0
+  - ./primitives/Card.yaml
+  - ./primitives/Table.yaml # asset://adk.example/ui.html.ws/primitive/Table/1.0
+  - ./primitives/DescriptionList.yaml # asset://adk.example/ui.html.ws/primitive/DescriptionList/1.0
+  - ./primitives/EditableText.yaml # asset://adk.example/ui.html.ws/primitive/EditableText/1.0
+  - ./primitives/KeyValueList.yaml # asset://adk.example/ui.html.ws/primitive/KeyValueList/1.0
+  - ./primitives/Section.yaml
+  - ./primitives/List.yaml
+  - ./primitives/Iframe.yaml
+  - ./primitives/Effect.yaml
+  - ./primitives/Context.yaml
+  - ./primitives/Tree.yaml
+  - ./primitives/Breadcrumb.yaml
+  - ./primitives/SearchBox.yaml
+  - ./primitives/Select.yaml
+  - ./primitives/Inspector.yaml
+  - ./primitives/Split.yaml
+  - ./primitives/TabBar.yaml
+  - ./primitives/Code.yaml # asset://adk.example/ui.html.ws/primitive/Code/1.0
+  - ./primitives/Icon.yaml # asset://adk.example/ui.html.ws/primitive/Icon/1.0
+  - ./primitives/Pill.yaml # asset://adk.example/ui.html.ws/primitive/Pill/1.0
+  - ./primitives/EmptyState.yaml # asset://adk.example/ui.html.ws/primitive/EmptyState/1.0
+  - ./primitives/EventTimeline.yaml # asset://adk.example/ui.html.ws/primitive/EventTimeline/1.0
+  - ./primitives/Timeline.yaml # asset://adk.example/ui.html.ws/primitive/Timeline/1.0
+  - ./primitives/StateMachineGraph.yaml # asset://adk.example/ui.html.ws/primitive/StateMachineGraph/1.0
+  - ./primitives/SchemaForm.yaml # asset://adk.example/ui.html.ws/primitive/SchemaForm/1.0
+  - ./primitives/Toolbar.yaml # asset://adk.example/ui.html.ws/primitive/Toolbar/1.0
+  - ./primitives/Splitter.yaml # asset://adk.example/ui.html.ws/primitive/Splitter/1.0
+  - ./primitives/TabsNested.yaml # asset://adk.example/ui.html.ws/primitive/TabsNested/1.0
+  - ./primitives/StickyHeader.yaml # asset://adk.example/ui.html.ws/primitive/StickyHeader/1.0
+backends:
+  - asset://adk.example/ui.html.ws/backend/html/1.0
+defaultShellTemplate: module://./shell-template.ts#default
+optionsSchema:
+  type: object
+  properties:
+    shell: { type: string }
+    assets: { type: string }
+    title: { type: string }
+    theme: { type: object }

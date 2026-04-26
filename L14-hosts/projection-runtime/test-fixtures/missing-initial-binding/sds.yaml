@@ -1,0 +1,8 @@
+name: missing-initial-binding
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/missing-initial-binding"
+models:
+  - path: ../models/foundation.model.yaml
+    role: foundation
+  - path: ../models/orders.model.yaml
+    role: primary

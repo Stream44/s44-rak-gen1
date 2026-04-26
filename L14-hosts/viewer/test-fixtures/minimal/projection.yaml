@@ -1,0 +1,27 @@
+projector: test-minimal
+version: 0.1.0
+session:
+  scope: test-minimal
+bindsModel: ecommerce@1.0.0
+title: Minimal Test
+shell: ./shell.html
+assets: ./assets
+
+actions:
+  - ConfirmOrder
+
+routes:
+  - path: /
+    page: home
+
+pages:
+  home:
+    children:
+      - component: Heading
+        props: { level: 1, text: "Minimal Orders" }
+      - component: Button
+        props: { label: "Confirm ord-001" }
+        onClick:
+          action: ConfirmOrder
+          target: ord-001
+          payload: { id: ord-001 }

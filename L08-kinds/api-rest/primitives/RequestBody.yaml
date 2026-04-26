@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/api.rest/primitive/RequestBody/1.0
+name: RequestBody
+assetKind: primitive
+conformsToKind: api.rest
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    contentType: { type: string, default: "application/json" }
+    schema: { type: object }
+    required: { type: boolean }
+  required: [schema]
+contract: "contribute the requestBody.content[contentType].schema block on the parent Endpoint"
+render: module://./primitives/RequestBody.ts#default
+implementation:
+  kind: module
+  module: "./RequestBody.ts"
+  export: default

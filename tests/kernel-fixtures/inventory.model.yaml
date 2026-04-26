@@ -1,0 +1,99 @@
+model: inventory
+version: 1.0.0
+origin: "https://fixture.kernel/inventory"
+description: A synthetic crate + member + loan domain.
+
+surface:
+  labels:
+    lifecycle: "Book Status"
+    instances: "Books & Patrons"
+    actions: "Inventory Verbs"
+  inspectors:
+    - kind: instance
+      sections:
+        - { heading: "Current State", kind: keyvalue, items: "$selected.bookMetadata" }
+        - { heading: "Author", kind: text, text: "$selected.authorName" }
+
+entities:
+  Crate:
+    description: A stored item.
+    attributes:
+      id: { type: string, required: true }
+      title: { type: string, required: true }
+      isbn: { type: string, required: true }
+      authorId: { type: string }
+      status: { type: string, enum: [available, checked-out, reserved, lost] }
+  Member:
+    description: An inventory member.
+    attributes:
+      id: { type: string, required: true }
+      name: { type: string, required: true }
+      memberSince: { type: string }
+      overdueCount: { type: integer }
+  Maker:
+    description: A crate maker.
+    attributes:
+      id: { type: string, required: true }
+      name: { type: string, required: true }
+
+enums:
+  CrateStatus:
+    values: [available, checked-out, reserved, lost]
+
+relations:
+  assembled:
+    description: Crate assembled by Maker.
+    roles: { crate: Crate, maker: Maker }
+  loaned:
+    description: Member currently holds Crate.
+    roles: { member: Member, crate: Crate }
+
+lifecycle:
+  machine: crate-lifecycle
+  states: [available, checked-out, reserved, lost]
+  initial: available
+  terminal: [lost]
+  transitions:
+    - { from: available, to: checked-out, verb: checkout }
+    - { from: checked-out, to: available, verb: return }
+    - { from: available, to: reserved, verb: reserve }
+    - { from: reserved, to: checked-out, verb: fulfill }
+    - { from: checked-out, to: lost, verb: reportLost }
+    - { from: reserved, to: available, verb: cancel }
+
+actions:
+  Checkout:
+    verb: checkout
+    description: A member checks out an available crate.
+    targetMachine: crate-lifecycle
+    inputSchema:
+      type: object
+      required: [patronId]
+      properties:
+        patronId: { type: string }
+  Return:
+    verb: return
+    description: A member returns a checked-out crate.
+    targetMachine: crate-lifecycle
+    inputSchema: { type: object, properties: {} }
+  Reserve:
+    verb: reserve
+    description: A member reserves an available crate.
+    targetMachine: crate-lifecycle
+    inputSchema:
+      type: object
+      required: [patronId]
+      properties: { patronId: { type: string } }
+  ReportLost:
+    verb: reportLost
+    description: A checked-out crate is reported lost.
+    targetMachine: crate-lifecycle
+    inputSchema: { type: object, properties: {} }
+
+contracts:
+  member-overdue-limit:
+    claim: "A member cannot check out while over overdue limit."
+    expression: "state.overdueCount < 3"
+  crate-has-title:
+    claim: "Every crate must have a non-empty title."
+    expression: "state.title != ''"

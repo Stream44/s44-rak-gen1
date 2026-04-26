@@ -1,0 +1,18 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/StickyHeader/1.0
+name: StickyHeader
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: render a sticky header wrapper for child content
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "StickyHeader" }
+implementation:
+  kind: module
+  module: "./StickyHeader.ts"
+  export: default

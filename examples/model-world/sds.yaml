@@ -1,0 +1,74 @@
+name: model-world
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/examples/model-world"
+extends:
+  - ../observatory/sds.yaml
+
+models:
+  - { path: ./models/core.model.yaml, role: foundation }
+  - { path: ./models/ecommerce.model.yaml, role: primary, initialBinding: true }
+  - { path: ./models/acceptance-playback.model.yaml, role: reducer }
+
+acceptanceSuites:
+  - {
+      id: ecommerce,
+      name: "Ecommerce",
+      path: ./acceptance/ecommerce.acceptance.yaml,
+      default: true,
+    }
+  - { id: ecommerce-api, name: "Ecommerce — API", path: ./acceptance/ecommerce-api.acceptance.yaml }
+  - {
+      id: ecommerce-cross,
+      name: "Ecommerce — Cross",
+      path: ./acceptance/ecommerce-cross.acceptance.yaml,
+    }
+
+storageSpaces:
+  - name: orders-fs
+    kind: filesystem
+    path: ./data/orders.json
+    format: json
+    debounceMs: 50
+
+  - name: order-journal
+    kind: filesystem-journal
+    path: ./data/orders.ndjson
+    format: ndjson
+
+bindings:
+  - name: order-records
+    space: orders-fs
+    aspect:
+      kind: entityCollection
+      entity: Order
+      keyField: id
+    shape:
+      stored: [customer, total, items]
+      derived: { id: "$key" }
+
+  - name: order-lifecycles
+    space: orders-fs
+    aspect:
+      kind: stateMachineAggregate
+      machine: sm://test.ecommerce.example/ecommerce/lifecycle/1.0.0
+      keyField: id
+      snapshotEvery: 50
+    shape:
+      stored: [currentState, transitionCount, lastTransitionAt]
+      derived: { id: "$key" }
+
+  - name: order-events
+    space: order-journal
+    aspect:
+      kind: eventJournal
+      machine: sm://test.ecommerce.example/ecommerce/lifecycle/1.0.0
+    shape:
+      stored:
+        op: pick
+        of: "$self"
+        fields: [verb, payload, beforeState, afterState, at, causationKey, aggregateKey]
+
+seeds:
+  - { targetKey: ord-001, state: { status: pending } }
+  - { targetKey: ord-002, state: { status: pending } }
+  - { targetKey: ord-003, state: { status: pending } }

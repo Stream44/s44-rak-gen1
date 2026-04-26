@@ -1,0 +1,15 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/adapter/IntersectionObserve/1.0
+name: intersection-observe
+assetKind: adapter
+conformsToKind: ui.html.ws
+version: 1.0.0
+argsShape:
+  type: object
+  properties:
+    threshold: { type: number }
+    emit: { type: string }
+implementation:
+  kind: module
+  module: "../runtime/adapters-builtin.ts"
+  export: "intersection-observe"

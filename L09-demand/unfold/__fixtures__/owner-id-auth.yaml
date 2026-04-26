@@ -1,0 +1,17 @@
+conformsTo: adk:RulesDocument/1.0
+discriminator: unfold
+id: adk:UnfoldRules-Extension-OwnerIdAuth/1.0
+version: 1.0
+heuristics:
+  - id: detect-ownership
+    when:
+      fieldNames: ["ownerId"]
+    emit:
+      kind: action-precondition
+      appliesTo: "all-generated-actions"
+      precondition:
+        op: record
+        fields:
+          requires:
+            op: const
+            value: "cap://test.example/authorize-owner/1.0"

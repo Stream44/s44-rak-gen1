@@ -1,0 +1,422 @@
+/* ======================================================================
+ * kinds/ui-html-ws/theme.css — GENERIC only.
+ *
+ * Every rule in this file targets either:
+ *   - a primitive class name emitted by `kinds/ui-html-ws/primitives/*`
+ *     (.stack, .toolbar, .tabs-nested, .tab, .split, .card, .pill,
+ *      .breadcrumb, .inspector, .event-timeline, .state-machine-graph,
+ *      .selectable, .table, .badge, …)
+ *   - a generic layout / semantic class that any consumer can opt in to
+ *     (.tab-panel, .panel-body, .list-pane, .inspector-pane)
+ *   - a data-* attribute selector declared as part of the primitive API
+ *     (data-selected, data-tone, data-tab, data-tab-trigger, data-current,
+ *      data-step-status, data-passed)
+ *
+ * No consumer-specific class name (observatory-*, acceptance-*, suite-*,
+ * model-world-*, step-card, trace-steps, scenario-row, etc.) may appear
+ * here. Consumer-specific styling lives with the consumer's projection —
+ * e.g., `examples/observatory/projection/assets/observatory.css`.
+ * ====================================================================== */
+
+/* 1. Root reset + viewport shell */
+html,
+body {
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+:root {
+  --color-ok: var(--pill-success-fg);
+  --color-error: var(--pill-error-fg);
+  --color-warn: #d18b2b;
+  --color-muted: var(--muted);
+  --color-surface: #fff;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--fg);
+  --border: #d0d7de;
+  --bg: #f7f8fa;
+  --fg: #17212b;
+  --muted: #5a6570;
+  --accent: #1d6fd6;
+  --pill-neutral-bg: #e9edf2;
+  --pill-neutral-fg: #26313d;
+  --pill-info-bg: #d9ecff;
+  --pill-info-fg: #0f4d96;
+  --pill-success-bg: #dff5e4;
+  --pill-success-fg: #155c2d;
+  --pill-warning-bg: #fff2cc;
+  --pill-warning-fg: #7b5600;
+  --pill-error-bg: #ffe0dc;
+  --pill-error-fg: #8f2416;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* 2. Viewport-bound page shell.
+ *    Every projection wraps its page in a single outer .stack. That stack
+ *    becomes a flex column covering the viewport. By primitive contract,
+ *    the FIRST .toolbar is the page header (auto), the FIRST .tabs-nested
+ *    is the tab bar (auto), and the sole visible .tab-panel fills the
+ *    remaining height. This matches any projection that follows the
+ *    header → tabs → panel pattern — no consumer-specific class required.
+ */
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#root > .stack {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#root > .stack > .toolbar:first-of-type,
+#root > .stack > .tabs-nested {
+  flex: 0 0 auto;
+}
+
+#root > .stack > .tab-panel {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* 3. Page-level Toolbar visual chrome (only the first toolbar in the page
+ *    stack gets the page-header styling; nested toolbars inside tab panels
+ *    are plain flex rows). */
+#root > .stack > .toolbar:first-of-type {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 4. TabsNested primitive visual chrome. */
+.tabs-nested {
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 5. Tab panel = flex column; last child fills remaining height. Works
+ *    whether the tab has 2 children (toolbar + body) or 3 (toolbar +
+ *    breadcrumb + body).
+ *
+ *    Server-side visibility: a tab panel with `data-tab="X"` is hidden
+ *    unless the projection emits `data-tab-active="true"` on it. This means
+ *    the initial HTTP response already reflects the active tab — no flash
+ *    of all panels before the client runtime hydrates. */
+[data-tab]:not([data-tab-active="true"]) {
+  display: none !important;
+}
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.tab-panel > * {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.tab-panel > :last-child {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-panel > .panel-body {
+  overflow-y: auto;
+}
+
+/* 6. Scroll cascade — every container that can host scrollable content
+ *    must propagate `min-height: 0` so `overflow: auto` actually engages. */
+.tab-panel,
+.tab-panel > .panel-body,
+.list-pane,
+.inspector-pane,
+.split,
+.split > *,
+.stack,
+section > .panel-body {
+  min-height: 0;
+}
+
+/* 7. Leaf scroll containers — the generic list/detail pattern.
+ *    .list-pane / .inspector-pane names are generic structural roles any
+ *    consumer can adopt without implying anything about the consumer. */
+.panel-body,
+.list-pane,
+.inspector-pane {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  flex: 1 1 0;
+}
+
+/* 8. Split primitive. */
+.split { flex: 1 1 auto; min-height: 0; height: 100%; }
+.split-h > * { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; flex: 1 1 0; height: 100%; }
+.split-v > * { min-width: 0; min-height: 0; overflow: hidden; flex: 1 1 0; display: flex; flex-direction: column; }
+
+/* 9. Stable table layout.
+ *    `table-layout: fixed` + `width: 100%` locks column widths based on
+ *    header cells / first row only. Selecting a row, refreshing data, or
+ *    loading long content NEVER reflows columns horizontally — long content
+ *    is clipped in-cell, not allowed to push the table wider. This is the
+ *    core contract the observatory relies on so the UI is rock-solid. */
+.panel-body table,
+.list-pane table,
+.inspector-pane table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+}
+.panel-body table th,
+.panel-body table td,
+.list-pane table th,
+.list-pane table td,
+.inspector-pane table th,
+.inspector-pane table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.panel-body table thead th,
+.list-pane table thead th,
+.inspector-pane table thead th {
+  position: sticky;
+  top: 0;
+  background: #fbfcfd;
+  z-index: 1;
+  font-weight: 600;
+}
+
+/* 10. Selectable-row affordance — auto-applied by TableRow primitive. */
+tr.selectable {
+  cursor: pointer;
+  transition: background-color 0.08s ease, border-left-color 0.08s ease;
+  border-left: 3px solid transparent;
+}
+tr.selectable:hover,
+tr.selectable:hover td {
+  background: var(--pill-neutral-bg);
+}
+tr.selectable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* 11. Selected-row styling (data-selected="true"). */
+tr.selectable[data-selected="true"],
+.list-pane tr[data-selected="true"],
+.list-pane .card[data-selected="true"],
+.inspector-pane .card[data-selected="true"] {
+  background: var(--pill-info-bg);
+  border-left-color: var(--accent);
+}
+tr.selectable[data-selected="true"] td,
+.list-pane tr[data-selected="true"] td {
+  background: var(--pill-info-bg);
+}
+tr.selectable[data-selected="true"]:hover,
+tr.selectable[data-selected="true"]:hover td {
+  background: var(--pill-info-bg);
+}
+
+/* 12. Breadcrumb primitive. */
+.breadcrumb {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 12px;
+  background: #f0f3f6;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.breadcrumb .breadcrumb-segment {
+  color: var(--accent);
+  cursor: pointer;
+}
+.breadcrumb .breadcrumb-segment[data-current="true"] {
+  color: var(--fg);
+  cursor: default;
+  font-weight: 600;
+}
+.breadcrumb .breadcrumb-separator {
+  color: var(--muted);
+}
+
+/* 13. Card / Section / Badge / Row / Pill primitives. */
+.card,
+section,
+[role="tablist"] {
+  border: 1px solid var(--border);
+  background: #fff;
+}
+section { padding: 10px 12px; }
+section > header {
+  margin: -10px -12px 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: #fbfcfd;
+  font-weight: 600;
+}
+.card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgb(23 33 43 / 0.06);
+}
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+[role="tablist"],
+.tabs-row {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+}
+[role="tablist"] > button,
+.tabs-row > button.tab {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+[role="tablist"] > button[aria-selected="true"],
+.tabs-row > button.tab[aria-selected="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #eef5ff;
+  font-weight: 600;
+}
+[role="tablist"] > button:hover,
+.tabs-row > button.tab:hover {
+  border-color: var(--accent);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--pill-neutral-bg);
+  color: var(--pill-neutral-fg);
+}
+
+.pill[data-tone="neutral"] { background: var(--pill-neutral-bg); color: var(--pill-neutral-fg); }
+.pill[data-tone="info"] { background: var(--pill-info-bg); color: var(--pill-info-fg); }
+.pill[data-tone="success"] { background: var(--pill-success-bg); color: var(--pill-success-fg); }
+.pill[data-tone="warning"] { background: var(--pill-warning-bg); color: var(--pill-warning-fg); }
+.pill[data-tone="error"] { background: var(--pill-error-bg); color: var(--pill-error-fg); }
+
+/* 14. Per-primitive debug outline. */
+body.debug .primitive-badge,
+body.debug .primitive-breadcrumb,
+body.debug .primitive-button,
+body.debug .primitive-card,
+body.debug .primitive-code,
+body.debug .primitive-column,
+body.debug .primitive-context,
+body.debug .primitive-description-list,
+body.debug .primitive-effect,
+body.debug .primitive-empty-state,
+body.debug .primitive-form,
+body.debug .primitive-grid,
+body.debug .primitive-heading,
+body.debug .primitive-icon,
+body.debug .primitive-iframe,
+body.debug .primitive-input,
+body.debug .primitive-inspector,
+body.debug .primitive-iter,
+body.debug .primitive-key-value-list,
+body.debug .primitive-link,
+body.debug .primitive-list,
+body.debug .primitive-panel,
+body.debug .primitive-pill,
+body.debug .primitive-row,
+body.debug .primitive-search-box,
+body.debug .primitive-section,
+body.debug .primitive-split,
+body.debug .primitive-splitter,
+body.debug .primitive-stack,
+body.debug .primitive-status-dot,
+body.debug .primitive-sticky-header,
+body.debug .primitive-tab,
+body.debug .primitive-tab-bar,
+body.debug .primitive-table,
+body.debug .primitive-tabs-nested,
+body.debug .primitive-text,
+body.debug .primitive-timeline,
+body.debug .primitive-toolbar,
+body.debug .primitive-tree {
+  outline: 1px dashed red;
+  outline-offset: -1px;
+}
+
+body.debug::before {
+  content: "debug 100vw x 100vh";
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 9999;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgb(127 29 29 / 0.92);
+  color: #fff;
+  font: 600 11px/1 ui-monospace, monospace;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* 15. Utilities. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.truncate-cid {
+  font-family: ui-monospace, monospace;
+  color: var(--muted);
+}

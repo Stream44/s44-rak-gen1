@@ -1,0 +1,28 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Select/1.0
+name: Select
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    value: {}
+    options: { type: array, items: { type: object } }
+    onChange: {}
+    actionRef: { type: string }
+    payloadKey: { type: string }
+contract: render a native select with option rows and change-dispatch metadata
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Select" }
+    value: { op: get, path: "$input/value" }
+    options: { op: get, path: "$input/options" }
+    onChange: { op: get, path: "$input/onChange" }
+    actionRef: { op: get, path: "$input/actionRef" }
+    payloadKey: { op: get, path: "$input/payloadKey" }
+implementation:
+  kind: module
+  module: "./Select.ts"
+  export: default

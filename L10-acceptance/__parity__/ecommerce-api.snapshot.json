@@ -1,0 +1,100 @@
+{
+  "modelId": "ecommerce",
+  "modelVersion": "1.0.0",
+  "passed": false,
+  "stats": {
+    "passedScenarios": 0,
+    "passedSteps": 0,
+    "passedTraces": 0,
+    "totalScenarios": 2,
+    "totalSteps": 2,
+    "totalTraces": 2
+  },
+  "suiteId": "ecommerce-api-acceptance",
+  "timestamp": "<TIMESTAMP>",
+  "useCases": [
+    {
+      "name": "API Order Confirmation With Persona Redaction",
+      "passed": false,
+      "scenarios": [
+        {
+          "name": "Alice confirms an order and sees the full response",
+          "passed": false,
+          "scenarioId": "sc-alice-confirms-full",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": false,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    },
+                    {
+                      "actual": "no projectorSession attached to step",
+                      "expected": "api.rest assertion evaluated",
+                      "kind": "api-response",
+                      "passed": false
+                    }
+                  ],
+                  "passed": false,
+                  "stepId": "step-alice-confirm",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "step-alice-confirm"
+            }
+          ]
+        },
+        {
+          "name": "Bob confirms an order but sees redacted response",
+          "passed": false,
+          "scenarioId": "sc-bob-confirms-redacted",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": false,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    },
+                    {
+                      "actual": "no projectorSession attached to step",
+                      "expected": "api.rest assertion evaluated",
+                      "kind": "api-response",
+                      "passed": false
+                    }
+                  ],
+                  "passed": false,
+                  "stepId": "step-bob-confirm",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "step-bob-confirm"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-api-confirm-redaction"
+    }
+  ]
+}

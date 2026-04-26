@@ -1,0 +1,50 @@
+suite: ecommerce-api-acceptance
+name: E-Commerce API Acceptance Suite
+model: ecommerce
+version: 1.0.0
+personas: ./personas-api.yaml
+seeds: ./seeds.yaml
+
+useCases:
+  - id: uc-api-confirm-redaction
+    name: API Order Confirmation With Persona Redaction
+    scenarios:
+      - id: sc-alice-confirms-full
+        name: Alice confirms an order and sees the full response
+        steps:
+          - id: step-alice-confirm
+            persona: alice
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: confirmed }
+              - kind: api-response
+                surface: api.rest
+                method: POST
+                path: /orders/ord-001/confirm
+                expected:
+                  status: 200
+                  bodyShape:
+                    customerEmail: ada@example.com
+
+      - id: sc-bob-confirms-redacted
+        name: Bob confirms an order but sees redacted response
+        steps:
+          - id: step-bob-confirm
+            persona: bob
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: confirmed }
+              - kind: api-response
+                surface: api.rest
+                method: POST
+                path: /orders/ord-001/confirm
+                expected:
+                  status: 200
+                  bodyShape:
+                    customerEmail: "(redacted)"

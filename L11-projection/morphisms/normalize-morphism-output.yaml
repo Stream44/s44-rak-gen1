@@ -1,0 +1,15 @@
+id: morphism://adk/normalizeMorphismOutput/1.0-document
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+discriminator: projection-kernel-runtime
+schema:
+  morphisms:
+    normalizeMorphismOutput:
+      id: morphism://adk/normalizeMorphismOutput/1.0
+      input: type://adk/NormalizeMorphismOutputInput/0.1.0
+      output: type://adk/ProjectionNodeArray/0.1.0
+      impl:
+        kind: module
+        uri: module://./normalize-morphism-output.ts
+        export: default
+      category: pure

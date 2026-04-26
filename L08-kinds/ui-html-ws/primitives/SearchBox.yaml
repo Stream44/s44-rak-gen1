@@ -1,0 +1,24 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/SearchBox/1.0
+name: SearchBox
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    bind: {}
+    placeholder: { type: string }
+    debounceMs: { type: number }
+contract: render a search input bound to a local ctx path with adapter-backed debounce metadata
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "SearchBox" }
+    bind: { op: get, path: "$input/bind" }
+    placeholder: { op: get, path: "$input/placeholder" }
+    debounceMs: { op: get, path: "$input/debounceMs" }
+implementation:
+  kind: module
+  module: "./SearchBox.ts"
+  export: default

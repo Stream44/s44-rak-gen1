@@ -1,0 +1,43 @@
+projector: test-pathstyle
+version: 0.1.0
+session:
+  scope: test-pathstyle
+bindsModel: ""
+title: PathStyle Demo
+shell: ./shell.html
+
+routes:
+  - path: /
+    page: home
+
+pages:
+  home:
+    children:
+      - component: Heading
+        props: { level: 1, text: "PathStyle Filter Demo" }
+      - component: Text
+        props: { text: "Current filter: all", data-testid: "current-filter" }
+      - component: Button
+        props:
+          id: filter-all
+          label: All
+          data-action-ref: ui.set
+          data-ctx-path: page
+          data-ui-set-path: filter
+          data-value: all
+      - component: Button
+        props:
+          id: filter-active
+          label: Active
+          data-action-ref: ui.set
+          data-ctx-path: page
+          data-ui-set-path: filter
+          data-value: active
+      - component: Button
+        props:
+          id: filter-completed
+          label: Completed
+          data-action-ref: ui.set
+          data-ctx-path: page
+          data-ui-set-path: filter
+          data-value: completed

@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/jwt-verifier/MemoryHS256JwtVerifier/1.0
+name: MemoryHS256JwtVerifier
+assetKind: handler
+conformsToKind: jwt-verifier
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: "HS256 JWT verifier via crypto.subtle HMAC-SHA256; symmetric key via KeyAsset ref"
+implementation:
+  kind: module
+  module: "./hs256-jwt-verifier.ts"
+  export: default

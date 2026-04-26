@@ -1,0 +1,38 @@
+name: reflective-projection
+version: 1.0.0
+origin: https://github.com/Stream44/s44-rak-gen1@1.0/examples/model-world/reflective-projection
+
+models:
+  - { path: ../models/core.model.yaml, role: foundation }
+  - { path: ../models/ecommerce.model.yaml, role: primary, initialBinding: true }
+
+storageSpaces:
+  - name: categories-fs
+    kind: filesystem
+    path: ./data/categories.json
+  - name: records-fs
+    kind: filesystem
+    path: ./data/records.json
+
+bindings:
+  - name: category-records
+    space: categories-fs
+    aspect:
+      kind: entityCollection
+      entity: Model
+      keyField: model
+    shape:
+      stored: "$self"
+      derived:
+        model: "$key"
+
+  - name: record-records
+    space: records-fs
+    aspect:
+      kind: entityCollection
+      entity: Entity
+      keyField: description
+    shape:
+      stored: "$self"
+      derived:
+        description: "$key"

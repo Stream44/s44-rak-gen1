@@ -1,0 +1,51 @@
+suite: ecommerce-cross-acceptance
+name: E-Commerce Cross-Kind Acceptance Suite
+model: ecommerce
+version: 1.0.0
+personas: ./personas-api.yaml
+seeds: ./seeds.yaml
+useCases:
+  - id: uc-order-confirmation-parity
+    name: Order confirmation parity across UI and API surfaces
+    scenarios:
+      - id: sc-order-confirmation-parity
+        name: Order confirmation parity across UI and API surfaces
+        inlineSeeds:
+          - targetKey: ord-002
+            state: { status: pending }
+            label: Inline copy of ord-002 for Bob's branch
+        steps:
+          - id: step-alice-ui-confirm
+            persona: alice
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: confirmed }
+              - kind: projector-node
+                surface: ui.html.ws
+                selector: "[data-testid=order-row-pii]"
+                present: true
+                attrs: { "data-redacted": "0" }
+            branches:
+              - label: next
+                step:
+                  id: step-bob-api-confirm-redacted
+                  persona: bob
+                  verb: confirm
+                  targetKey: ord-002
+                  assertions:
+                    - kind: state-field-match
+                      targetKey: ord-002
+                      fields: { status: confirmed }
+                    - kind: api-response
+                      surface: api.rest
+                      method: POST
+                      path: /orders/ord-002/confirm
+                      expected:
+                        status: 200
+                        bodyShape:
+                          customer:
+                            pii:
+                              email: "(redacted)"

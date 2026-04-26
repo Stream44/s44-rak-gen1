@@ -1,0 +1,18 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Heading/1.0
+name: Heading
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    level: { type: integer, minimum: 1, maximum: 6 }
+    text: { type: string }
+  required: [text]
+contract: render an <h1>..<h6> element; clamp level into the inclusive range 1..6; render text as escaped text content
+render: module://./primitives/Heading.ts#default
+implementation:
+  kind: module
+  module: "./Heading.ts"
+  export: default

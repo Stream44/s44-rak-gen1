@@ -1,0 +1,5 @@
+kind: filesystem-journal-space
+version: 1.0.0
+conformsTo: kind://adk/storage-space/1.0
+implements: append-only-journal
+provides: [open, append, scanFrom, latestCursor, flush, close]

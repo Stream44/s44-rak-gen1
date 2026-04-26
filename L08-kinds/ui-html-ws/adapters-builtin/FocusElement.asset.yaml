@@ -1,0 +1,15 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/adapter/FocusElement/1.0
+name: focus-element
+assetKind: adapter
+conformsToKind: ui.html.ws
+version: 1.0.0
+argsShape:
+  type: object
+  properties:
+    selector: { type: string }
+    preserveSelection: { type: boolean }
+implementation:
+  kind: module
+  module: "../runtime/adapters-builtin.ts"
+  export: "focus-element"

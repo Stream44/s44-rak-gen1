@@ -1,0 +1,18 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Input/1.0
+name: Input
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    name: { type: string }
+    type: { type: string }
+    placeholder: { type: string }
+contract: render an <input> element with name, type, and placeholder attributes derived from props
+render: module://./primitives/Input.ts#default
+implementation:
+  kind: module
+  module: "./Input.ts"
+  export: default

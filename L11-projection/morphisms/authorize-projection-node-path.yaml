@@ -1,0 +1,139 @@
+id: morphism://adk/authorizeProjectionNodePath/1.0-document
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+discriminator: projection-kernel-runtime
+schema:
+  morphisms:
+    authorizeProjectionNodePath:
+      id: morphism://adk/authorizeProjectionNodePath/1.0
+      input: type://adk/AuthorizeInput/0.1.0
+      output: type://adk/AuthorizeVerdict/0.1.0
+      category: pure
+      impl:
+        kind: algebra
+        ast:
+          op: let
+          name: $missingAll
+          value:
+            op: call
+            fn: filter
+            args:
+              - op: get
+                path: $input/requires
+              - op: lambda
+                param: $cap
+                body:
+                  op: call
+                  fn: not
+                  args:
+                    - op: apply
+                      fn: { op: var, name: $verifyOne }
+                      arg:
+                        op: record
+                        fields:
+                          capId:
+                            op: apply
+                            fn: { op: var, name: $lookupCap }
+                            arg:
+                              op: record
+                              fields:
+                                session: { op: get, path: $input/session }
+                                capUri: { op: var, name: $cap }
+                          resourceUri: { op: var, name: $cap }
+                          subject: { op: get, path: $input/session/currentUser/id }
+          body:
+            op: let
+            name: $missing
+            value:
+              op: if
+              cond:
+                op: call
+                fn: gt
+                args:
+                  - op: call
+                    fn: length
+                    args: [{ op: get, path: $input/requiresAny }]
+                  - op: const
+                    value: 0
+              then:
+                op: let
+                name: $authorizedAny
+                value:
+                  op: call
+                  fn: filter
+                  args:
+                    - op: get
+                      path: $input/requiresAny
+                    - op: lambda
+                      param: $cap
+                      body:
+                        op: apply
+                        fn: { op: var, name: $verifyOne }
+                        arg:
+                          op: record
+                          fields:
+                            capId:
+                              op: apply
+                              fn: { op: var, name: $lookupCap }
+                              arg:
+                                op: record
+                                fields:
+                                  session: { op: get, path: $input/session }
+                                  capUri: { op: var, name: $cap }
+                            resourceUri: { op: var, name: $cap }
+                            subject: { op: get, path: $input/session/currentUser/id }
+                body:
+                  op: if
+                  cond:
+                    op: call
+                    fn: gt
+                    args:
+                      - op: call
+                        fn: length
+                        args: [{ op: var, name: $authorizedAny }]
+                      - op: const
+                        value: 0
+                  then: { op: var, name: $missingAll }
+                  else:
+                    op: call
+                    fn: arrayConcat
+                    args:
+                      - op: var
+                        name: $missingAll
+                      - op: array
+                        elements:
+                          - op: call
+                            fn: concat
+                            args:
+                              - op: const
+                                value: "requiresAny:["
+                              - op: call
+                                fn: concat
+                                args:
+                                  - op: get
+                                    path: $input/requiresAny
+                                  - op: const
+                                    value: "]"
+              else: { op: var, name: $missingAll }
+            body:
+              op: if
+              cond:
+                op: call
+                fn: eq
+                args:
+                  - op: call
+                    fn: length
+                    args: [{ op: var, name: $missing }]
+                  - op: const
+                    value: 0
+              then:
+                op: const
+                value: { outcome: allow }
+              else:
+                op: record
+                fields:
+                  outcome: { op: const, value: deny }
+                  reason: { op: const, value: "missing capabilities" }
+                  missing: { op: var, name: $missing }
+                  scope: { op: get, path: $input/scope }
+                  nodePath: { op: get, path: $input/nodePath }

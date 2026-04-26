@@ -1,0 +1,15 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/adapter/AnimationTiming/1.0
+name: animation-timing
+assetKind: adapter
+conformsToKind: ui.html.ws
+version: 1.0.0
+argsShape:
+  type: object
+  properties:
+    rate: { type: number }
+    emit: { type: string }
+implementation:
+  kind: module
+  module: "../runtime/adapters-builtin.ts"
+  export: "animation-timing"

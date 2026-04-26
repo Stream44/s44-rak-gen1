@@ -12,17 +12,18 @@
 The Reflexive Algebraic Kernel
 ===
 
-> content-addressed, algebraically-composable runtime for Stratified Homoiconic systems
+> Content-addressed, algebraically-composable runtime for Stratified Homoiconic systems
 
 **Compose applications from declared semantic models.**
 
 This is an experimental AI-first codebase built with AI and for AI with the goal of making it easy to follow and understand by humans.
+Nothing other than this readme has been touched by human hands.
 
 It is an early research preview released for feedback. The code has not been thoroughly reviewed yet as it still changes too much.
 
-You are encouraged to use AI to explore the project and have AI explain it to you. Documentation will be created as kernel aspects harden.
+You are encouraged to use AI to explore the project and have AI explain it to you. See [OVERVIEW.md](./OVERVIEW.md) for a conceptual introduction.
 
-Start by looking at `examples/todomvc/` which is a simple complete example of the famous application. The other examples are only partially working.
+Look at `examples/todomvc/` which is a simple complete example of the famous application. The other examples are only partially working.
 
 Ask AI to make changes and see how it goes.
 
@@ -57,7 +58,7 @@ Provenance
 
 [![Gordian Open Integrity](https://github.com/Stream44/s44-rak-gen1/actions/workflows/gordian-open-integrity.yaml/badge.svg)](https://github.com/Stream44/s44-rak-gen1/actions/workflows/gordian-open-integrity.yaml?query=branch%3Amain) 
 
-Repository DID: `did:repo:54767d0bc61d1253a0ae94cc70b4bea73bcd32f6`
+Repository DID: `did:repo:d52604fdb21ddf29ca239c4c0c65b12e344cd987`
 
 <table>
   <tr>

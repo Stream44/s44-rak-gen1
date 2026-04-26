@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/EmptyState/1.0
+name: EmptyState
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    message: { type: string }
+contract: render an empty-state message with an optional rendered action slot
+render: module://./primitives/EmptyState.ts#default
+implementation:
+  kind: module
+  module: "./EmptyState.ts"
+  export: default

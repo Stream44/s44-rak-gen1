@@ -1,0 +1,20 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/api.rest/primitive/ResponseShape/1.0
+name: ResponseShape
+assetKind: primitive
+conformsToKind: api.rest
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    status: { type: string }
+    contentType: { type: string, default: "application/json" }
+    schema: { type: object }
+    description: { type: string }
+  required: [status]
+contract: "contribute one entry under responses[status].content[contentType].schema on the parent Endpoint"
+render: module://./primitives/ResponseShape.ts#default
+implementation:
+  kind: module
+  module: "./ResponseShape.ts"
+  export: default

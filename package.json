@@ -2,5 +2,31 @@
     "name": "@stream44/s44-rak-gen1",
     "version": "0.1.0",
     "private": true,
-    "license": "Apache-2.0"
+    "license": "Apache-2.0",
+    "type": "module",
+    "description": "The Reflexive Algebraic Kernel — content-addressed, algebraically-composable runtime for Stratified Homoiconic systems.",
+    "main": "./L13-facade/index.ts",
+    "bin": {
+        "rak": "./bin/rak.ts"
+    },
+    "exports": {
+        ".": "./L13-facade/index.ts",
+        "./kernel": "./L13-facade/kernel.ts",
+        "./runtime": "./L13-facade/runtime.ts",
+        "./compiler": "./L13-facade/compiler.ts",
+        "./bin/rak": "./bin/rak.ts"
+    },
+    "scripts": {
+        "bench": "bun L12-compiler/bench.ts",
+        "bench:cold-start": "bun L12-compiler/cold-start-bench.ts",
+        "e2e": "bun test tests/integration/"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@playwright/test": "^1.59.1",
+        "@types/bun": "latest",
+        "jsdom": "^29.0.2",
+        "typescript": "^5.7.0",
+        "yaml": "^2.8.3"
+    }
 }

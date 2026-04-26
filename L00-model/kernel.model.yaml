@@ -1,0 +1,2397 @@
+kernel: meta-projection-minimal
+version: 0.1.0
+conformsTo: adk:KernelMetamodel/1.0
+origin: adk
+
+types:
+  RawProjectionYaml:
+    name: RawProjectionYaml
+    jsonSchema:
+      type: object
+      required: [yamlText]
+      properties:
+        yamlText: { type: string }
+  ProjectionModel:
+    name: ProjectionModel
+    jsonSchema:
+      type: object
+      required: [projector, version]
+      properties:
+        projector: { type: string }
+        version: { type: string }
+        bindsModel: {}
+        pages: { type: object }
+        morphism: {}
+        actions: { type: array }
+  ProjectionModelInput:
+    name: ProjectionModelInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  FlatCarrier:
+    name: FlatCarrier
+    jsonSchema:
+      type: object
+      required: [scope, nodePath]
+      properties:
+        scope:
+          type: string
+          enum: [projection, page, route, component, asset, binding, action]
+        nodePath: { type: string }
+        requires:
+          type: array
+          items: { type: string }
+        requiresAny:
+          type: array
+          items: { type: string }
+  FlatCarrierArray:
+    name: FlatCarrierArray
+    jsonSchema:
+      type: array
+      items:
+        type: object
+        required: [scope, nodePath]
+        properties:
+          scope:
+            type: string
+            enum: [projection, page, route, component, asset, binding, action]
+          nodePath: { type: string }
+          requires:
+            type: array
+            items: { type: string }
+          requiresAny:
+            type: array
+            items: { type: string }
+  CapabilityRequirement:
+    name: CapabilityRequirement
+    jsonSchema:
+      type: object
+      required: [scope, nodePath, caps, combinator]
+      properties:
+        scope:
+          type: string
+          enum: [projection, page, route, component, asset, binding, action]
+        nodePath: { type: string }
+        caps:
+          type: array
+          items: { type: string }
+        combinator:
+          type: string
+          enum: [all, any]
+  CapabilityRequirementArray:
+    name: CapabilityRequirementArray
+    jsonSchema:
+      type: array
+      items:
+        type: object
+        required: [scope, nodePath, caps, combinator]
+        properties:
+          scope:
+            type: string
+            enum: [projection, page, route, component, asset, binding, action]
+          nodePath: { type: string }
+          caps:
+            type: array
+            items: { type: string }
+          combinator:
+            type: string
+            enum: [all, any]
+  CapabilityRequirementConcatInput:
+    name: CapabilityRequirementConcatInput
+    jsonSchema:
+      type: object
+      required: [left, right]
+      properties:
+        left:
+          type: array
+          items:
+            type: object
+            required: [scope, nodePath, caps, combinator]
+            properties:
+              scope:
+                type: string
+                enum: [projection, page, route, component, asset, binding, action]
+              nodePath: { type: string }
+              caps:
+                type: array
+                items: { type: string }
+              combinator:
+                type: string
+                enum: [all, any]
+        right:
+          type: array
+          items:
+            type: object
+            required: [scope, nodePath, caps, combinator]
+            properties:
+              scope:
+                type: string
+                enum: [projection, page, route, component, asset, binding, action]
+              nodePath: { type: string }
+              caps:
+                type: array
+                items: { type: string }
+              combinator:
+                type: string
+                enum: [all, any]
+  ActionManifest:
+    name: ActionManifest
+    jsonSchema:
+      type: object
+      required: [byName, byUri]
+      properties:
+        byName: { type: object }
+        byUri: { type: object }
+  WalkedTree:
+    name: WalkedTree
+    jsonSchema:
+      type: object
+      required: [kind, entries]
+      properties:
+        kind: { type: string, enum: [pages, morphism] }
+        entries: { type: array }
+  CompiledProjection:
+    name: CompiledProjection
+    jsonSchema:
+      type: object
+      required: [cid, model, manifest, ast]
+      properties:
+        cid: { type: string }
+        model: { type: object }
+        manifest: { type: object }
+        ast: { type: object }
+        staticRequirements: { type: array }
+        staticCapabilities: { type: array }
+  RenderRequest:
+    name: RenderRequest
+    jsonSchema:
+      type: object
+      required: [doc, pageName]
+      properties:
+        doc: { type: object }
+        pageName: { type: string }
+        props: { type: object }
+        bindings: {}
+        session: { type: object }
+  ProjectionTree:
+    name: ProjectionTree
+    jsonSchema:
+      type: object
+      required: [root, pageName]
+      properties:
+        root: { type: object }
+        pageName: { type: string }
+        actionHandlers: { type: array }
+  ModulePreloadList:
+    name: ModulePreloadList
+    jsonSchema:
+      type: array
+      items: { type: string }
+  EchoInput:
+    name: EchoInput
+    jsonSchema:
+      type: object
+      required: [msg]
+      properties:
+        msg: { type: string }
+  EchoOutput:
+    name: EchoOutput
+    jsonSchema:
+      type: object
+      required: [msg, length]
+      properties:
+        msg: { type: string }
+        length: { type: integer }
+  EchoState:
+    name: EchoState
+    jsonSchema:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, echoed]
+  EchoEvent:
+    name: EchoEvent
+    jsonSchema:
+      type: object
+      required: [verb]
+      properties:
+        verb:
+          type: string
+          enum: [echo]
+  AuthorizeInput:
+    name: AuthorizeInput
+    jsonSchema:
+      type: object
+      required: [requires, session, scope, nodePath]
+      properties:
+        requires:
+          type: array
+          items: { type: string }
+        requiresAny:
+          type: array
+          items: { type: string }
+        session:
+          type: object
+          required: [currentUser]
+          properties:
+            currentUser:
+              type: object
+              required: [id, capabilities]
+              properties:
+                id: { type: string }
+                capabilities:
+                  type: object
+                  additionalProperties: { type: string }
+        scope:
+          type: string
+          enum: [projection, page, route, component, asset, binding, action]
+        nodePath: { type: string }
+  AuthorizeVerdict:
+    name: AuthorizeVerdict
+    jsonSchema:
+      type: object
+      properties:
+        outcome: { type: string }
+        reason: { type: string }
+        missing:
+          type: array
+          items: { type: string }
+        scope: { type: string }
+        nodePath: { type: string }
+      oneOf:
+        - type: object
+          required: [outcome]
+          properties:
+            outcome: { const: allow }
+        - type: object
+          required: [outcome, reason, missing, scope, nodePath]
+          properties:
+            outcome: { const: deny }
+            reason: { type: string }
+            missing:
+              type: array
+              items: { type: string }
+            scope: { type: string }
+            nodePath: { type: string }
+  AcceptancePredicateEvaluationInput:
+    name: AcceptancePredicateEvaluationInput
+    jsonSchema:
+      type: object
+      required: [expression, context]
+      properties:
+        expression: { type: string }
+        context:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+  AcceptancePredicateEvaluationOutput:
+    name: AcceptancePredicateEvaluationOutput
+    jsonSchema:
+      type: object
+      required: [passed]
+      properties:
+        passed: { type: boolean }
+      additionalProperties: false
+  AcceptanceTraceExtractionInput:
+    name: AcceptanceTraceExtractionInput
+    jsonSchema:
+      type: object
+      required: [rootStep]
+      properties:
+        rootStep:
+          type: object
+          additionalProperties: true
+        budget:
+          type: integer
+          minimum: 1
+      additionalProperties: false
+  AcceptanceTraceArray:
+    name: AcceptanceTraceArray
+    jsonSchema:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+  AcceptanceMacroResolutionInput:
+    name: AcceptanceMacroResolutionInput
+    jsonSchema:
+      type: object
+      required: [step]
+      properties:
+        step:
+          type: object
+          additionalProperties: true
+        lastCreatedKey:
+          type: [string, "null"]
+      additionalProperties: false
+  AcceptanceStep:
+    name: AcceptanceStep
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  AcceptanceStateEqualsAssertionInput:
+    name: AcceptanceStateEqualsAssertionInput
+    jsonSchema:
+      type: object
+      required: [actual]
+      properties:
+        actual: {}
+        expected: {}
+      additionalProperties: false
+  AcceptanceStateFieldMatchAssertionInput:
+    name: AcceptanceStateFieldMatchAssertionInput
+    jsonSchema:
+      type: object
+      required: [actual, fields]
+      properties:
+        actual: {}
+        fields:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+  AcceptanceEventEmittedAssertionInput:
+    name: AcceptanceEventEmittedAssertionInput
+    jsonSchema:
+      type: object
+      required: [events, targetKey]
+      properties:
+        events:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        targetKey: { type: string }
+        newStateFields:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+  AcceptanceAssertionResult:
+    name: AcceptanceAssertionResult
+    jsonSchema:
+      type: object
+      required: [kind, passed, expected, actual]
+      properties:
+        kind: { type: string }
+        passed: { type: boolean }
+        expected: { type: string }
+        actual: { type: string }
+      additionalProperties: false
+  DispatchFrame:
+    name: DispatchFrame
+    jsonSchema:
+      type: object
+      required: [actionRef]
+      properties:
+        actionRef: { type: string }
+        target: { type: string }
+        payload: { type: object }
+        capabilityId: { type: string }
+  ResolvedAction:
+    name: ResolvedAction
+    jsonSchema:
+      type: object
+      required: [name, kind]
+      properties:
+        name: { type: string }
+        kind: { type: string, enum: [model, custom, ephemeral] }
+        action: { type: object }
+        payloadSchema: { type: object }
+        frame: { type: object }
+  IntentResult:
+    name: IntentResult
+    jsonSchema:
+      type: object
+      required: [success]
+      properties:
+        success: { type: boolean }
+        error: { type: string }
+        value: {}
+  DispatchResult:
+    name: DispatchResult
+    jsonSchema:
+      type: object
+      required: [kind, success]
+      properties:
+        kind: { type: string, enum: [custom, ephemeral, model, error] }
+        success: { type: boolean }
+        intentResult: { type: object }
+        error: { type: string }
+        name: { type: string }
+        payload: { type: object }
+  DispatchLifecycleState:
+    name: DispatchLifecycleState
+    jsonSchema:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, resolved, authorized, submitted, complete, denied, failed]
+  DispatchLifecycleEvent:
+    name: DispatchLifecycleEvent
+    jsonSchema:
+      type: object
+      required: [verb]
+      properties:
+        verb:
+          type: string
+          enum: [resolveRef, authorize, submit, encode, deny, fail]
+  KernelModelDocument:
+    name: KernelModelDocument
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  RegisterTypesInput:
+    name: RegisterTypesInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  RegisterMachinesInput:
+    name: RegisterMachinesInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  RegisterMorphismsInput:
+    name: RegisterMorphismsInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  RegisterActionsInput:
+    name: RegisterActionsInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  InstallKernelModelInput:
+    name: InstallKernelModelInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  InstallKernelModelOutput:
+    name: InstallKernelModelOutput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  AuthExtractInput:
+    name: AuthExtractInput
+    jsonSchema:
+      type: object
+      required: [request, authZPrimitives]
+      properties:
+        request: { type: object }
+        authZPrimitives:
+          type: array
+          items: { type: object }
+      additionalProperties: true
+  AuthExtractResult:
+    name: AuthExtractResult
+    jsonSchema:
+      type: object
+      required: [rawToken, authHeader, caps, found]
+      properties:
+        rawToken: {}
+        authHeader: {}
+        caps: { type: object }
+        found: { type: boolean }
+      additionalProperties: true
+  JwtVerifyInput:
+    name: JwtVerifyInput
+    jsonSchema:
+      type: object
+      required: [rawToken, keyAssetRef]
+      properties:
+        rawToken: {}
+        keyAssetRef: {}
+      additionalProperties: true
+  JwtVerifyResult:
+    name: JwtVerifyResult
+    jsonSchema:
+      type: object
+      required: [valid]
+      properties:
+        valid: { type: boolean }
+        claims: { type: object }
+        error: { type: string }
+      additionalProperties: true
+  MergeSessionScopesInput:
+    name: MergeSessionScopesInput
+    jsonSchema:
+      type: object
+      required: [sessionIds, declaredScopes]
+      properties:
+        sessionIds: { type: object }
+        declaredScopes:
+          type: array
+          items: { type: string }
+        store: {}
+      additionalProperties: true
+  MergeSessionScopesResult:
+    name: MergeSessionScopesResult
+    jsonSchema:
+      type: object
+      required: [caps, capabilityScopes, ephemeral]
+      properties:
+        caps: { type: object }
+        capabilityScopes: { type: object }
+        ephemeral: { type: object }
+      additionalProperties: true
+  EmitResolvedAuthInput:
+    name: EmitResolvedAuthInput
+    jsonSchema:
+      type: object
+      required: [jwtResult, sessionResult, extracted]
+      properties:
+        jwtResult: { type: object }
+        sessionResult: { type: object }
+        extracted: { type: object }
+      additionalProperties: true
+  ResolveAuthInput:
+    name: ResolveAuthInput
+    jsonSchema:
+      type: object
+      required: [request, context]
+      properties:
+        request: { type: object }
+        context: { type: object }
+      additionalProperties: true
+  ResolvedAuth:
+    name: ResolvedAuth
+    jsonSchema:
+      type: object
+      required: [source, caps, capabilityScopes]
+      properties:
+        source: { type: string }
+        caps: { type: object }
+        capabilityScopes: { type: object }
+        jwtClaims: { type: object }
+        ephemeral: { type: object }
+      additionalProperties: true
+  BindSessionInput:
+    name: BindSessionInput
+    jsonSchema:
+      type: object
+      required: [user, scope, caps]
+      properties:
+        user: { type: object }
+        scope: { type: string }
+        caps: { type: object }
+      additionalProperties: true
+  JwtSignInput:
+    name: JwtSignInput
+    jsonSchema:
+      type: object
+      required: [payload, keyRef]
+      properties:
+        payload: { type: object }
+        keyRef: { type: string }
+        verifierRef: {}
+      additionalProperties: true
+  SessionId:
+    name: SessionId
+    jsonSchema:
+      oneOf:
+        - { type: string }
+  JwtToken:
+    name: JwtToken
+    jsonSchema:
+      oneOf:
+        - { type: string }
+  DeepMergeInput:
+    name: DeepMergeInput
+    jsonSchema:
+      type: object
+      required: [base, overlay, opts]
+      properties:
+        base: {}
+        overlay: {}
+        opts:
+          type: object
+          properties:
+            allowUnknownPaths: { type: boolean }
+          required: [allowUnknownPaths]
+          additionalProperties: true
+      additionalProperties: true
+  DeepMergeResult:
+    name: DeepMergeResult
+    jsonSchema:
+      oneOf:
+        - { type: object }
+        - { type: array }
+        - { type: string }
+        - { type: number }
+        - { type: boolean }
+        - { type: null }
+  KindCompositionInput:
+    name: KindCompositionInput
+    jsonSchema:
+      type: object
+      required: [defaults, projection, invariants]
+      properties:
+        defaults: { type: object }
+        projection: { type: object }
+        invariants: { type: object }
+      additionalProperties: true
+  MergedKind:
+    name: MergedKind
+    jsonSchema:
+      oneOf:
+        - { type: object }
+        - { type: array }
+        - { type: string }
+        - { type: number }
+        - { type: boolean }
+        - { type: null }
+  ExtendsChain:
+    name: ExtendsChain
+    jsonSchema:
+      type: object
+      required: [chain]
+      properties:
+        chain:
+          type: array
+          items: { type: object }
+      additionalProperties: true
+  CycleDetection:
+    name: CycleDetection
+    jsonSchema:
+      type: object
+      required: [hasCycle]
+      properties:
+        hasCycle: { type: boolean }
+        path:
+          type: array
+          items: { type: string }
+      additionalProperties: true
+  ResolvedProjection:
+    name: ResolvedProjection
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  ExtendsResolverInput:
+    name: ExtendsResolverInput
+    jsonSchema:
+      type: object
+      required: [doc]
+      properties:
+        doc: { type: object }
+        registry: { type: object }
+      additionalProperties: true
+  WarningInput:
+    name: WarningInput
+    jsonSchema:
+      type: object
+      required: [overlap, context]
+      properties:
+        overlap:
+          type: array
+          items: { type: string }
+        context: { type: string }
+      additionalProperties: true
+  UnitResult:
+    name: UnitResult
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  StoreDispatchInput:
+    name: StoreDispatchInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  StoreDispatchResult:
+    name: StoreDispatchResult
+    jsonSchema:
+      oneOf:
+        - { type: object }
+        - { type: string }
+        - { type: "null" }
+  JwtVerifierDispatchInput:
+    name: JwtVerifierDispatchInput
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  JwtVerifierDispatchResult:
+    name: JwtVerifierDispatchResult
+    jsonSchema:
+      type: object
+      properties: {}
+      additionalProperties: true
+  FindOverlapInput:
+    name: FindOverlapInput
+    jsonSchema:
+      type: object
+      required: [a, b]
+      properties:
+        a: {}
+        b: {}
+      additionalProperties: true
+  OverlapPaths:
+    name: OverlapPaths
+    jsonSchema:
+      type: object
+      required: [paths]
+      properties:
+        paths:
+          type: array
+          items: { type: string }
+      additionalProperties: true
+  ProjectionModelArray:
+    name: ProjectionModelArray
+    jsonSchema:
+      type: array
+      items: { type: object }
+  EvaluateProjectionMorphismInput:
+    name: EvaluateProjectionMorphismInput
+    jsonSchema:
+      type: object
+      required: [compiledMorphism, context, handlers, pageBindings, session]
+      properties:
+        compiledMorphism: { type: object }
+        context: { type: object }
+        handlers: { type: array }
+        pageBindings: { type: object }
+        session: { type: object }
+  ProjectionNodeArray:
+    name: ProjectionNodeArray
+    jsonSchema:
+      type: array
+      items: { type: object }
+  ProjectionNode:
+    name: ProjectionNode
+    jsonSchema:
+      type: object
+      required: [component]
+      properties:
+        component: { type: string }
+        props: { type: object }
+        children: { type: array }
+        nodeId: { type: string }
+        actionBinding: { type: object }
+  NormalizeMorphismOutputInput:
+    name: NormalizeMorphismOutputInput
+    jsonSchema:
+      type: object
+      required: [value, context, handlers, pageBindings, session]
+      properties:
+        value: {}
+        context: { type: object }
+        handlers: { type: array }
+        pageBindings: { type: object }
+        session: { type: object }
+  MaterializeProjectionNodeInput:
+    name: MaterializeProjectionNodeInput
+    jsonSchema:
+      type: object
+      required: [node, context, handlers, uiContextState]
+      properties:
+        node: { type: object }
+        context: { type: object }
+        handlers: { type: array }
+        uiContextState: { type: object }
+  ResolveBindingInput:
+    name: ResolveBindingInput
+    jsonSchema:
+      type: object
+      required: [kind, raw, context]
+      properties:
+        kind: { type: string, enum: [props, action, editable-action] }
+        raw: { type: object }
+        context: { type: object }
+  ResolveBindingOutput:
+    name: ResolveBindingOutput
+    jsonSchema:
+      type: object
+      required: [kind, value]
+      properties:
+        kind: { type: string, enum: [props, action, editable-action] }
+        value: { type: object }
+
+machines:
+  EchoLifecycle:
+    id: EchoLifecycle
+    name: Echo Lifecycle
+    stateType: type://adk/EchoState/0.1.0
+    eventType: type://adk/EchoEvent/0.1.0
+    initialState: { status: pending }
+    transitions:
+      - from:
+          kind: record
+          fields:
+            status: { kind: const, value: pending }
+        event:
+          kind: record
+          fields:
+            verb: { kind: const, value: echo }
+        to:
+          op: record
+          fields:
+            status: { op: const, value: echoed }
+  DispatchLifecycle:
+    id: DispatchLifecycle
+    name: Projection Kernel Dispatch Lifecycle
+    stateType: type://adk/DispatchLifecycleState/0.1.0
+    eventType: type://adk/DispatchLifecycleEvent/0.1.0
+    initialState: { status: pending }
+    transitions:
+      - from: { kind: record, fields: { status: { kind: const, value: pending } } }
+        event: { kind: record, fields: { verb: { kind: const, value: resolveRef } } }
+        to: { op: const, value: { status: resolved } }
+      - from: { kind: record, fields: { status: { kind: const, value: resolved } } }
+        event: { kind: record, fields: { verb: { kind: const, value: authorize } } }
+        to: { op: const, value: { status: authorized } }
+      - from: { kind: record, fields: { status: { kind: const, value: authorized } } }
+        event: { kind: record, fields: { verb: { kind: const, value: submit } } }
+        to: { op: const, value: { status: submitted } }
+      - from: { kind: record, fields: { status: { kind: const, value: submitted } } }
+        event: { kind: record, fields: { verb: { kind: const, value: encode } } }
+        to: { op: const, value: { status: complete } }
+
+morphisms:
+  # computeModulePreload defaults to every module-backed morphism URI in the model.
+  computeModulePreload:
+    id: computeModulePreload
+    input: type://adk/KernelModelDocument/0.1.0
+    output: type://adk/ModulePreloadList/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: call
+        fn: map
+        args:
+          - op: call
+            fn: filter
+            args:
+              - op: call
+                fn: values
+                args:
+                  - op: get
+                    path: $input/morphisms
+              - op: lambda
+                param: $m
+                body:
+                  op: call
+                  fn: eq
+                  args:
+                    - op: get
+                      path: $m/impl/kind
+                    - op: const
+                      value: module
+          - op: lambda
+            param: $m
+            body:
+              op: get
+              path: $m/impl/uri
+    category: pure
+  parseProjectionDoc:
+    id: parseProjectionDoc
+    input: type://adk/RawProjectionYaml/0.1.0
+    output: type://adk/ProjectionModel/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/parse-projection-doc.ts
+      export: default
+    category: pure
+  resolveExtends:
+    id: resolveExtends
+    input: type://adk/ProjectionModel/0.1.0
+    output: type://adk/ProjectionModel/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/resolve-extends.ts
+      export: default
+    category: pure
+  buildManifest:
+    id: buildManifest
+    input: type://adk/ProjectionModel/0.1.0
+    output: type://adk/ActionManifest/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/build-manifest.ts
+      export: default
+    category: pure
+  walkAst:
+    id: walkAst
+    input: type://adk/ProjectionModel/0.1.0
+    output: type://adk/WalkedTree/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/walk-ast.ts
+      export: default
+    category: pure
+  surveyDemand:
+    id: surveyDemand
+    input: type://adk/WalkedTree/0.1.0
+    output: type://adk/WalkedTree/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/survey-demand.ts
+      export: default
+    category: pure
+  emitCompiled:
+    id: emitCompiled
+    input: type://adk/ProjectionModel/0.1.0
+    output: type://adk/CompiledProjection/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/emit-compiled.ts
+      export: default
+    category: pure
+  upperCase:
+    id: upperCase
+    input: type://adk/EchoInput/0.1.0
+    output: type://adk/EchoInput/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/upper-case.ts
+      export: default
+    category: pure
+  measure:
+    id: measure
+    input: type://adk/EchoInput/0.1.0
+    output: type://adk/EchoOutput/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/measure.ts
+      export: default
+    category: pure
+  guardedEcho:
+    id: guardedEcho
+    input: type://adk/EchoInput/0.1.0
+    output: type://adk/EchoOutput/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/guarded-echo.ts
+      export: default
+    category: pure
+  lookupCap:
+    id: lookupCap
+    input: type://adk/AuthorizeInput/0.1.0
+    output: type://adk/AuthorizeVerdict/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/lookup-cap.ts
+      export: default
+    category: pure
+  verifyOne:
+    id: verifyOne
+    input: type://adk/AuthorizeInput/0.1.0
+    output: type://adk/AuthorizeVerdict/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/verify-one.ts
+      export: default
+    category: pure
+  walkProjectionNodes:
+    id: walkProjectionNodes
+    input: type://adk/ProjectionModelInput/0.1.0
+    output: type://adk/FlatCarrierArray/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/walk-projection-nodes.ts
+      export: default
+    category: pure
+  concatRequirementArrays:
+    id: concatRequirementArrays
+    input: type://adk/CapabilityRequirementConcatInput/0.1.0
+    output: type://adk/CapabilityRequirementArray/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: call
+        fn: arrayConcat
+        args:
+          - op: get
+            path: $input/left
+          - op: get
+            path: $input/right
+    category: pure
+  authorize:
+    id: morphism://adk/authorize/1.0
+    input: type://adk/AuthorizeInput/0.1.0
+    output: type://adk/AuthorizeVerdict/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $missing
+        value:
+          op: call
+          fn: filter
+          args:
+            - op: get
+              path: $input/requires
+            - op: lambda
+              param: $cap
+              body:
+                op: call
+                fn: not
+                args:
+                  - op: apply
+                    fn: { op: var, name: $verifyOne }
+                    arg:
+                      op: record
+                      fields:
+                        capId:
+                          op: apply
+                          fn: { op: var, name: $lookupCap }
+                          arg:
+                            op: record
+                            fields:
+                              session: { op: get, path: $input/session }
+                              capUri: { op: var, name: $cap }
+                        resourceUri: { op: var, name: $cap }
+                        subject: { op: get, path: $input/session/currentUser/id }
+        body:
+          op: if
+          cond:
+            op: call
+            fn: eq
+            args:
+              - op: call
+                fn: length
+                args: [{ op: var, name: $missing }]
+              - op: const
+                value: 0
+          then:
+            op: const
+            value: { outcome: allow }
+          else:
+            op: record
+            fields:
+              outcome: { op: const, value: deny }
+              reason: { op: const, value: "missing capabilities" }
+              missing: { op: var, name: $missing }
+              scope: { op: get, path: $input/scope }
+              nodePath: { op: get, path: $input/nodePath }
+    category: pure
+  authorizeProjectionNodePath:
+    id: morphism://adk/authorizeProjectionNodePath/1.0
+    input: type://adk/AuthorizeInput/0.1.0
+    output: type://adk/AuthorizeVerdict/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $missingAll
+        value:
+          op: call
+          fn: filter
+          args:
+            - op: get
+              path: $input/requires
+            - op: lambda
+              param: $cap
+              body:
+                op: call
+                fn: not
+                args:
+                  - op: apply
+                    fn: { op: var, name: $verifyOne }
+                    arg:
+                      op: record
+                      fields:
+                        capId:
+                          op: apply
+                          fn: { op: var, name: $lookupCap }
+                          arg:
+                            op: record
+                            fields:
+                              session: { op: get, path: $input/session }
+                              capUri: { op: var, name: $cap }
+                        resourceUri: { op: var, name: $cap }
+                        subject: { op: get, path: $input/session/currentUser/id }
+        body:
+          op: let
+          name: $missing
+          value:
+            op: if
+            cond:
+              op: call
+              fn: gt
+              args:
+                - op: call
+                  fn: length
+                  args: [{ op: get, path: $input/requiresAny }]
+                - op: const
+                  value: 0
+            then:
+              op: let
+              name: $authorizedAny
+              value:
+                op: call
+                fn: filter
+                args:
+                  - op: get
+                    path: $input/requiresAny
+                  - op: lambda
+                    param: $cap
+                    body:
+                      op: apply
+                      fn: { op: var, name: $verifyOne }
+                      arg:
+                        op: record
+                        fields:
+                          capId:
+                            op: apply
+                            fn: { op: var, name: $lookupCap }
+                            arg:
+                              op: record
+                              fields:
+                                session: { op: get, path: $input/session }
+                                capUri: { op: var, name: $cap }
+                          resourceUri: { op: var, name: $cap }
+                          subject: { op: get, path: $input/session/currentUser/id }
+              body:
+                op: if
+                cond:
+                  op: call
+                  fn: gt
+                  args:
+                    - op: call
+                      fn: length
+                      args: [{ op: var, name: $authorizedAny }]
+                    - op: const
+                      value: 0
+                then: { op: var, name: $missingAll }
+                else:
+                  op: call
+                  fn: arrayConcat
+                  args:
+                    - op: var
+                      name: $missingAll
+                    - op: array
+                      elements:
+                        - op: call
+                          fn: concat
+                          args:
+                            - op: const
+                              value: "requiresAny:["
+                            - op: call
+                              fn: concat
+                              args:
+                                - op: get
+                                  path: $input/requiresAny
+                                - op: const
+                                  value: "]"
+            else: { op: var, name: $missingAll }
+          body:
+            op: if
+            cond:
+              op: call
+              fn: eq
+              args:
+                - op: call
+                  fn: length
+                  args: [{ op: var, name: $missing }]
+                - op: const
+                  value: 0
+            then:
+              op: const
+              value: { outcome: allow }
+            else:
+              op: record
+              fields:
+                outcome: { op: const, value: deny }
+                reason: { op: const, value: "missing capabilities" }
+                missing: { op: var, name: $missing }
+                scope: { op: get, path: $input/scope }
+                nodePath: { op: get, path: $input/nodePath }
+  resolveRef:
+    id: resolveRef
+    input: type://adk/DispatchFrame/0.1.0
+    output: type://adk/ResolvedAction/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/resolve-ref.ts
+      export: default
+    category: pure
+  submitIntent:
+    id: submitIntent
+    input: type://adk/ResolvedAction/0.1.0
+    output: type://adk/IntentResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/submit-intent.ts
+      export: default
+    category: io
+  encodeResult:
+    id: encodeResult
+    input: type://adk/IntentResult/0.1.0
+    output: type://adk/DispatchResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/encode-result.ts
+      export: default
+    category: pure
+  evaluateProjectionMorphism:
+    id: morphism://adk/evaluateProjectionMorphism/1.0
+    input: type://adk/EvaluateProjectionMorphismInput/0.1.0
+    output: type://adk/ProjectionNodeArray/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/evaluate-projection-morphism.ts
+      export: default
+    category: pure
+  materializeProjectionNode:
+    id: morphism://adk/materializeProjectionNode/1.0
+    input: type://adk/MaterializeProjectionNodeInput/0.1.0
+    output: type://adk/ProjectionNode/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/materialize-projection-node.ts
+      export: default
+    category: pure
+  normalizeMorphismOutput:
+    id: morphism://adk/normalizeMorphismOutput/1.0
+    input: type://adk/NormalizeMorphismOutputInput/0.1.0
+    output: type://adk/ProjectionNodeArray/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/normalize-morphism-output.ts
+      export: default
+    category: pure
+  surveyCapabilities:
+    id: surveyCapabilities
+    input: type://adk/ProjectionModelInput/0.1.0
+    output: type://adk/CapabilityRequirementArray/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $carriers
+        value:
+          op: apply
+          fn: { op: var, name: $walkProjectionNodes }
+          arg: { op: var, name: $input }
+        body:
+          op: call
+          fn: fold
+          args:
+            - op: var
+              name: $carriers
+            - op: const
+              value: []
+            - op: lambda
+              param: $acc
+              body:
+                op: lambda
+                param: $carrier
+                body:
+                  op: let
+                  name: $withAll
+                  value:
+                    op: if
+                    cond:
+                      op: call
+                      fn: gt
+                      args:
+                        - op: call
+                          fn: length
+                          args:
+                            - op: call
+                              fn: filter
+                              args:
+                                - op: get
+                                  path: $carrier/requires
+                                - op: lambda
+                                  param: $cap
+                                  body:
+                                    op: call
+                                    fn: neq
+                                    args:
+                                      - op: var
+                                        name: $cap
+                                      - op: const
+                                        value: null
+                        - op: const
+                          value: 0
+                    then:
+                      op: apply
+                      fn: { op: var, name: $concatRequirementArrays }
+                      arg:
+                        op: record
+                        fields:
+                          left: { op: var, name: $acc }
+                          right:
+                            op: array
+                            elements:
+                              - op: record
+                                fields:
+                                  scope: { op: get, path: $carrier/scope }
+                                  nodePath: { op: get, path: $carrier/nodePath }
+                                  caps: { op: get, path: $carrier/requires }
+                                  combinator: { op: const, value: all }
+                    else: { op: var, name: $acc }
+                  body:
+                    op: if
+                    cond:
+                      op: call
+                      fn: gt
+                      args:
+                        - op: call
+                          fn: length
+                          args:
+                            - op: call
+                              fn: filter
+                              args:
+                                - op: get
+                                  path: $carrier/requiresAny
+                                - op: lambda
+                                  param: $cap
+                                  body:
+                                    op: call
+                                    fn: neq
+                                    args:
+                                      - op: var
+                                        name: $cap
+                                      - op: const
+                                        value: null
+                        - op: const
+                          value: 0
+                    then:
+                      op: apply
+                      fn: { op: var, name: $concatRequirementArrays }
+                      arg:
+                        op: record
+                        fields:
+                          left: { op: var, name: $withAll }
+                          right:
+                            op: array
+                            elements:
+                              - op: record
+                                fields:
+                                  scope: { op: get, path: $carrier/scope }
+                                  nodePath: { op: get, path: $carrier/nodePath }
+                                  caps: { op: get, path: $carrier/requiresAny }
+                                  combinator: { op: const, value: any }
+                    else: { op: var, name: $withAll }
+    category: pure
+  render:
+    id: render
+    input: type://adk/RenderRequest/0.1.0
+    output: type://adk/ProjectionTree/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/render.ts
+      export: default
+    category: pure
+  resolveBinding:
+    id: morphism://adk/resolveBinding/1.0
+    input: type://adk/ResolveBindingInput/0.1.0
+    output: type://adk/ResolveBindingOutput/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/resolve-binding.ts
+      export: default
+    category: pure
+  registerTypes:
+    id: registerTypes
+    input: type://adk/RegisterTypesInput/0.1.0
+    output: type://adk/KernelModelDocument/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/register-types.ts
+      export: default
+    category: stateful
+  registerMachines:
+    id: registerMachines
+    input: type://adk/RegisterMachinesInput/0.1.0
+    output: type://adk/KernelModelDocument/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/register-machines.ts
+      export: default
+    category: stateful
+  registerMorphisms:
+    id: registerMorphisms
+    input: type://adk/RegisterMorphismsInput/0.1.0
+    output: type://adk/KernelModelDocument/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/register-morphisms.ts
+      export: default
+    category: stateful
+  registerActions:
+    id: registerActions
+    input: type://adk/RegisterActionsInput/0.1.0
+    output: type://adk/KernelModelDocument/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/register-actions.ts
+      export: default
+    category: stateful
+  installKernelModel:
+    id: installKernelModel
+    input: type://adk/InstallKernelModelInput/0.1.0
+    output: type://adk/InstallKernelModelOutput/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/morphisms/install-kernel-model.ts
+      export: default
+    category: stateful
+  store:
+    id: morphism://adk/store/1.0
+    input: type://adk/StoreDispatchInput/0.1.0
+    output: type://adk/StoreDispatchResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/auth-m1.ts
+      export: store
+    category: stateful
+  jwtVerifier:
+    id: morphism://adk/jwtVerifier/1.0
+    input: type://adk/JwtVerifierDispatchInput/0.1.0
+    output: type://adk/JwtVerifierDispatchResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/auth-m1.ts
+      export: jwtVerifier
+    category: stateful
+  composeMerge:
+    id: morphism://adk/composeMerge/1.0
+    input: type://adk/DeepMergeInput/0.1.0
+    output: type://adk/DeepMergeResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: composeMerge
+    category: pure
+  findOverlap:
+    id: morphism://adk/findOverlap/1.0
+    input: type://adk/FindOverlapInput/0.1.0
+    output: type://adk/OverlapPaths/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: findOverlap
+    category: pure
+  buildChain:
+    id: morphism://adk/buildChain/1.0
+    input: type://adk/ExtendsResolverInput/0.1.0
+    output: type://adk/ProjectionModelArray/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: buildChain
+    category: pure
+  detectCycle:
+    id: morphism://adk/detectCycle/1.0
+    input: type://adk/ExtendsChain/0.1.0
+    output: type://adk/CycleDetection/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: detectCycle
+    category: pure
+  mergeChain:
+    id: morphism://adk/mergeChain/1.0
+    input: type://adk/ProjectionModelArray/0.1.0
+    output: type://adk/ResolvedProjection/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: mergeChain
+    category: pure
+  raiseExtendsCycle:
+    id: morphism://adk/raiseExtendsCycle/1.0
+    input: type://adk/CycleDetection/0.1.0
+    output: type://adk/UnitResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: raiseExtendsCycle
+    category: stateful
+  emitEvent:
+    id: morphism://adk/emitEvent/1.0
+    input: type://adk/WarningInput/0.1.0
+    output: type://adk/UnitResult/0.1.0
+    impl:
+      kind: module
+      uri: module://./L11-projection/compose-m1.ts
+      export: emitEvent
+    category: stateful
+  extractAuthHeader:
+    id: morphism://adk/extractAuthHeader/1.0
+    input: type://adk/AuthExtractInput/0.1.0
+    output: type://adk/AuthExtractResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $result
+        value:
+          op: call
+          fn: fold
+          args:
+            - { op: get, path: $input/authZPrimitives }
+            - {
+                op: record,
+                fields:
+                  {
+                    caps: { op: const, value: {} },
+                    found: { op: const, value: null },
+                    rawToken: { op: const, value: null },
+                    authHeader: { op: const, value: null },
+                  },
+              }
+            - op: lambda
+              param: $acc
+              body:
+                op: lambda
+                param: $edge
+                body:
+                  op: if
+                  cond: { op: get, path: $acc/found }
+                  then: { op: var, name: $acc }
+                  else:
+                    op: if
+                    cond:
+                      {
+                        op: call,
+                        fn: has,
+                        args:
+                          [
+                            { op: get, path: $input/request/headers },
+                            { op: get, path: $edge/header },
+                          ],
+                      }
+                    then:
+                      op: let
+                      name: $headerValue
+                      value:
+                        op: call
+                        fn: eval
+                        args:
+                          - op: record
+                            fields:
+                              op: { op: const, value: get }
+                              path:
+                                op: call
+                                fn: concat
+                                args:
+                                  [
+                                    { op: const, value: $input/request/headers/ },
+                                    { op: get, path: $edge/header },
+                                  ]
+                          - op: record
+                            fields:
+                              $input: { op: var, name: $input }
+                      body:
+                        op: let
+                        name: $pattern
+                        value:
+                          op: match
+                          scrutinee: { op: get, path: $edge/format }
+                          cases:
+                            - pattern: { kind: const, value: bearer }
+                              body:
+                                op: const
+                                value:
+                                  kind: record
+                                  fields:
+                                    scheme: { kind: const, value: Bearer }
+                                    credentials: { kind: var, name: $token }
+                            - pattern: { kind: const, value: raw }
+                              body: { op: const, value: { kind: var, name: $token } }
+                            - pattern: { kind: const, value: basic }
+                              body:
+                                op: const
+                                value:
+                                  kind: record
+                                  fields:
+                                    scheme: { kind: const, value: Basic }
+                                    credentials: { kind: var, name: $token }
+                        body:
+                          op: match
+                          scrutinee:
+                            op: call
+                            fn: matches
+                            args: [{ op: var, name: $headerValue }, { op: var, name: $pattern }]
+                          cases:
+                            - pattern:
+                                kind: record
+                                fields:
+                                  matched: { kind: const, value: true }
+                                  bindings:
+                                    kind: record
+                                    fields:
+                                      $token: { kind: var, name: $token }
+                              body:
+                                op: record
+                                fields:
+                                  found: { op: const, value: true }
+                                  rawToken: { op: var, name: $token }
+                                  authHeader: { op: get, path: $edge/header }
+                                  caps: { op: get, path: $edge/mapsTo/caps }
+                            - pattern: { kind: wildcard }
+                              body: { op: var, name: $acc }
+                    else: { op: var, name: $acc }
+        body:
+          op: record
+          fields:
+            rawToken: { op: get, path: $result/rawToken }
+            authHeader: { op: get, path: $result/authHeader }
+            caps: { op: get, path: $result/caps }
+            found:
+              op: if
+              cond:
+                {
+                  op: call,
+                  fn: eq,
+                  args: [{ op: get, path: $result/found }, { op: const, value: true }],
+                }
+              then: { op: const, value: true }
+              else: { op: const, value: false }
+    category: pure
+  jwtVerify:
+    id: morphism://adk/jwtVerify/1.0
+    input: type://adk/JwtVerifyInput/0.1.0
+    output: type://adk/JwtVerifyResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: if
+        cond:
+          {
+            op: call,
+            fn: eq,
+            args: [{ op: get, path: $input/rawToken }, { op: const, value: null }],
+          }
+        then:
+          {
+            op: record,
+            fields: { valid: { op: const, value: false }, error: { op: const, value: no-token } },
+          }
+        else:
+          op: apply
+          fn: { op: var, name: $jwtVerifier }
+          arg:
+            {
+              op: record,
+              fields:
+                {
+                  token: { op: get, path: $input/rawToken },
+                  keyRef: { op: get, path: $input/keyAssetRef },
+                },
+            }
+    category: stateful
+  mergeSessionScopes:
+    id: morphism://adk/mergeSessionScopes/1.0
+    input: type://adk/MergeSessionScopesInput/0.1.0
+    output: type://adk/MergeSessionScopesResult/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: call
+        fn: fold
+        args:
+          - { op: get, path: $input/declaredScopes }
+          - {
+              op: record,
+              fields:
+                {
+                  caps: { op: const, value: {} },
+                  capabilityScopes: { op: const, value: {} },
+                  ephemeral: { op: const, value: {} },
+                },
+            }
+          - op: lambda
+            param: $acc
+            body:
+              op: lambda
+              param: $edge
+              body:
+                op: let
+                name: $scope
+                value: { op: var, name: $edge }
+                body:
+                  op: if
+                  cond:
+                    {
+                      op: call,
+                      fn: has,
+                      args: [{ op: get, path: $input/sessionIds }, { op: var, name: $scope }],
+                    }
+                  then:
+                    op: let
+                    name: $record
+                    value:
+                      op: apply
+                      fn: { op: var, name: $store }
+                      arg:
+                        op: record
+                        fields:
+                          scope: { op: var, name: $scope }
+                          sessionId:
+                            op: call
+                            fn: eval
+                            args:
+                              - op: record
+                                fields:
+                                  op: { op: const, value: get }
+                                  path:
+                                    op: call
+                                    fn: concat
+                                    args:
+                                      [
+                                        { op: const, value: $input/sessionIds/ },
+                                        { op: var, name: $scope },
+                                      ]
+                              - op: record
+                                fields:
+                                  $input: { op: var, name: $input }
+                    body:
+                      op: record
+                      fields:
+                        caps:
+                          {
+                            op: call,
+                            fn: merge,
+                            args: [{ op: get, path: $acc/caps }, { op: get, path: $record/caps }],
+                          }
+                        capabilityScopes:
+                          {
+                            op: call,
+                            fn: merge,
+                            args:
+                              [
+                                { op: get, path: $acc/capabilityScopes },
+                                { op: get, path: $record/capabilityScopes },
+                              ],
+                          }
+                        ephemeral:
+                          {
+                            op: call,
+                            fn: merge,
+                            args:
+                              [
+                                { op: get, path: $acc/ephemeral },
+                                { op: get, path: $record/ephemeral },
+                              ],
+                          }
+                  else: { op: var, name: $acc }
+    category: stateful
+  emitResolvedAuth:
+    id: morphism://adk/emitResolvedAuth/1.0
+    input: type://adk/EmitResolvedAuthInput/0.1.0
+    output: type://adk/ResolvedAuth/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $hasSession
+        value:
+          op: call
+          fn: or
+          args:
+            - op: call
+              fn: gt
+              args:
+                - op: call
+                  fn: length
+                  args:
+                    [{ op: call, fn: keys, args: [{ op: get, path: $input/sessionResult/caps }] }]
+                - { op: const, value: 0 }
+            - op: call
+              fn: or
+              args:
+                - op: call
+                  fn: gt
+                  args:
+                    - op: call
+                      fn: length
+                      args:
+                        [
+                          {
+                            op: call,
+                            fn: keys,
+                            args: [{ op: get, path: $input/sessionResult/capabilityScopes }],
+                          },
+                        ]
+                    - { op: const, value: 0 }
+                - op: call
+                  fn: gt
+                  args:
+                    - op: call
+                      fn: length
+                      args:
+                        [
+                          {
+                            op: call,
+                            fn: keys,
+                            args: [{ op: get, path: $input/sessionResult/ephemeral }],
+                          },
+                        ]
+                    - { op: const, value: 0 }
+        body:
+          op: match
+          scrutinee:
+            op: record
+            fields:
+              jwtValid: { op: get, path: $input/jwtResult/valid }
+              hasSession: { op: var, name: $hasSession }
+          cases:
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: true },
+                      hasSession: { kind: const, value: false },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: jwt }
+                  caps: { op: get, path: $input/jwtResult/claims/caps }
+                  capabilityScopes: { op: get, path: $input/jwtResult/claims/scopes }
+                  jwtClaims: { op: get, path: $input/jwtResult/claims }
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: true },
+                      hasSession: { kind: const, value: true },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: jwt+session }
+                  caps:
+                    {
+                      op: call,
+                      fn: merge,
+                      args:
+                        [
+                          { op: get, path: $input/jwtResult/claims/caps },
+                          { op: get, path: $input/sessionResult/ephemeral },
+                        ],
+                    }
+                  capabilityScopes:
+                    {
+                      op: call,
+                      fn: merge,
+                      args:
+                        [
+                          { op: get, path: $input/jwtResult/claims/scopes },
+                          { op: get, path: $input/sessionResult/capabilityScopes },
+                        ],
+                    }
+                  jwtClaims: { op: get, path: $input/jwtResult/claims }
+                  ephemeral: { op: get, path: $input/sessionResult/ephemeral }
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: false },
+                      hasSession: { kind: const, value: true },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: session }
+                  caps: { op: get, path: $input/sessionResult/caps }
+                  capabilityScopes: { op: get, path: $input/sessionResult/capabilityScopes }
+                  ephemeral: { op: get, path: $input/sessionResult/ephemeral }
+            - pattern:
+                {
+                  kind: record,
+                  fields:
+                    {
+                      jwtValid: { kind: const, value: false },
+                      hasSession: { kind: const, value: false },
+                    },
+                }
+              body:
+                op: record
+                fields:
+                  source: { op: const, value: anonymous }
+                  caps: { op: const, value: {} }
+                  capabilityScopes: { op: const, value: {} }
+    category: pure
+  resolveAuth:
+    id: morphism://adk/resolveAuth/1.0
+    input: type://adk/ResolveAuthInput/0.1.0
+    output: type://adk/ResolvedAuth/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $extracted
+        value:
+          op: apply
+          fn: { op: var, name: $extractAuthHeader }
+          arg:
+            {
+              op: record,
+              fields:
+                {
+                  request: { op: get, path: $input/request },
+                  authZPrimitives: { op: get, path: $input/context/authZPrimitives },
+                },
+            }
+        body:
+          op: let
+          name: $jwtResult
+          value:
+            op: apply
+            fn: { op: var, name: $jwtVerify }
+            arg:
+              {
+                op: record,
+                fields:
+                  {
+                    rawToken: { op: get, path: $extracted/rawToken },
+                    keyAssetRef: { op: get, path: $input/context/keyAssetRef },
+                  },
+              }
+          body:
+            op: let
+            name: $sessionResult
+            value:
+              op: apply
+              fn: { op: var, name: $mergeSessionScopes }
+              arg:
+                {
+                  op: record,
+                  fields:
+                    {
+                      sessionIds: { op: get, path: $input/request/sessionIds },
+                      declaredScopes: { op: get, path: $input/context/declaredScopes },
+                      store: { op: get, path: $input/context/store },
+                    },
+                }
+            body:
+              op: apply
+              fn: { op: var, name: $emitResolvedAuth }
+              arg:
+                {
+                  op: record,
+                  fields:
+                    {
+                      jwtResult: { op: var, name: $jwtResult },
+                      sessionResult: { op: var, name: $sessionResult },
+                      extracted: { op: var, name: $extracted },
+                    },
+                }
+    category: stateful
+  bindSession:
+    id: morphism://adk/bindSession/1.0
+    input: type://adk/BindSessionInput/0.1.0
+    output: type://adk/SessionId/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $sessionId
+        value:
+          op: apply
+          fn: { op: var, name: $store }
+          arg:
+            {
+              op: record,
+              fields:
+                {
+                  op: { op: const, value: create },
+                  user: { op: get, path: $input/user },
+                  scope: { op: get, path: $input/scope },
+                },
+            }
+        body:
+          op: let
+          name: $_
+          value:
+            op: apply
+            fn: { op: var, name: $store }
+            arg:
+              {
+                op: record,
+                fields:
+                  {
+                    op: { op: const, value: attach },
+                    sessionId: { op: var, name: $sessionId },
+                    caps: { op: get, path: $input/caps },
+                  },
+              }
+          body: { op: var, name: $sessionId }
+    category: stateful
+  jwtSign:
+    id: morphism://adk/jwtSign/1.0
+    input: type://adk/JwtSignInput/0.1.0
+    output: type://adk/JwtToken/0.1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $signed
+        value:
+          op: apply
+          fn: { op: var, name: $jwtVerifier }
+          arg:
+            op: record
+            fields:
+              op: { op: const, value: sign }
+              claims: { op: get, path: $input/payload }
+              keyRef: { op: get, path: $input/keyRef }
+              verifierRef: { op: get, path: $input/verifierRef }
+        body: { op: get, path: $signed/token }
+    category: stateful
+  deepMerge:
+    id: morphism://adk/deepMerge/1.0
+    input: type://adk/DeepMergeInput/0.1.0
+    output: type://adk/DeepMergeResult/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$composeMerge" }
+        arg: { op: var, name: "$input" }
+  resolveKindComposition:
+    id: morphism://adk/resolveKindComposition/1.0
+    input: type://adk/KindCompositionInput/0.1.0
+    output: type://adk/MergedKind/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$afterDefaults"
+        value:
+          op: apply
+          fn: { op: var, name: "$deepMerge" }
+          arg:
+            op: record
+            fields:
+              base: { op: get, path: "$input/defaults" }
+              overlay: { op: get, path: "$input/projection" }
+              opts:
+                op: record
+                fields:
+                  allowUnknownPaths: { op: const, value: false }
+        body:
+          op: let
+          name: "$afterInvariants"
+          value:
+            op: apply
+            fn: { op: var, name: "$deepMerge" }
+            arg:
+              op: record
+              fields:
+                base: { op: var, name: "$afterDefaults" }
+                overlay: { op: get, path: "$input/invariants" }
+                opts:
+                  op: record
+                  fields:
+                    allowUnknownPaths: { op: const, value: true }
+          body:
+            op: let
+            name: "$overlap"
+            value:
+              op: apply
+              fn: { op: var, name: "$findOverlap" }
+              arg:
+                op: record
+                fields:
+                  a: { op: get, path: "$input/projection" }
+                  b: { op: get, path: "$input/invariants" }
+            body:
+              op: let
+              name: "$warning"
+              value:
+                op: if
+                cond:
+                  op: call
+                  fn: gt
+                  args:
+                    - { op: call, fn: length, args: [{ op: get, path: "$overlap/paths" }] }
+                    - { op: const, value: 0 }
+                then:
+                  op: apply
+                  fn: { op: var, name: "$recordWarning" }
+                  arg:
+                    op: record
+                    fields:
+                      overlap: { op: get, path: "$overlap/paths" }
+                      context: { op: const, value: "kind-composition" }
+                else: { op: const, value: {} }
+              body: { op: var, name: "$afterInvariants" }
+  detectExtendsCycle:
+    id: morphism://adk/detectExtendsCycle/1.0
+    input: type://adk/ExtendsChain/0.1.0
+    output: type://adk/CycleDetection/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$detectCycle" }
+        arg: { op: var, name: "$input" }
+  mergeExtendsChain:
+    id: morphism://adk/mergeExtendsChain/1.0
+    input: type://adk/ExtendsChain/0.1.0
+    output: type://adk/ResolvedProjection/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$cycle"
+        value:
+          op: apply
+          fn: { op: var, name: "$detectExtendsCycle" }
+          arg: { op: var, name: "$input" }
+        body:
+          op: if
+          cond: { op: get, path: "$cycle/hasCycle" }
+          then:
+            op: apply
+            fn: { op: var, name: "$raiseExtendsCycle" }
+            arg: { op: var, name: "$cycle" }
+          else:
+            op: apply
+            fn: { op: var, name: "$mergeChain" }
+            arg: { op: get, path: "$input/chain" }
+  extendsResolver:
+    id: morphism://adk/extendsResolver/1.0
+    input: type://adk/ExtendsResolverInput/0.1.0
+    output: type://adk/ResolvedProjection/0.1.0
+    category: stateful
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: "$chain"
+        value:
+          op: apply
+          fn: { op: var, name: "$buildChain" }
+          arg:
+            op: record
+            fields:
+              doc: { op: get, path: "$input/doc" }
+              registry: { op: get, path: "$input/registry" }
+        body:
+          op: apply
+          fn: { op: var, name: "$mergeExtendsChain" }
+          arg:
+            op: record
+            fields:
+              chain: { op: var, name: "$chain" }
+  recordWarning:
+    id: morphism://adk/recordWarning/1.0
+    input: type://adk/WarningInput/0.1.0
+    output: type://adk/UnitResult/0.1.0
+    category: stateful
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: "$emitEvent" }
+        arg:
+          op: record
+          fields:
+            level: { op: const, value: "warning" }
+            overlap: { op: get, path: "$input/overlap" }
+            context: { op: get, path: "$input/context" }
+
+actions:
+  Compile:
+    name: Compile
+    verb: compile
+    inputSchema:
+      type: object
+      required: [yamlText]
+      properties:
+        yamlText: { type: string }
+    capabilityRequirement: cap://none
+    machine: EchoLifecycle
+    morphism:
+      kind: compose
+      f:
+        kind: name
+        name: parseProjectionDoc
+      g:
+        kind: compose
+        f:
+          kind: name
+          name: resolveExtends
+        g:
+          kind: compose
+          f:
+            kind: name
+            name: buildManifest
+          g:
+            kind: compose
+            f:
+              kind: name
+              name: walkAst
+            g:
+              kind: compose
+              f:
+                kind: name
+                name: surveyDemand
+              g:
+                kind: name
+                name: emitCompiled
+  Echo:
+    name: Echo
+    verb: echo
+    inputSchema:
+      type: object
+      required: [msg]
+      properties:
+        msg: { type: string }
+    capabilityRequirement: cap://none
+    machine: EchoLifecycle
+    morphism:
+      kind: compose
+      f:
+        kind: name
+        name: upperCase
+      g:
+        kind: name
+        name: measure
+  SecureEcho:
+    name: SecureEcho
+    verb: echo
+    inputSchema:
+      type: object
+      required: [msg]
+      properties:
+        msg: { type: string }
+    capabilityRequirement: cap://@echo/secure-dispatch/0.1.0
+    machine: EchoLifecycle
+    morphism:
+      kind: name
+      name: guardedEcho
+  Authorize:
+    name: Authorize
+    verb: authorize
+    inputSchema:
+      type: object
+      required: [requires, session, scope, nodePath]
+    capabilityRequirement: cap://none
+    machine: EchoLifecycle # Reuse until DispatchLifecycle exists.
+    morphism:
+      kind: name
+      name: authorize
+  Dispatch:
+    name: Dispatch
+    verb: dispatch
+    inputSchema:
+      type: object
+      required: [actionRef]
+      properties:
+        actionRef: { type: string }
+        target: { type: string }
+        payload: { type: object }
+    capabilityRequirement: cap://@projection/dispatch/0.1.0
+    machine: DispatchLifecycle
+    morphism:
+      kind: compose
+      f:
+        kind: name
+        name: resolveRef
+      g:
+        kind: compose
+        f:
+          kind: name
+          name: authorize
+        g:
+          kind: compose
+          f:
+            kind: name
+            name: submitIntent
+          g:
+            kind: name
+            name: encodeResult
+  SurveyCapabilities:
+    name: SurveyCapabilities
+    verb: surveyCapabilities
+    inputSchema:
+      type: object
+    capabilityRequirement: cap://none
+    machine: EchoLifecycle
+    morphism:
+      kind: name
+      name: surveyCapabilities
+  Render:
+    name: Render
+    verb: render
+    inputSchema:
+      type: object
+      required: [doc, pageName]
+      properties:
+        doc: { type: object }
+        pageName: { type: string }
+        props: { type: object }
+    capabilityRequirement: cap://none
+    machine: EchoLifecycle
+    morphism:
+      kind: name
+      name: render
+
+capabilities:
+  SecureEchoDispatch:
+    id: cap://@echo/secure-dispatch/0.1.0
+  ProjectionDispatch:
+    id: cap://@projection/dispatch/0.1.0
+
+imports:
+  - module://./L11-projection/morphisms/parse-projection-doc.ts#default
+  - module://./L11-projection/morphisms/resolve-extends.ts#default
+  - module://./L11-projection/morphisms/build-manifest.ts#default
+  - module://./L11-projection/morphisms/evaluate-projection-morphism.ts#default
+  - module://./L11-projection/morphisms/normalize-morphism-output.ts#default
+  - module://./L11-projection/morphisms/materialize-projection-node.ts#default
+  - module://./L11-projection/morphisms/resolve-binding.ts#default
+  - module://./L11-projection/morphisms/walk-ast.ts#default
+  - module://./L11-projection/morphisms/survey-demand.ts#default
+  - module://./L11-projection/morphisms/emit-compiled.ts#default
+  - module://./L11-projection/morphisms/upper-case.ts#default
+  - module://./L11-projection/morphisms/measure.ts#default
+  - module://./L11-projection/morphisms/guarded-echo.ts#default
+  - module://./L11-projection/morphisms/lookup-cap.ts#default
+  - module://./L11-projection/morphisms/verify-one.ts#default
+  - module://./L11-projection/morphisms/resolve-ref.ts#default
+  - module://./L11-projection/morphisms/submit-intent.ts#default
+  - module://./L11-projection/morphisms/encode-result.ts#default
+  - module://./L11-projection/morphisms/walk-projection-nodes.ts#default
+  - module://./L11-projection/morphisms/render.ts#default
+  - module://./L11-projection/morphisms/register-types.ts#default
+  - module://./L11-projection/morphisms/register-machines.ts#default
+  - module://./L11-projection/morphisms/register-morphisms.ts#default
+  - module://./L11-projection/morphisms/register-actions.ts#default
+  - module://./L11-projection/morphisms/install-kernel-model.ts#default
+
+# kinds: a map from kind-id to { kindPath: <relative path to kind pack dir> }.
+kinds:
+  ui.html.ws:
+    kindPath: ./L08-kinds/ui-html-ws/
+  api.rest:
+    kindPath: ./L08-kinds/api-rest/
+  cli.stdout:
+    kindPath: ./L08-kinds/cli-stdout/
+  host.api:
+    kindPath: ./L08-kinds/host-api/
+  host.auth:
+    kindPath: ./L08-kinds/host-auth/

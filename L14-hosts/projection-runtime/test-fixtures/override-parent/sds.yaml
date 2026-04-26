@@ -1,0 +1,12 @@
+name: override-parent
+version: 1.0.0
+origin: https://fixture.kernel/override-parent
+models:
+  - path: ../models/orders.model.yaml
+    role: primary
+    initialBinding: true
+storageSpaces:
+  - name: todos-fs
+    kind: filesystem
+  - name: audit-journal
+    kind: ephemeral-journal

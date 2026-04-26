@@ -1,0 +1,21 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/Mount/1.0
+name: Mount
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    path: { type: string }
+    projectionRef: {}
+    aggregator: { type: string }
+  required: [path, projectionRef]
+contract: "declare a routed mount from a request path to a projection or aggregate target."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "mount" }
+    path: { op: get, path: "$input/path" }
+    projectionRef: { op: get, path: "$input/projectionRef" }
+    aggregator: { op: get, path: "$input/aggregator" }

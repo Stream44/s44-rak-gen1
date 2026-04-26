@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Timeline/1.0
+name: Timeline
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    events: { type: array }
+    rows: { type: array }
+    groupBy: { type: string, enum: [day, hour, none] }
+    reverseOrder: { type: boolean }
+contract: render a <ol class="timeline"> from event rows, supporting grouped labels and reverse ordering
+render: module://./primitives/Timeline.ts#default
+implementation:
+  kind: module
+  module: "./Timeline.ts"
+  export: default

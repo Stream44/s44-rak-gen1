@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/data-provider/MemoryDataProvider/1.0
+name: MemoryDataProvider
+assetKind: handler
+conformsToKind: data-provider
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: "implements DataProvider M1 (load + loadBatch) with an in-memory Map-backed store; put is an implementation-only helper for test seeding"
+implementation:
+  kind: module
+  module: "./memory-data-provider.ts"
+  export: default

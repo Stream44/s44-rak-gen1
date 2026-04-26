@@ -1,0 +1,40 @@
+model: entity-collection
+version: 1.0.0
+origin: https://fixture.kernel/entity-collection
+
+entities:
+  Item:
+    description: A generic collection item.
+    attributes:
+      title: { type: string, required: true, minLength: 1 }
+      completed: { type: boolean, default: false }
+
+actions:
+  AddItem:
+    verb: add
+    kind: create
+    keyField: id
+    keyStrategy: uuid
+    defaults: { completed: false }
+    inputSchema:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1 }
+  ToggleItem:
+    verb: toggle
+    kind: mutate
+    targetField: itemId
+  RemoveItem:
+    verb: remove
+    kind: remove
+    targetField: itemId
+
+bindings:
+  - name: item-records
+    space: items-eph
+    aspect: { kind: entityCollection, entity: Item, keyField: id }
+    shape: { stored: [title, completed], derived: { id: "$key" } }
+
+storageSpaces:
+  - { name: items-eph, kind: ephemeral }

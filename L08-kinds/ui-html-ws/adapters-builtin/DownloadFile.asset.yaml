@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/adapter/DownloadFile/1.0
+name: download-file
+assetKind: adapter
+conformsToKind: ui.html.ws
+version: 1.0.0
+argsShape:
+  type: object
+  properties:
+    url: { type: string }
+    blob: {}
+    filename: { type: string }
+implementation:
+  kind: module
+  module: "../runtime/adapters-builtin.ts"
+  export: "download-file"

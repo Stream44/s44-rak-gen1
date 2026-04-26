@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>{{title}}</title>
+<link rel="stylesheet" href="{{mount}}/assets/style.css"/>
+</head>
+<body data-mount="{{mount}}">
+<div id="root">{{body}}</div>
+<script>
+(function(){
+  var mount = {{mountJson}};
+  window.ws = new WebSocket("ws://" + location.host + mount + "/ws");
+  window.ws.onopen = function(){ document.body.setAttribute("data-ws", "open"); };
+})();
+</script>
+<script>{{handlersJs}}</script>
+</body>
+</html>

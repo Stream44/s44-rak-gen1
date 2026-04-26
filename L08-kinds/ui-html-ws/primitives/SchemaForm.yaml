@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/SchemaForm/1.0
+name: SchemaForm
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    schema: { type: object }
+    readOnly: { type: boolean, default: true }
+    value: { type: object }
+    title: { type: string }
+contract: render a display-first form from an object schema with disabled controls in readOnly mode
+render: module://./primitives/SchemaForm.ts#default
+implementation:
+  kind: module
+  module: "./SchemaForm.ts"
+  export: default

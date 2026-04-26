@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Code/1.0
+name: Code
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    value: { type: string }
+    truncate: { type: boolean, default: true }
+    inline: { type: boolean, default: true }
+    block: { type: boolean }
+contract: render inline or block code, truncating rendered text to first8…last4 while preserving the full title attribute
+render: module://./primitives/Code.ts#default
+implementation:
+  kind: module
+  module: "./Code.ts"
+  export: default

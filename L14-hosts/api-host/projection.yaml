@@ -1,0 +1,44 @@
+projector: api-host-demo
+conformsTo: adk:Projection/1.0
+conformsToKind: host.api
+id: projection://adk.example/32-api-host/demo/1.0
+version: 1.0.0
+session:
+  scope: api-primary
+bindsModel: ""
+primitives:
+  - asset: asset://adk.example/host.api/primitive/Port/1.0
+    props: { port: 3100 }
+  - asset: asset://adk.example/host.api/primitive/Mount/1.0
+    props:
+      path: /v1
+      projectionRef: asset://adk.example/projection/ecommerce-api-projection/1.0
+  - asset: asset://adk.example/host.api/primitive/Mount/1.0
+    props:
+      path: /openapi.json
+      projectionRef:
+        asset: asset://adk.example/host.api/primitive/OpenApiAggregator/1.0
+        props: { title: "Demo API", version: "1.0.0" }
+  - asset: asset://adk.example/host.api/primitive/Mount/1.0
+    props:
+      path: /auth
+      projectionRef: asset://adk.example/projection/auth-projection/1.0
+  - asset: asset://adk.example/host.api/primitive/Listener/1.0
+    props: { port: 3100, idleTimeout: 30 }
+  - asset: asset://adk.example/host.api/primitive/DrainTimeout/1.0
+    props: { timeoutMs: 5000 }
+  - asset: asset://adk.example/host.api/primitive/SessionStoreRef/1.0
+    props: { ref: asset://adk.example/session-store/MemorySessionStore/1.0 }
+  - asset: asset://adk.example/host.api/primitive/JwtConfig/1.0
+    props:
+      verifierRef: asset://adk.example/jwt-verifier/MemoryHS256JwtVerifier/1.0
+      keyRef: asset://adk.example/key-asset/memory-hs256-key/1.0
+  - asset: asset://adk.example/host.api/primitive/OpenApiAggregator/1.0
+    props: { title: "Demo API", version: "1.0.0" }
+morphism:
+  op: literal
+  value:
+    component: HostApi
+    props: {}
+    children: []
+options: { drainTimeoutMs: 5000, idleTimeoutSec: 30 }

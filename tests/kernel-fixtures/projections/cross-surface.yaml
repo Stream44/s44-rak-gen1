@@ -1,0 +1,203 @@
+projector: commerce-dual
+version: 1.0.0
+origin: adk.example/projections
+conformsTo: adk:ProjectionMetamodel/2.0
+conformsToKind: cross.product
+session:
+  scope: commerce-dual
+bindsModel: commerce@1.0.0
+title: Commerce Dual Surface
+requires:
+  - cap://commerce/orders/view/1.0
+actions:
+  - ConfirmOrder
+morphism:
+  op: product
+  left:
+    op: product
+    left:
+      op: ref
+      asset: asset://adk.example/ui.html.ws/primitive/Heading/1.0
+      props:
+        level: 1
+        text: "Orders"
+    right:
+      op: ref
+      asset: asset://adk.example/ui.html.ws/primitive/Section/1.0
+      props:
+        title: "Dashboard"
+        children:
+          - op: ref
+            asset: asset://adk.example/ui.html.ws/primitive/Card/1.0
+            props:
+              children:
+                - op: ref
+                  asset: asset://adk.example/ui.html.ws/primitive/Row/1.0
+                  props:
+                    children:
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Text/1.0
+                        props: { text: "ord-001" }
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Badge/1.0
+                        props: { label: "pending", tone: neutral }
+                - op: ref
+                  asset: asset://adk.example/ui.html.ws/primitive/Row/1.0
+                  props:
+                    data-testid: order-row-pii
+                    data-redacted:
+                      if: { capability: "cap://pii/view/1.0" }
+                      then: "0"
+                      else: "1"
+                    children:
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Text/1.0
+                        props:
+                          text:
+                            if: { capability: "cap://pii/view/1.0" }
+                            then: ada@example.com
+                            else: "(redacted)"
+                - op: ref
+                  asset: asset://adk.example/ui.html.ws/primitive/Row/1.0
+                  props:
+                    children:
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Button/1.0
+                        props:
+                          label: "Confirm"
+                          data-testid: confirm-button
+                          onClick:
+                            action: ConfirmOrder
+                            target: ord-001
+                            payload: { id: ord-001 }
+          - op: ref
+            asset: asset://adk.example/ui.html.ws/primitive/Card/1.0
+            props:
+              children:
+                - op: ref
+                  asset: asset://adk.example/ui.html.ws/primitive/Row/1.0
+                  props:
+                    children:
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Text/1.0
+                        props: { text: "ord-002" }
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Badge/1.0
+                        props: { label: "pending", tone: neutral }
+                - op: ref
+                  asset: asset://adk.example/ui.html.ws/primitive/Row/1.0
+                  props:
+                    data-testid: order-row-pii-secondary
+                    data-redacted:
+                      if: { capability: "cap://pii/view/1.0" }
+                      then: "0"
+                      else: "1"
+                    children:
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Text/1.0
+                        props:
+                          text:
+                            if: { capability: "cap://pii/view/1.0" }
+                            then: grace@example.com
+                            else: "(redacted)"
+                - op: ref
+                  asset: asset://adk.example/ui.html.ws/primitive/Row/1.0
+                  props:
+                    children:
+                      - op: ref
+                        asset: asset://adk.example/ui.html.ws/primitive/Button/1.0
+                        props:
+                          label: "Confirm"
+                          onClick:
+                            action: ConfirmOrder
+                            target: ord-002
+                            payload: { id: ord-002 }
+  right:
+    op: product
+    left:
+      op: ref
+      asset: asset://adk.example/api.rest/primitive/Endpoint/1.0
+      props:
+        method: GET
+        path: /orders/{id}
+        summary: Fetch one order
+        requires:
+          - cap://commerce/orders/view/1.0
+        onRequest:
+          read:
+            id: $route.id
+            customer:
+              pii:
+                email:
+                  {
+                    source: { value: ada@example.com },
+                    projections:
+                      [{ path: value, requires: ["cap://pii/view/1.0"], fallback: "(redacted)" }],
+                  }
+                  # Pre-sugar form; kept for review.
+                  # op: guard
+                  # requires:
+                  #   - cap://pii/view/1.0
+                  # f: ada@example.com
+                  # fallback: "(redacted)"
+        children:
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/RouteParam/1.0
+            props:
+              name: id
+              required: true
+              schema:
+                type: string
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/ResponseShape/1.0
+            props:
+              status: "200"
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  customer:
+                    type: object
+    right:
+      op: ref
+      asset: asset://adk.example/api.rest/primitive/Endpoint/1.0
+      props:
+        method: POST
+        path: /orders/{id}/confirm
+        summary: Confirm an order
+        requires:
+          - cap://commerce/orders/view/1.0
+        onRequest:
+          action: ConfirmOrder
+          target: $route.id
+          payload:
+            id: $route.id
+          read:
+            customer:
+              pii:
+                email:
+                  {
+                    source: { value: ada@example.com },
+                    projections:
+                      [{ path: value, requires: ["cap://pii/view/1.0"], fallback: "(redacted)" }],
+                  }
+        children:
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/RouteParam/1.0
+            props:
+              name: id
+              required: true
+              schema:
+                type: string
+          - op: ref
+            asset: asset://adk.example/api.rest/primitive/ResponseShape/1.0
+            props:
+              status: "200"
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  customer:
+                    type: object

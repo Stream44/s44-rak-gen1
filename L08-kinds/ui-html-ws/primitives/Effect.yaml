@@ -1,0 +1,25 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Effect/1.0
+name: Effect
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    adapter: { type: string }
+    args: {}
+    when: {}
+  required: [adapter]
+contract: non-rendering primitive; declares an imperative intent for a named adapter; runtime resolves the adapter by name + dispatches lifecycle calls; emits <!--effect:NAME:CID--> markers for the runtime to pick up; no inline JS.
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "effect" }
+    adapter: { op: get, path: "$input/adapter" }
+    args: { op: get, path: "$input/args" }
+    when: { op: get, path: "$input/when" }
+implementation:
+  kind: module
+  module: "./Effect.ts"
+  export: default

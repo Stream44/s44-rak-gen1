@@ -1,0 +1,21 @@
+model: orders
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/orders"
+surface:
+  inspectors:
+    - kind: instance
+      sections:
+        - { heading: "Current State", kind: keyvalue, items: "$selected.bookMetadata" }
+        - { heading: "Order Lifecycle", kind: text, text: "pending -> confirmed" }
+    - kind: custom
+      selectionKey: selection.instanceId
+      selectedBinding: "$bind.runtime.panels.selectedInstance"
+      sections:
+        - { heading: "Custom", kind: text, text: "$selected.modelName" }
+entities:
+  Order:
+    attributes:
+      id:
+        type: string
+      status:
+        type: string

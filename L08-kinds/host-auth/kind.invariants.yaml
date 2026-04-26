@@ -1,0 +1,10 @@
+conformsTo: adk:ProjectionKind/1.0
+id: host.auth
+version: 1.0.0
+backend: module://./dispatch.ts#default
+actionSemanticsImpl: morphism://adk.example/host-auth/hostAuthPipeline/1.0
+primitives:
+  - asset://adk.example/host.auth/primitive/Challenge/1.0
+  - asset://adk.example/host.auth/primitive/VerifyCredential/1.0
+  - asset://adk.example/host.auth/primitive/IssueCapability/1.0
+  - asset://adk.example/host.auth/primitive/SessionBinding/1.0

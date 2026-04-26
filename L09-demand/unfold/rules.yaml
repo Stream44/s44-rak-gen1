@@ -1,0 +1,56 @@
+conformsTo: adk:RulesDocument/1.0
+discriminator: unfold
+id: adk:UnfoldRules/1.0
+version: 1.0
+heuristics:
+  - id: detect-lifecycle
+    when:
+      fieldNames: ["status", "state"]
+      hasEnum: true
+      minEnumValues: 1
+    emit:
+      kind: "state-machine"
+      machineId:
+        template: "${entity.name.toLowerCase()}-lifecycle"
+      stateTypeName:
+        template: "${entity.name}State"
+      eventTypeName:
+        template: "${entity.name}Event"
+      transitionShape: "adjacent-pair-verb"
+  - id: transitions-to-actions
+    when:
+      requires: ["detect-lifecycle"]
+    emit:
+      kind: "action-per-transition"
+      actionName:
+        template: "${capitalize(verb)}${entity.name}"
+      inputSchema:
+        type: "object"
+        properties:
+          id:
+            type: "string"
+        required: ["id"]
+      origin: "test.example"
+  - id: generate-endpoints
+    when: {}
+    emit:
+      plural:
+        op: concat
+        parts:
+          - lowercase: "${entity.name}"
+          - "s"
+      endpoints:
+        - method: GET
+          path: "/${plural}"
+          description: "List all ${plural}"
+        - method: GET
+          path: "/${plural}/:id"
+          description: "Get ${entity.name} by id"
+        - method: POST
+          path: "/${plural}"
+          description: "Create ${entity.name}"
+          action: "${actions[0].id}?"
+        - method: POST
+          path: "/${plural}/:id/${action.verb}"
+          description: "${action.name} action"
+          forEach: "actions"

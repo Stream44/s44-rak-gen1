@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Stack/1.0
+name: Stack
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+contract: render a <div class="stack"> container around child nodes
+render: module://./primitives/Stack.ts#default
+implementation:
+  kind: module
+  module: "./Stack.ts"
+  export: default

@@ -1,0 +1,21 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.api/primitive/JwtConfig/1.0
+name: JwtConfig
+assetKind: primitive
+conformsToKind: host.api
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    verifierRef: { type: string }
+    keyRef: { type: string }
+    maxAgeSec: { type: number }
+  required: [verifierRef, keyRef]
+contract: "declare the verifier and key assets used for host JWT validation."
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "jwtConfig" }
+    verifierRef: { op: get, path: "$input/verifierRef" }
+    keyRef: { op: get, path: "$input/keyRef" }
+    maxAgeSec: { op: get, path: "$input/maxAgeSec" }

@@ -1,0 +1,62 @@
+{
+  "modelId": "ecommerce",
+  "modelVersion": "1.0.0",
+  "passed": false,
+  "stats": {
+    "passedScenarios": 0,
+    "passedSteps": 0,
+    "passedTraces": 0,
+    "totalScenarios": 1,
+    "totalSteps": 1,
+    "totalTraces": 1
+  },
+  "suiteId": "ecommerce-cross-acceptance",
+  "timestamp": "<TIMESTAMP>",
+  "useCases": [
+    {
+      "name": "Order confirmation parity across UI and API surfaces",
+      "passed": false,
+      "scenarios": [
+        {
+          "name": "Order confirmation parity across UI and API surfaces",
+          "passed": false,
+          "scenarioId": "sc-order-confirmation-parity",
+          "traceCount": 1,
+          "traces": [
+            {
+              "passed": false,
+              "steps": [
+                {
+                  "assertions": [
+                    {
+                      "actual": "matched",
+                      "expected": "{\"status\":\"confirmed\"}",
+                      "kind": "state-field-match",
+                      "passed": true
+                    },
+                    {
+                      "actual": "no projectorSession attached to step",
+                      "expected": "ui.html.ws assertion evaluated",
+                      "kind": "projector-node",
+                      "passed": false
+                    }
+                  ],
+                  "passed": false,
+                  "stepId": "step-alice-ui-confirm",
+                  "submitResult": {
+                    "newState": {
+                      "status": "confirmed"
+                    },
+                    "success": true
+                  }
+                }
+              ],
+              "traceLabel": "step-alice-ui-confirm -> step-bob-api-confirm-redacted"
+            }
+          ]
+        }
+      ],
+      "useCaseId": "uc-order-confirmation-parity"
+    }
+  ]
+}

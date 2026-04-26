@@ -1,0 +1,125 @@
+/* ======================================================================
+ * observatory.css — consumer-specific styling for examples/observatory.
+ *
+ * The generic primitive stylesheet at kinds/ui-html-ws/theme.css knows
+ * nothing about observatories, acceptance suites, scenario traces, or
+ * any other concept unique to this example. This file layers on the
+ * names and affordances that observatory's projection YAML uses.
+ *
+ * Naming conventions:
+ *   - observatory-* — layout chrome hooks
+ *   - acceptance-*  — acceptance tab
+ *   - suite-*, scenario-*, step-*, assertion-* — playback
+ *   - model-world-* — reflective model-world tab
+ *
+ * Load order: theme.css first (primitive contract), then observatory.css
+ * (consumer overrides). Observatory's shell.html imports both.
+ * ====================================================================== */
+
+/* 1. Observatory-specific layout hooks.
+ *    Kept as a no-op duplicate so the projection YAML can still write
+ *    `class: observatory-header` / `class: observatory-tabs` without
+ *    breaking primitive chrome. The actual page-header visuals come
+ *    from `#root > .stack > .toolbar:first-of-type` in theme.css;
+ *    observatory-header adds any observatory-only extras here. */
+.observatory-header,
+.observatory-tabs,
+.observatory-body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 2. Acceptance tab shell — the 3-column split (trace | live | inspector)
+ *    on top, suite catalogue scrolling below. */
+.panel-body.acceptance-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+.panel-body.acceptance-shell > .split { flex: 2 1 0; min-height: 240px; }
+.panel-body.acceptance-shell > .suite-catalogue { flex: 1 1 0; min-height: 160px; overflow-y: auto; }
+
+.acceptance-toolbar,
+.acceptance-body,
+.acceptance-controls,
+.acceptance-use-case,
+.trace-steps,
+.scenario-row,
+.observatory-meta,
+.relation-row,
+.instance-row,
+.recent-event-row,
+.contract-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* 3. Acceptance playback step cards. */
+.step-card {
+  border-left: 3px solid var(--color-muted);
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: var(--color-surface);
+}
+.step-card[data-step-status="passed"]  { border-left-color: var(--color-ok); }
+.step-card[data-step-status="failed"]  { border-left-color: var(--color-error); }
+.step-card[data-step-status="error"]   { border-left-color: var(--color-warn); }
+.step-card[data-step-status="pending"] { border-left-color: var(--color-muted); }
+
+.step-summary {
+  gap: 8px;
+  align-items: center;
+}
+
+.assertion-row {
+  margin-left: 16px;
+  padding: 2px 0;
+  gap: 8px;
+  align-items: baseline;
+}
+.assertion-row[data-passed="true"] .pill  { color: var(--color-ok); }
+.assertion-row[data-passed="false"] .pill { color: var(--color-error); }
+
+/* 4. Auto-play session-status pulse. */
+.acceptance-toolbar [data-session-status="playing"] { animation: playback-pulse 1.2s infinite; }
+@keyframes playback-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+/* 5. Recent instance-state highlight. */
+tr[data-recent="true"] { background: var(--color-accent-weak, rgba(0, 120, 255, 0.08)); }
+
+/* 6. Shared-query, copy-URL, and other observatory toolbar affordances. */
+.shared-query,
+.detail-panel {
+  color: var(--muted);
+}
+.copy-url-button[data-copied="true"]::after {
+  content: " ✓";
+  color: var(--color-ok);
+}
+
+/* 7. Reflective tab — model-world detail pane layout.
+ *    The detail pane stacks: Inspector overview + N per-concept Sections
+ *    (Types, Enums, Relations, State Machines, Actions, Contracts, Morphisms,
+ *    Lifecycle). Sections are visually separated with dividers so the reader
+ *    can orient quickly when scrolling. */
+.reflective-detail {
+  gap: 16px;
+}
+.reflective-section {
+  border-top: 1px solid var(--color-border, rgba(0,0,0,0.08));
+  padding-top: 8px;
+}
+.reflective-section > header {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.detail-panel,
+.recent-events {
+  min-height: 0;
+}

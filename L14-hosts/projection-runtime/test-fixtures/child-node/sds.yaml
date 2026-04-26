@@ -1,0 +1,8 @@
+name: child-node
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/child-node"
+extends:
+  - ../basic-node/sds.yaml
+models:
+  - path: ../models/analytics.model.yaml
+    role: reducer

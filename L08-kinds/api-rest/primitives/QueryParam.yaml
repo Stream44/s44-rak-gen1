@@ -1,0 +1,20 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/api.rest/primitive/QueryParam/1.0
+name: QueryParam
+assetKind: primitive
+conformsToKind: api.rest
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    name: { type: string }
+    required: { type: boolean }
+    schema: { type: object }
+    description: { type: string }
+  required: [name]
+contract: "contribute one { in: query, name, required, schema } entry to the parent Endpoint's parameters list"
+render: module://./primitives/QueryParam.ts#default
+implementation:
+  kind: module
+  module: "./QueryParam.ts"
+  export: default

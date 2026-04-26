@@ -1,0 +1,8 @@
+conformsTo: adk:ProjectionKind/1.0
+id: ui.html.ws
+name: UI, HTML, WebSocket
+version: 1.0.0
+backend: module://./dispatch.ts#default
+actionSemantics: asset://adk.example/ui.html.ws/action-semantics/ws-frames/1.0
+actionSemanticsImpl: module://./ws-action.ts#default
+backendHelpers: module://./backend-helpers.ts

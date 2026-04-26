@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/List/1.0
+name: List
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+contract: render a <ul> container and wrap each child node in an <li> element
+render: module://./primitives/List.ts#default
+implementation:
+  kind: module
+  module: "./List.ts"
+  export: default

@@ -1,0 +1,14 @@
+- id: cust-001
+  name: Ada Lovelace
+  email: ada@example.com
+  tier: gold
+
+- id: cust-002
+  name: Alan Turing
+  email: alan@example.com
+  tier: platinum
+
+- id: cust-003
+  name: Grace Hopper
+  email: grace@example.com
+  tier: silver

@@ -1,0 +1,39 @@
+document: ModelIntrospectionMorphisms
+version: "1.0"
+conformsTo: adk:MorphismDocument/1.0
+discriminator: modelIntrospection
+origin: adk
+morphisms:
+  listLoadedModels:
+    id: morphism://adk/listLoadedModels/1.0
+    input: type://adk/ListLoadedModelsInput/0.1.0
+    output: type://adk/ModelSummaryList/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: $listLoadedModelsImpl }
+        arg: { op: var, name: $input }
+  getModelDocument:
+    id: morphism://adk/getModelDocument/1.0
+    input: type://adk/GetModelDocumentInput/0.1.0
+    output: type://adk/ModelDocumentOrNull/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: $getModelDocumentImpl }
+        arg: { op: var, name: $input }
+  walkModelCrossRefs:
+    id: morphism://adk/walkModelCrossRefs/1.0
+    input: type://adk/WalkModelCrossRefsInput/0.1.0
+    output: type://adk/CrossRefIndex/0.1.0
+    category: pure
+    impl:
+      kind: algebra
+      ast:
+        op: apply
+        fn: { op: var, name: $walkModelCrossRefsImpl }
+        arg: { op: var, name: $input }

@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/adapter/FileSelect/1.0
+name: file-select
+assetKind: adapter
+conformsToKind: ui.html.ws
+version: 1.0.0
+argsShape:
+  type: object
+  properties:
+    accept: { type: string }
+    multiple: { type: boolean }
+    emit: { type: string }
+implementation:
+  kind: module
+  module: "../runtime/adapters-builtin.ts"
+  export: "file-select"

@@ -1,0 +1,27 @@
+name: todomvc
+version: 1.0.0
+origin: https://github.com/Stream44/s44-rak-gen1@1.0/examples/todomvc
+
+models:
+  - { path: ../model-world/models/core.model.yaml, role: foundation }
+  - { path: ./models/todos.model.yaml, role: primary, initialBinding: true }
+
+storageSpaces:
+  - name: todos-fs
+    kind: filesystem
+    path: ./.data/todos.json
+    format: json
+    debounceMs: 50
+
+bindings:
+  - name: todo-records
+    space: todos-fs
+    aspect:
+      kind: entityCollection
+      entity: Todo
+      keyField: id
+    shape:
+      stored: [title, completed]
+      derived: { id: "$key" }
+
+seeds: []

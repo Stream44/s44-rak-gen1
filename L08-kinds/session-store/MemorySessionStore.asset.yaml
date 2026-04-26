@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/session-store/MemorySessionStore/1.0
+name: MemorySessionStore
+assetKind: handler
+conformsToKind: session-store
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: "In-memory SessionStoreInterface; multi-identifier per-user-per-scope via secondary index; non-persistent"
+implementation:
+  kind: module
+  module: "./memory-session-store.ts"
+  export: default

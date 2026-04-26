@@ -1,0 +1,8 @@
+name: override-node
+version: 1.0.0
+origin: https://fixture.kernel/override-node
+extends:
+  - ../override-parent/sds.yaml
+storageSpaces:
+  - name: todos-fs
+    kind: ephemeral

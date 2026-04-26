@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/jwt-verifier/MemoryRS256JwtVerifier/1.0
+name: MemoryRS256JwtVerifier
+assetKind: handler
+conformsToKind: jwt-verifier
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: "RS256 via crypto.subtle RSASSA-PKCS1-v1_5"
+implementation:
+  kind: module
+  module: "./rs256-jwt-verifier.ts"
+  export: default

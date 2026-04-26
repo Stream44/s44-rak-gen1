@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/assets/theme.css" />
+  <link rel="stylesheet" href="/assets/observatory.css" />
+  <script type="application/json" id="adk-url-sync">[
+    {"key":"activeTab","alias":"t"},
+    {"key":"activeNestedTab","alias":"n"},
+    {"key":"selection.typeId","alias":"type"},
+    {"key":"selection.morphismId","alias":"morphism"},
+    {"key":"selection.actionId","alias":"action"},
+    {"key":"selection.instanceId","alias":"instance"},
+    {"key":"selection.contractId","alias":"contract"},
+    {"key":"selection.machineId","alias":"machine"},
+    {"key":"scenarioId","alias":"suite"},
+    {"key":"traceIndex","alias":"trace"}
+  ]</script>
+</head>
+<body>
+  <div id="root">{{body}}</div>
+  <script>{{handlersJs}}</script>
+  <script type="module">
+    import init from "/runtime.js";
+    init();
+  </script>
+</body>
+</html>

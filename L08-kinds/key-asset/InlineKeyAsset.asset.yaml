@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/key-asset/InlineKeyAsset/1.0
+name: InlineKeyAsset
+assetKind: handler
+conformsToKind: key-asset
+version: 1.0.0
+propSchema:
+  type: object
+  required: [bytesBase64, format]
+  properties:
+    bytesBase64:
+      type: string
+    format:
+      type: string
+contract: "Test-only; inline base64-encoded key bytes; never use in production"
+implementation:
+  kind: module
+  module: "./inline-key-asset.ts"
+  export: default

@@ -1,0 +1,25 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/cli.stdout/primitive/KV/1.0
+name: KV
+assetKind: primitive
+conformsToKind: cli.stdout
+kind: cli.stdout
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    pairs:
+      type: array
+      items:
+        type: object
+        properties:
+          key: { type: string }
+          value: {}
+        required: [key]
+  required: [pairs]
+contract: "key-value list rendered as aligned label/value rows"
+implementation:
+  kind: module
+  module: "./KV.ts"
+  export: default
+render: module://./primitives/KV.ts#default

@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/StatusDot/1.0
+name: StatusDot
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    status: { type: string }
+contract: render a status-dot <span> with a data-status attribute derived from props.status
+render: module://./primitives/StatusDot.ts#default
+implementation:
+  kind: module
+  module: "./StatusDot.ts"
+  export: default

@@ -1,0 +1,17 @@
+primitiveAssets:
+  - ./primitives/Port.yaml
+  - ./primitives/Mount.yaml
+  - ./primitives/Listener.yaml
+  - ./primitives/DrainTimeout.yaml
+  - ./primitives/SessionStoreRef.yaml
+  - ./primitives/JwtConfig.yaml
+  - ./primitives/OpenApiAggregator.yaml
+targetCategory: "Host transport configuration"
+optionsSchema:
+  type: object
+  properties:
+    drainTimeoutMs: { type: number, default: 5000 }
+    idleTimeoutSec: { type: number, default: 30 }
+  additionalProperties: false
+backends: []
+actionSemantics: asset://adk.example/host.api/action-semantics/http-requests/1.0

@@ -1,0 +1,132 @@
+conformsTo: adk:MorphismDocument/1.0
+id: adk:DemandMorphisms/1.0
+version: 1.0
+discriminator: demand
+morphisms:
+  survey:
+    id: survey
+    input: type://adk/DemandSurveyInput/1.0
+    output: type://adk/LoadingPlan/1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $typeRefReqs
+        value:
+          op: call
+          fn: fold
+          args:
+            - op: call
+              fn: keys
+              args:
+                - op: get
+                  path: $input/action/inputSchema/properties
+            - op: array
+              elements: []
+            - op: lambda
+              param: $acc
+              body:
+                op: lambda
+                param: $field
+                body:
+                  op: let
+                  name: $schema
+                  value:
+                    op: get
+                    path: $input/action/inputSchema/properties/$field
+                  body:
+                    op: if
+                    cond:
+                      op: call
+                      fn: and
+                      args:
+                        - op: get
+                          path: $schema/$typeRef
+                        - op: call
+                          fn: neq
+                          args:
+                            - op: get
+                              path: $input/payload/$field
+                            - op: const
+                              value: null
+                    then:
+                      op: call
+                      fn: arrayConcat
+                      args:
+                        - op: var
+                          name: $acc
+                        - op: array
+                          elements:
+                            - op: record
+                              fields:
+                                typeRef:
+                                  op: get
+                                  path: $schema/$typeRef
+                                key:
+                                  op: get
+                                  path: $input/payload/$field
+                                optional:
+                                  op: call
+                                  fn: eq
+                                  args:
+                                    - op: get
+                                      path: $schema/optional
+                                    - op: const
+                                      value: true
+                    else:
+                      op: var
+                      name: $acc
+        body:
+          op: let
+          name: $getReqs
+          value:
+            op: call
+            fn: fold
+            args:
+              - op: get
+                path: $input/action/preconditions
+              - op: array
+                elements: []
+              - op: lambda
+                param: $acc
+                body:
+                  op: lambda
+                  param: $precondition
+                  body:
+                    op: call
+                    fn: arrayConcat
+                    args:
+                      - op: var
+                        name: $acc
+                      - op: apply
+                        fn: { op: var, name: $collectPreconditionRequirements }
+                        arg: { op: var, name: $precondition }
+          body:
+            op: let
+            name: $requirements
+            value:
+              op: call
+              fn: arrayConcat
+              args:
+                - op: var
+                  name: $typeRefReqs
+                - op: var
+                  name: $getReqs
+            body:
+              op: record
+              fields:
+                requirements: { op: var, name: $requirements }
+                estimatedCount:
+                  op: call
+                  fn: length
+                  args:
+                    - op: var
+                      name: $requirements
+  collectPreconditionRequirements:
+    id: collectPreconditionRequirements
+    input: type://adk/KernelExpression/1.0
+    output: type://adk/DataRequirementArray/1.0
+    impl:
+      kind: module
+      uri: module://./modules/collect-precondition-requirements.ts
+      export: default

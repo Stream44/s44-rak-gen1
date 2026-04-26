@@ -1,0 +1,8 @@
+model: foundation
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/foundation"
+entities:
+  BaseRecord:
+    attributes:
+      id:
+        type: string

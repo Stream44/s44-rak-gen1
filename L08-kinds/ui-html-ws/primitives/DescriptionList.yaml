@@ -1,0 +1,16 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/DescriptionList/1.0
+name: DescriptionList
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    items: { type: array }
+contract: render a <dl class="description-list"> from items or DescriptionRow children
+render: module://./primitives/DescriptionList.ts#default
+implementation:
+  kind: module
+  module: "./DescriptionList.ts"
+  export: default

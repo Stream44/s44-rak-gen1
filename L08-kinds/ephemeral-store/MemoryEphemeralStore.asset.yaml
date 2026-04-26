@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ephemeral-store/MemoryEphemeralStore/1.0
+name: MemoryEphemeralStore
+assetKind: handler
+conformsToKind: ephemeral-store
+version: 1.0.0
+propSchema:
+  type: object
+  properties: {}
+contract: "implements EphemeralStore M1 (get + set + has + delete) via Map<string, unknown>; state is lost when the instance is discarded, matching the 'ephemeral' semantic"
+implementation:
+  kind: module
+  module: "./memory-ephemeral-store.ts"
+  export: default

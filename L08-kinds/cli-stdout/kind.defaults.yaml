@@ -1,0 +1,29 @@
+targetCategory: "stream of ANSI-formatted text lines"
+primitives:
+  - asset://adk.example/cli.stdout/primitive/Heading/1.0
+  - asset://adk.example/cli.stdout/primitive/Text/1.0
+  - asset://adk.example/cli.stdout/primitive/Table/1.0
+  - asset://adk.example/cli.stdout/primitive/KV/1.0
+  - asset://adk.example/cli.stdout/primitive/Badge/1.0
+  - asset://adk.example/cli.stdout/primitive/Spinner/1.0
+  - asset://adk.example/cli.stdout/primitive/Prompt/1.0
+primitiveAssets:
+  - ./primitives/Heading.yaml
+  - ./primitives/Text.yaml
+  - ./primitives/Table.yaml
+  - ./primitives/KV.yaml
+  - ./primitives/Badge.yaml
+  - ./primitives/Spinner.yaml
+  - ./primitives/Prompt.yaml
+backends:
+  - asset://adk.example/cli.stdout/backend/stdout/1.0
+optionsSchema:
+  type: object
+  properties:
+    color:
+      type: string
+      enum: [auto, always, never]
+      default: auto
+    unicode:
+      type: boolean
+      default: true

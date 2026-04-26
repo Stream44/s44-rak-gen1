@@ -1,0 +1,14 @@
+primitiveAssets:
+  - ./primitives/Challenge.yaml
+  - ./primitives/VerifyCredential.yaml
+  - ./primitives/IssueCapability.yaml
+  - ./primitives/SessionBinding.yaml
+targetCategory: "Authentication flow configuration"
+actionSemantics: asset://adk.example/host.auth/action-semantics/pipeline/1.0
+optionsSchema:
+  type: object
+  properties:
+    defaultTtlSec: { type: number, default: 3600 }
+    allowTestAuth: { type: boolean, default: false }
+  additionalProperties: false
+backends: []

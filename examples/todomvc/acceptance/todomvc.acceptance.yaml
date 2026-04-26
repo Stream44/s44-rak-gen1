@@ -1,0 +1,133 @@
+id: todomvc
+name: "TodoMVC"
+model: todomvc
+version: 1.0.0
+default: true
+
+personas:
+  - {
+      id: user,
+      name: "Anonymous User",
+      role: user,
+      verbs: [add, toggle, edit, delete, toggleAll, clearCompleted],
+    }
+
+useCases:
+  - id: uc-basic-add-toggle-delete
+    name: "Add + toggle + delete"
+    scenarios:
+      - id: s-add-one
+        name: "Add one todo"
+        trace:
+          - persona: user
+            verb: add
+            payload: { title: "buy milk" }
+            assertions:
+              - {
+                  kind: state,
+                  key: "$lastCreated",
+                  expression: "state.title == 'buy milk' && state.completed == false",
+                }
+              - { kind: count, entity: Todo, equals: 1 }
+
+      - id: s-toggle-one
+        name: "Add then toggle"
+        trace:
+          - persona: user
+            verb: add
+            payload: { title: "do laundry" }
+          - persona: user
+            verb: toggle
+            target: "$lastCreated"
+            payload: { id: "$lastCreated", completed: true }
+            assertions:
+              - { kind: state, key: "$lastCreated", expression: "state.completed == true" }
+
+      - id: s-delete-one
+        name: "Add then delete"
+        trace:
+          - persona: user
+            verb: add
+            payload: { title: "ephemeral" }
+          - persona: user
+            verb: delete
+            target: "$lastCreated"
+            payload: { id: "$lastCreated" }
+            assertions:
+              - { kind: count, entity: Todo, equals: 0 }
+
+  - id: uc-toggle-all
+    name: "Toggle all"
+    scenarios:
+      - id: s-toggle-all-on
+        name: "Toggle all completes every todo"
+        trace:
+          - { persona: user, verb: add, payload: { title: "a" } }
+          - { persona: user, verb: add, payload: { title: "b" } }
+          - { persona: user, verb: add, payload: { title: "c" } }
+          - persona: user
+            verb: toggleAll
+            payload: { value: true }
+            assertions:
+              - { kind: count, entity: Todo, whereExpression: "state.completed == true", equals: 3 }
+              - {
+                  kind: count,
+                  entity: Todo,
+                  whereExpression: "state.completed == false",
+                  equals: 0,
+                }
+
+  - id: uc-clear-completed
+    name: "Clear completed"
+    scenarios:
+      - id: s-clear-removes-done
+        name: "Clear removes only completed todos"
+        trace:
+          - { persona: user, verb: add, payload: { title: "keep" } }
+          - { persona: user, verb: add, payload: { title: "clear" } }
+          - persona: user
+            verb: toggle
+            target: "$lastCreated"
+            payload: { id: "$lastCreated", completed: true }
+          - persona: user
+            verb: clearCompleted
+            assertions:
+              - { kind: count, entity: Todo, equals: 1 }
+              - {
+                  kind: countFiltered,
+                  entity: Todo,
+                  whereExpression: "state.title == 'keep'",
+                  equals: 1,
+                }
+
+  - id: uc-edit
+    name: "Edit title"
+    scenarios:
+      - id: s-edit-updates-title
+        name: "Edit updates title"
+        trace:
+          - { persona: user, verb: add, payload: { title: "typo" } }
+          - persona: user
+            verb: edit
+            target: "$lastCreated"
+            payload: { id: "$lastCreated", title: "fixed" }
+            assertions:
+              - { kind: state, key: "$lastCreated", expression: "state.title == 'fixed'" }
+  - id: uc-persistence
+    name: "Persistence across restart"
+    scenarios:
+      - id: s-add-then-restart-survives
+        name: "Adds survive a restart"
+        restartAfter: [1]
+        trace:
+          - persona: user
+            verb: add
+            payload: { title: "stick" }
+          - persona: user
+            assertions:
+              - {
+                  kind: state,
+                  key: "$lastCreated",
+                  expression: "state.title == 'stick' && state.completed == false",
+                }
+              - { kind: count, entity: Todo, equals: 1 }

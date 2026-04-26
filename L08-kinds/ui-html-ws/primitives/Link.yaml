@@ -1,0 +1,17 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Link/1.0
+name: Link
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    href: { type: string }
+contract: render an <a> element with href defaulting to # and escaped label text
+render: module://./primitives/Link.ts#default
+implementation:
+  kind: module
+  module: "./Link.ts"
+  export: default

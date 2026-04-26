@@ -1,0 +1,17 @@
+id: morphism://github.com/Stream44/s44-rak-gen1@1.0/apiHostRequestPipeline/1.0-placeholder
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+discriminator: host-pipeline
+schema:
+  morphisms:
+    apiHostRequestPipeline:
+      id: morphism://github.com/Stream44/s44-rak-gen1@1.0/apiHostRequestPipeline/1.0
+      input: type://github.com/Stream44/s44-rak-gen1@1.0/api-host/request-context/1.0
+      output: type://github.com/Stream44/s44-rak-gen1@1.0/api-host/response-frame/1.0
+      impl:
+        kind: algebra
+        ast:
+          {
+            op: "record",
+            fields: { status: { op: "const", value: 200 }, body: { op: "const", value: "ok" } },
+          }

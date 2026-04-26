@@ -1,0 +1,2 @@
+.primitive-timeline { display: grid; gap: 8px; }
+body.debug::before { content: "debug"; display: block; }

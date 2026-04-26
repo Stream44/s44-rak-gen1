@@ -1,0 +1,19 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/cli.stdout/primitive/Spinner/1.0
+name: Spinner
+assetKind: primitive
+conformsToKind: cli.stdout
+kind: cli.stdout
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    label: { type: string }
+    state: { type: string, enum: [running, done, failed] }
+  required: [state]
+contract: "spinner/status line showing running, done, or failed state"
+implementation:
+  kind: module
+  module: "./Spinner.ts"
+  export: default
+render: module://./primitives/Spinner.ts#default

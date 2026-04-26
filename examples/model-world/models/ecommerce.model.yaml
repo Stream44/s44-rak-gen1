@@ -1,0 +1,143 @@
+model: ecommerce
+version: 1.0.0
+origin: https://test.ecommerce.example
+conformsTo: core
+
+surface:
+  labels:
+    lifecycle: "Order Lifecycle"
+    instances: "Orders"
+    actions: "Ecommerce Verbs"
+  inspectors:
+    - kind: instance
+      sections:
+        - {
+            heading: "Order Lifecycle",
+            kind: text,
+            text: "Order lifecycle: pending → confirmed → paid → shipped → delivered",
+          }
+
+entities:
+  Order:
+    attributes:
+      id: { type: string, required: true }
+      customer: { type: string, required: true }
+      total: { type: number, required: true, minimum: 0 }
+      items: { type: array, required: true }
+
+  Customer:
+    attributes:
+      id: { type: string, required: true }
+      name: { type: string, required: true, minLength: 1 }
+      email: { type: string, required: true, pattern: "^[^@]+@[^@]+$" }
+      tier: { type: string, enum: [bronze, silver, gold, platinum] }
+
+  Product:
+    attributes:
+      sku: { type: string, required: true }
+      name: { type: string, required: true }
+      price: { type: number, required: true, minimum: 0 }
+      currency: { type: string, required: true, enum: [USD, EUR, GBP] }
+      stock: { type: integer, required: true, minimum: 0 }
+
+  Invoice:
+    attributes:
+      id: { type: string, required: true }
+      order: { type: string, required: true }
+      amount: { type: number, required: true, minimum: 0 }
+      currency: { type: string, required: true }
+      paid: { type: boolean, required: true }
+
+enums:
+  OrderStatus:
+    values: [pending, confirmed, paid, shipped, delivered, cancelled]
+  Currency:
+    values: [USD, EUR, GBP]
+
+lifecycle:
+  states: [pending, confirmed, paid, shipped, delivered, cancelled]
+  initial: pending
+  terminal: [delivered, cancelled]
+  transitions:
+    - { from: pending, to: confirmed, verb: confirm }
+    - { from: confirmed, to: paid, verb: pay }
+    - { from: paid, to: shipped, verb: ship }
+    - { from: shipped, to: delivered, verb: deliver }
+    - { from: pending, to: cancelled, verb: cancel }
+    - { from: confirmed, to: cancelled, verb: cancel }
+
+contracts:
+  order-total-non-negative:
+    claim: "total >= 0"
+    expression: "state.total >= 0"
+  order-has-items:
+    claim: "length(items) > 0"
+    expression: "state.items != null"
+
+actions:
+  PlaceOrder:
+    verb: placeOrder
+    kind: mutate
+    targetMachine: null
+    description: Create an order record before lifecycle transitions begin
+    inputSchema:
+      type: object
+      required: [customer, total, items]
+      properties:
+        customer: { type: string }
+        total: { type: number, minimum: 0 }
+        items: { type: array }
+
+  ConfirmOrder:
+    verb: confirm
+    description: Confirm a pending order
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+
+  PayOrder:
+    verb: pay
+    description: Process payment for confirmed order
+    inputSchema:
+      type: object
+      required: [id, amount]
+      properties:
+        id: { type: string }
+        amount: { type: number, minimum: 0 }
+
+  ShipOrder:
+    verb: ship
+    description: Ship a paid order
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        carrier: { type: string }
+
+  DeliverOrder:
+    verb: deliver
+    description: Mark order as delivered
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+
+  CancelOrder:
+    verb: cancel
+    description: Cancel an order
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        reason: { type: string }
+
+morphisms:
+  ComputeShippingLabel:
+    impl:
+      kind: module
+      uri: module://./morphisms/compute-shipping-label.ts

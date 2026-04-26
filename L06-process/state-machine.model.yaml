@@ -1,0 +1,631 @@
+document: StateMachineMorphisms
+version: 1.0
+conformsTo: adk:MorphismDocument/1.0
+discriminator: state-machine
+origin: adk
+morphisms:
+  step:
+    id: step
+    input: type://adk/StepInput/1.0
+    output: type://adk/StepResult/1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $match
+        value:
+          op: call
+          fn: fold
+          args:
+            - op: get
+              path: $input/machine/transitions
+            - op: record
+              fields:
+                matched:
+                  op: const
+                  value: false
+            - op: lambda
+              param: $acc
+              body:
+                op: lambda
+                param: $t
+                body:
+                  op: if
+                  cond:
+                    op: get
+                    path: $acc/matched
+                  then:
+                    op: var
+                    name: $acc
+                  else:
+                    op: let
+                    name: $fromMatch
+                    value:
+                      op: call
+                      fn: matches
+                      args:
+                        - op: get
+                          path: $input/currentState
+                        - op: get
+                          path: $t/from
+                    body:
+                      op: let
+                      name: $evMatch
+                      value:
+                        op: call
+                        fn: matches
+                        args:
+                          - op: get
+                            path: $input/event
+                          - op: get
+                            path: $t/event
+                      body:
+                        op: if
+                        cond:
+                          op: call
+                          fn: and
+                          args:
+                            - op: get
+                              path: $fromMatch/matched
+                            - op: get
+                              path: $evMatch/matched
+                        then:
+                          op: let
+                          name: $env
+                          value:
+                            op: call
+                            fn: merge
+                            args:
+                              - op: call
+                                fn: merge
+                                args:
+                                  - op: get
+                                    path: $fromMatch/bindings
+                                  - op: get
+                                    path: $evMatch/bindings
+                              - op: record
+                                fields:
+                                  "$state":
+                                    op: get
+                                    path: $input/currentState
+                                  "$self":
+                                    op: get
+                                    path: $input/currentState
+                                  "$event":
+                                    op: get
+                                    path: $input/event
+                          body:
+                            op: if
+                            cond:
+                              op: call
+                              fn: has
+                              args:
+                                - op: var
+                                  name: $t
+                                - op: const
+                                  value: guard
+                            then:
+                              op: if
+                              cond:
+                                op: call
+                                fn: eval
+                                args:
+                                  - op: get
+                                    path: $t/guard
+                                  - op: var
+                                    name: $env
+                              then:
+                                op: record
+                                fields:
+                                  matched:
+                                    op: const
+                                    value: true
+                                  newState:
+                                    op: call
+                                    fn: eval
+                                    args:
+                                      - op: get
+                                        path: $t/to
+                                      - op: var
+                                        name: $env
+                                  matchedTransitionLabel:
+                                    op: get
+                                    path: $t/label
+                              else:
+                                op: var
+                                name: $acc
+                            else:
+                              op: record
+                              fields:
+                                matched:
+                                  op: const
+                                  value: true
+                                newState:
+                                  op: call
+                                  fn: eval
+                                  args:
+                                    - op: get
+                                      path: $t/to
+                                    - op: var
+                                      name: $env
+                                matchedTransitionLabel:
+                                  op: get
+                                  path: $t/label
+                        else:
+                          op: var
+                          name: $acc
+        body:
+          op: if
+          cond:
+            op: get
+            path: $match/matched
+          then:
+            op: record
+            fields:
+              success:
+                op: const
+                value: true
+              newState:
+                op: get
+                path: $match/newState
+              matchedTransitionLabel:
+                op: get
+                path: $match/matchedTransitionLabel
+          else:
+            op: record
+            fields:
+              success:
+                op: const
+                value: false
+              error:
+                op: const
+                value: No matching transition
+  run:
+    id: run
+    input: type://adk/RunInput/1.0
+    output: type://adk/RunResult/1.0
+    impl:
+      kind: algebra
+      ast:
+        op: call
+        fn: fold
+        args:
+          - op: get
+            path: $input/events
+          - op: record
+            fields:
+              finalState:
+                op: get
+                path: $input/initialState
+              trace:
+                op: array
+                elements: []
+              steps:
+                op: const
+                value: 0
+              halted:
+                op: const
+                value: false
+          - op: lambda
+            param: $acc
+            body:
+              op: lambda
+              param: $event
+              body:
+                op: if
+                cond:
+                  op: get
+                  path: $acc/halted
+                then:
+                  op: var
+                  name: $acc
+                else:
+                  op: let
+                  name: $stepResult
+                  value:
+                    op: apply
+                    fn:
+                      op: var
+                      name: $stepMorphism
+                    arg:
+                      op: record
+                      fields:
+                        machine:
+                          op: get
+                          path: $input/machine
+                        currentState:
+                          op: get
+                          path: $acc/finalState
+                        event:
+                          op: var
+                          name: $event
+                  body:
+                    op: record
+                    fields:
+                      finalState:
+                        op: if
+                        cond:
+                          op: get
+                          path: $stepResult/success
+                        then:
+                          op: get
+                          path: $stepResult/newState
+                        else:
+                          op: get
+                          path: $acc/finalState
+                      trace:
+                        op: call
+                        fn: arrayConcat
+                        args:
+                          - op: get
+                            path: $acc/trace
+                          - op: array
+                            elements:
+                              - op: record
+                                fields:
+                                  state:
+                                    op: get
+                                    path: $acc/finalState
+                                  event:
+                                    op: var
+                                    name: $event
+                                  result:
+                                    op: var
+                                    name: $stepResult
+                      steps:
+                        op: call
+                        fn: add
+                        args:
+                          - op: get
+                            path: $acc/steps
+                          - op: const
+                            value: 1
+                      halted:
+                        op: call
+                        fn: not
+                        args:
+                          - op: get
+                            path: $stepResult/success
+  reachableStates:
+    id: reachableStates
+    input: type://adk/ReachableStatesInput/1.0
+    output: type://adk/StateArray/1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $final
+        value:
+          op: call
+          fn: fold
+          args:
+            - op: get
+              path: $input/iterationRange
+            - op: record
+              fields:
+                visited:
+                  op: array
+                  elements:
+                    - op: get
+                      path: $input/machine/initialState
+                frontier:
+                  op: array
+                  elements:
+                    - op: get
+                      path: $input/machine/initialState
+            - op: lambda
+              param: $acc
+              body:
+                op: lambda
+                param: $_iter
+                body:
+                  op: if
+                  cond:
+                    op: call
+                    fn: eq
+                    args:
+                      - op: call
+                        fn: length
+                        args:
+                          - op: get
+                            path: $acc/frontier
+                      - op: const
+                        value: 0
+                  then:
+                    op: var
+                    name: $acc
+                  else:
+                    op: let
+                    name: $current
+                    value:
+                      op: call
+                      fn: head
+                      args:
+                        - op: get
+                          path: $acc/frontier
+                    body:
+                      op: let
+                      name: $rest
+                      value:
+                        op: call
+                        fn: tail
+                        args:
+                          - op: get
+                            path: $acc/frontier
+                      body:
+                        op: call
+                        fn: fold
+                        args:
+                          - op: get
+                            path: $input/machine/transitions
+                          - op: record
+                            fields:
+                              visited:
+                                op: get
+                                path: $acc/visited
+                              frontier:
+                                op: var
+                                name: $rest
+                          - op: lambda
+                            param: $exp
+                            body:
+                              op: lambda
+                              param: $t
+                              body:
+                                op: let
+                                name: $fromMatch
+                                value:
+                                  op: call
+                                  fn: matches
+                                  args:
+                                    - op: var
+                                      name: $current
+                                    - op: get
+                                      path: $t/from
+                                body:
+                                  op: if
+                                  cond:
+                                    op: get
+                                    path: $fromMatch/matched
+                                  then:
+                                    op: let
+                                    name: $env
+                                    value:
+                                      op: call
+                                      fn: merge
+                                      args:
+                                        - op: get
+                                          path: $fromMatch/bindings
+                                        - op: record
+                                          fields:
+                                            "$state":
+                                              op: var
+                                              name: $current
+                                            "$self":
+                                              op: var
+                                              name: $current
+                                            "$event":
+                                              op: const
+                                              value: null
+                                    body:
+                                      op: if
+                                      cond:
+                                        op: if
+                                        cond:
+                                          op: call
+                                          fn: has
+                                          args:
+                                            - op: var
+                                              name: $t
+                                            - op: const
+                                              value: guard
+                                        then:
+                                          op: call
+                                          fn: eval
+                                          args:
+                                            - op: get
+                                              path: $t/guard
+                                            - op: var
+                                              name: $env
+                                        else:
+                                          op: const
+                                          value: true
+                                      then:
+                                        op: let
+                                        name: $newState
+                                        value:
+                                          op: call
+                                          fn: eval
+                                          args:
+                                            - op: get
+                                              path: $t/to
+                                            - op: var
+                                              name: $env
+                                        body:
+                                          op: let
+                                          name: $newKey
+                                          value:
+                                            op: call
+                                            fn: canonicalize
+                                            args:
+                                              - op: var
+                                                name: $newState
+                                          body:
+                                            op: let
+                                            name: $seen
+                                            value:
+                                              op: call
+                                              fn: fold
+                                              args:
+                                                - op: get
+                                                  path: $exp/visited
+                                                - op: const
+                                                  value: false
+                                                - op: lambda
+                                                  param: $seenAcc
+                                                  body:
+                                                    op: lambda
+                                                    param: $state
+                                                    body:
+                                                      op: call
+                                                      fn: or
+                                                      args:
+                                                        - op: var
+                                                          name: $seenAcc
+                                                        - op: call
+                                                          fn: eq
+                                                          args:
+                                                            - op: call
+                                                              fn: canonicalize
+                                                              args:
+                                                                - op: var
+                                                                  name: $state
+                                                            - op: var
+                                                              name: $newKey
+                                            body:
+                                              op: if
+                                              cond:
+                                                op: var
+                                                name: $seen
+                                              then:
+                                                op: var
+                                                name: $exp
+                                              else:
+                                                op: record
+                                                fields:
+                                                  visited:
+                                                    op: call
+                                                    fn: arrayConcat
+                                                    args:
+                                                      - op: get
+                                                        path: $exp/visited
+                                                      - op: array
+                                                        elements:
+                                                          - op: var
+                                                            name: $newState
+                                                  frontier:
+                                                    op: call
+                                                    fn: arrayConcat
+                                                    args:
+                                                      - op: get
+                                                        path: $exp/frontier
+                                                      - op: array
+                                                        elements:
+                                                          - op: var
+                                                            name: $newState
+                                      else:
+                                        op: var
+                                        name: $exp
+                                  else:
+                                    op: var
+                                    name: $exp
+        body:
+          op: get
+          path: $final/visited
+  verifyInvariants:
+    id: verifyInvariants
+    input: type://adk/VerifyInput/1.0
+    output: type://adk/VerifyResult/1.0
+    impl:
+      kind: algebra
+      ast:
+        op: let
+        name: $states
+        value:
+          op: apply
+          fn:
+            op: var
+            name: $reachableStatesMorphism
+          arg:
+            op: record
+            fields:
+              machine:
+                op: get
+                path: $input/machine
+              iterationRange:
+                op: get
+                path: $input/iterationRange
+        body:
+          op: let
+          name: $violations
+          value:
+            op: call
+            fn: fold
+            args:
+              - op: var
+                name: $states
+              - op: array
+                elements: []
+              - op: lambda
+                param: $outerAcc
+                body:
+                  op: lambda
+                  param: $state
+                  body:
+                    op: call
+                    fn: fold
+                    args:
+                      - op: get
+                        path: $input/machine/invariants
+                      - op: var
+                        name: $outerAcc
+                      - op: lambda
+                        param: $innerAcc
+                        body:
+                          op: lambda
+                          param: $inv
+                          body:
+                            op: if
+                            cond:
+                              op: call
+                              fn: eval
+                              args:
+                                - op: var
+                                  name: $inv
+                                - op: record
+                                  fields:
+                                    "$state":
+                                      op: var
+                                      name: $state
+                                    "$self":
+                                      op: var
+                                      name: $state
+                            then:
+                              op: var
+                              name: $innerAcc
+                            else:
+                              op: call
+                              fn: arrayConcat
+                              args:
+                                - op: var
+                                  name: $innerAcc
+                                - op: array
+                                  elements:
+                                    - op: record
+                                      fields:
+                                        state:
+                                          op: var
+                                          name: $state
+                                        invariant:
+                                          op: var
+                                          name: $inv
+                                        error:
+                                          op: const
+                                          value: Invariant returned false
+          body:
+            op: record
+            fields:
+              allHold:
+                op: call
+                fn: eq
+                args:
+                  - op: call
+                    fn: length
+                    args:
+                      - op: var
+                        name: $violations
+                  - op: const
+                    value: 0
+              violations:
+                op: var
+                name: $violations

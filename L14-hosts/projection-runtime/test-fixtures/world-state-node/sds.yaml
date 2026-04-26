@@ -1,0 +1,9 @@
+name: world-state-node
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/world-state-node"
+models:
+  - path: ../models/world-alpha.model.yaml
+    role: primary
+    initialBinding: true
+  - path: ../models/world-beta.model.yaml
+    role: reducer

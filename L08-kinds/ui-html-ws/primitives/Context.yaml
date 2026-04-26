@@ -1,0 +1,27 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Context/1.0
+name: Context
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    scope: { type: string }
+    initial: { type: object }
+    mirror: { type: array, items: { type: string } }
+    key: {}
+  required: [scope]
+contract: non-rendering primitive; carves a named scope in $ui/$ctx; children resolve $ctx.* against nearest enclosing scope; optional key attaches row identity under iter.
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "ctxScope" }
+    scope: { op: get, path: "$input/scope" }
+    initial: { op: get, path: "$input/initial" }
+    mirror: { op: get, path: "$input/mirror" }
+    key: { op: get, path: "$input/key" }
+implementation:
+  kind: module
+  module: "./Context.ts"
+  export: default

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>{{title}}</title>
+</head>
+<body>
+<div data-connection-state>connecting</div>
+<script type="application/json" id="adk-url-sync">[
+  {"key":"filter","scope":"page","pathStyle":true,"defaultValue":"all"}
+]</script>
+<div id="root">{{body}}</div>
+<script>{{handlersJs}}</script>
+<script type="module">
+import init from "/runtime.js";
+init();
+</script>
+</body>
+</html>

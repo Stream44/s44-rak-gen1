@@ -1,0 +1,72 @@
+projector: projection-engine-demo
+version: 0.1.0
+origin: adk.example/projections
+conformsTo: adk:ProjectionMetamodel/2.0
+conformsToKind: ui.html.ws
+session:
+  scope: projection-engine-demo
+
+bindsModel: ecommerce@1.0.0
+title: Projection Engine — Demo
+
+shell: ./shell.html
+
+actions:
+  - ConfirmOrder
+  - PayOrder
+  - ShipOrder
+  - CancelOrder
+
+routes:
+  - path: /
+    page: orders
+
+pages:
+  orders:
+    children:
+      - component: Heading
+        props: { level: 1, text: "Projection Engine — Demo" }
+
+      - component: Section
+        props: { title: "This page is a projection of the ecommerce model." }
+        children:
+          - for: $bind.instances
+            template:
+              component: Card
+              children:
+                - component: Row
+                  children:
+                    - component: Text
+                      props: { text: "$item.id" }
+                    - component: Badge
+                      props:
+                        label: "$item.status"
+                        tone: info
+                - component: Row
+                  children:
+                    - component: Button
+                      props:
+                        label: "Confirm"
+                        disabled: { neq: [$item.status, "pending"] }
+                      onClick:
+                        action: ConfirmOrder
+                        target: $item.id
+                        payload: { id: $item.id }
+
+                    - component: Button
+                      props:
+                        label: "Pay"
+                        disabled: { neq: [$item.status, "confirmed"] }
+                      onClick:
+                        action: PayOrder
+                        target: $item.id
+                        payload: { id: $item.id, amount: 100 }
+
+                    - component: Button
+                      props:
+                        label: "Ship"
+                        disabled: { neq: [$item.status, "paid"] }
+                      onClick:
+                        action: ShipOrder
+                        target: $item.id
+                        payload: { id: $item.id }

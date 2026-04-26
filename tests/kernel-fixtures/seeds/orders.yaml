@@ -1,0 +1,29 @@
+- id: ord-001
+  customer: cust-001
+  total: 39.97
+  items:
+    - sku: WDG-001
+      quantity: 2
+      unitPrice: 9.99
+    - sku: GDG-001
+      quantity: 1
+      unitPrice: 19.99
+
+- id: ord-002
+  customer: cust-002
+  total: 99.99
+  items:
+    - sku: PRM-001
+      quantity: 1
+      unitPrice: 99.99
+
+- id: ord-003
+  customer: cust-003
+  total: 14.99
+  items:
+    - sku: WDG-001
+      quantity: 1
+      unitPrice: 9.99
+    - sku: GDG-001
+      quantity: 1
+      unitPrice: 5.00

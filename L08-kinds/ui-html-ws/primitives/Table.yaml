@@ -1,0 +1,18 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Table/1.0
+name: Table
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    columns: { type: array }
+    sortable: { type: boolean }
+    filterable: { type: boolean }
+contract: render a <table class="table"> with header labels and tbody child rows
+render: module://./primitives/Table.ts#default
+implementation:
+  kind: module
+  module: "./Table.ts"
+  export: default

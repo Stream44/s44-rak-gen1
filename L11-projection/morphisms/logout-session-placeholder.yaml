@@ -1,0 +1,16 @@
+id: morphism://github.com/Stream44/s44-rak-gen1@1.0/logoutSession/1.0-placeholder
+level: 1
+conformsTo: type://github.com/Stream44/s44-rak-gen1@1.0/adk/MorphismDocument/1.0
+discriminator: cli-logout
+schema:
+  morphisms:
+    logoutSession:
+      id: morphism://github.com/Stream44/s44-rak-gen1@1.0/logoutSession/1.0
+      input: type://github.com/Stream44/s44-rak-gen1@1.0/logout-session/input/1.0
+      output: type://github.com/Stream44/s44-rak-gen1@1.0/logout-session/output/1.0
+      impl:
+        kind: algebra
+        ast:
+          op: record
+          fields:
+            ok: { op: const, value: true }

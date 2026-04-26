@@ -1,0 +1,22 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Splitter/1.0
+name: Splitter
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    orientation: { type: string, enum: [horizontal, vertical] }
+    initial: { type: number }
+contract: render a two-pane splitter with a separator handle and data hooks
+render:
+  op: record
+  fields:
+    kind: { op: const, value: "Splitter" }
+    orientation: { op: get, path: "$input/orientation" }
+    initial: { op: get, path: "$input/initial" }
+implementation:
+  kind: module
+  module: "./Splitter.ts"
+  export: default

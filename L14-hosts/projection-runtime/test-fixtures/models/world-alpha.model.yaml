@@ -1,0 +1,33 @@
+model: alpha
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/alpha"
+entities:
+  AlphaRecord:
+    attributes:
+      id:
+        type: string
+      status:
+        type: string
+enums:
+  AlphaStatus:
+    values: [idle, active]
+contracts:
+  AlphaMustExist:
+    claim: "id != null"
+actions:
+  ActivateAlpha:
+    verb: activate
+    inputSchema:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+lifecycle:
+  states: [idle, active]
+  initial: idle
+  terminal: [active]
+  transitions:
+    - from: idle
+      to: active
+      verb: activate

@@ -1,0 +1,46 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.auth/primitive/IssueCapability/1.0
+name: IssueCapability
+assetKind: primitive
+conformsToKind: host.auth
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    capScope: { type: string }
+    ttlSec: { type: number }
+  required: [capScope]
+contract: "lift a verified credential into a capability bundle."
+render:
+  op: if
+  cond:
+    {
+      op: call,
+      fn: eq,
+      args: [{ op: get, path: "$input/verifyResult/kind" }, { op: const, value: rejected }],
+    }
+  then:
+    op: record
+    fields:
+      kind: { op: const, value: rejected }
+      reason: { op: get, path: "$input/verifyResult/reason" }
+  else:
+    op: record
+    fields:
+      kind: { op: const, value: capability }
+      user: { op: get, path: "$input/verifyResult/user" }
+      caps:
+        {
+          op: apply,
+          fn: { op: var, name: $normalizeCaps },
+          arg: { op: get, path: "$input/verifyResult/caps" },
+        }
+      capabilityScopes:
+        op: array
+        elements:
+          - { op: get, path: "$input/props/capScope" }
+      ttlSec:
+        op: if
+        cond: { op: get, path: "$input/props/ttlSec" }
+        then: { op: get, path: "$input/props/ttlSec" }
+        else: { op: const, value: 3600 }

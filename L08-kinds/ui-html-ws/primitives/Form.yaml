@@ -1,0 +1,14 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/ui.html.ws/primitive/Form/1.0
+name: Form
+assetKind: primitive
+conformsToKind: ui.html.ws
+version: 1.0.0
+propSchema:
+  type: object
+contract: render a <form> container around child nodes and preserve action binding attributes
+render: module://./primitives/Form.ts#default
+implementation:
+  kind: module
+  module: "./Form.ts"
+  export: default

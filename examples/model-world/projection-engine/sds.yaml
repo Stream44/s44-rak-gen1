@@ -1,0 +1,26 @@
+name: projection-engine
+version: 1.0.0
+origin: https://github.com/Stream44/s44-rak-gen1@1.0/examples/model-world/projection-engine
+
+models:
+  - { path: ../models/core.model.yaml, role: foundation }
+  - { path: ../models/ecommerce.model.yaml, role: primary, initialBinding: true }
+
+storageSpaces:
+  - name: orders-fs
+    kind: filesystem
+    path: ./data/orders-engine.json
+    format: json
+    debounceMs: 50
+
+bindings:
+  - name: order-records
+    space: orders-fs
+    aspect:
+      kind: entityCollection
+      entity: Order
+      keyField: id
+    shape:
+      stored: [customer, total, items]
+      derived:
+        id: "$key"

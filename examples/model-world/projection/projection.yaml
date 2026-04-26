@@ -1,0 +1,81 @@
+projector: model-world
+version: 0.1.0
+origin: adk.example/projections
+conformsTo: adk:KernelMetamodel/1.0
+conformsToKind: kind://adk/ui.html.ws/1.0
+session:
+  scope: model-world
+
+bindsModel: ecommerce@1.0.0
+title: Ecommerce
+
+shell: ./shell.html
+
+actions:
+  - ConfirmOrder
+  - PayOrder
+  - ShipOrder
+  - CancelOrder
+
+routes:
+  - path: /
+    page: orders
+
+pages:
+  orders:
+    children:
+      - component: Heading
+        props: { level: 1, text: "Orders" }
+
+      - component: Section
+        props: { title: "All Orders" }
+        children:
+          - for: $bind.instances
+            template:
+              component: Card
+              children:
+                - component: Row
+                  children:
+                    - component: Text
+                      props: { text: "$item.id" }
+                    - component: Badge
+                      props:
+                        label: "$item.status"
+                        tone: neutral
+                - component: Row
+                  children:
+                    - component: Button
+                      props:
+                        label: "Confirm"
+                        disabled: { neq: [$item.status, "pending"] }
+                      onClick:
+                        action: ConfirmOrder
+                        target: $item.id
+                        payload: { id: $item.id }
+
+                    - component: Button
+                      props:
+                        label: "Pay"
+                        disabled: { neq: [$item.status, "confirmed"] }
+                      onClick:
+                        action: PayOrder
+                        target: $item.id
+                        payload: { id: $item.id, amount: 100 }
+
+                    - component: Button
+                      props:
+                        label: "Ship"
+                        disabled: { neq: [$item.status, "paid"] }
+                      onClick:
+                        action: ShipOrder
+                        target: $item.id
+                        payload: { id: $item.id }
+
+                    - component: Button
+                      props:
+                        label: "Cancel"
+                        disabled: { eq: [$item.status, "shipped"] }
+                      onClick:
+                        action: CancelOrder
+                        target: $item.id
+                        payload: { id: $item.id }

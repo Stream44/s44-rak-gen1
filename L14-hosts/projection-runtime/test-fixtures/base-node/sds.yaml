@@ -1,0 +1,10 @@
+name: base-node
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/base-node"
+models:
+  - path: ../models/foundation.model.yaml
+    role: foundation
+acceptanceSuites:
+  - id: foundation-suite
+    name: Foundation Suite
+    path: ../suites/foundation.acceptance.yaml

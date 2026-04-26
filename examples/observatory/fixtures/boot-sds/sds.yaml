@@ -1,0 +1,27 @@
+name: observatory-boot-sds
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/fixtures/observatory-boot-sds"
+extends:
+  - ../../sds.yaml
+models:
+  - path: ../../../model-world/models/core.model.yaml
+    role: support
+  - path: ../../../model-world/models/ecommerce.model.yaml
+    role: primary
+    initialBinding: true
+acceptanceSuites:
+  - id: ecommerce
+    name: Ecommerce
+    path: ../../../model-world/acceptance/ecommerce.acceptance.yaml
+    default: true
+  - id: ecommerce-api
+    name: Ecommerce — API
+    path: ../../../model-world/acceptance/ecommerce-api.acceptance.yaml
+  - id: ecommerce-cross
+    name: Ecommerce — Cross
+    path: ../../../model-world/acceptance/ecommerce-cross.acceptance.yaml
+seeds:
+  - targetKey: ord-001
+    state: { status: pending }
+  - targetKey: ord-002
+    state: { status: pending }

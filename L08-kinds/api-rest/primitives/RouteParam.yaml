@@ -1,0 +1,20 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/api.rest/primitive/RouteParam/1.0
+name: RouteParam
+assetKind: primitive
+conformsToKind: api.rest
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    name: { type: string }
+    required: { type: boolean }
+    schema: { type: object }
+    description: { type: string }
+  required: [name]
+contract: "contribute one { in: path, name, required, schema } entry to the parent Endpoint's parameters list"
+render: module://./primitives/RouteParam.ts#default
+implementation:
+  kind: module
+  module: "./RouteParam.ts"
+  export: default

@@ -1,0 +1,8 @@
+conformsTo: adk:ProjectionKind/1.0
+id: api.rest
+name: REST API (OpenAPI 3.1)
+version: 1.0.0
+backend: module://./dispatch.ts#default
+actionSemantics: asset://adk.example/api.rest/action-semantics/http-requests/1.0
+actionSemanticsImpl: module://./http-action.ts#default
+backendHelpers: module://./backend-helpers.ts

@@ -1,0 +1,323 @@
+[
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "step",
+    "label": "pending-pay-success",
+    "input": { "currentState": { "status": "pending" }, "event": { "action": "pay" } },
+    "expected": {
+      "success": true,
+      "newState": { "status": "paid" },
+      "matchedTransitionLabel": "pay"
+    }
+  },
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "step",
+    "label": "paid-pay-no-match",
+    "input": { "currentState": { "status": "paid" }, "event": { "action": "pay" } },
+    "expected": { "success": false, "error": "No matching transition" }
+  },
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "step",
+    "label": "shipped-cancel-no-match",
+    "input": { "currentState": { "status": "shipped" }, "event": { "action": "cancel" } },
+    "expected": { "success": false, "error": "No matching transition" }
+  },
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "run",
+    "label": "pay-ship-deliver",
+    "input": {
+      "initialState": { "status": "pending" },
+      "events": [{ "action": "pay" }, { "action": "ship" }, { "action": "deliver" }]
+    },
+    "expected": {
+      "finalState": { "status": "delivered" },
+      "trace": [
+        {
+          "state": { "status": "pending" },
+          "event": { "action": "pay" },
+          "result": {
+            "success": true,
+            "newState": { "status": "paid" },
+            "matchedTransitionLabel": "pay"
+          }
+        },
+        {
+          "state": { "status": "paid" },
+          "event": { "action": "ship" },
+          "result": {
+            "success": true,
+            "newState": { "status": "shipped" },
+            "matchedTransitionLabel": "ship"
+          }
+        },
+        {
+          "state": { "status": "shipped" },
+          "event": { "action": "deliver" },
+          "result": {
+            "success": true,
+            "newState": { "status": "delivered" },
+            "matchedTransitionLabel": "deliver"
+          }
+        }
+      ],
+      "steps": 3
+    }
+  },
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "run",
+    "label": "pay-then-invalid-pay",
+    "input": {
+      "initialState": { "status": "pending" },
+      "events": [{ "action": "pay" }, { "action": "pay" }]
+    },
+    "expected": {
+      "finalState": { "status": "paid" },
+      "trace": [
+        {
+          "state": { "status": "pending" },
+          "event": { "action": "pay" },
+          "result": {
+            "success": true,
+            "newState": { "status": "paid" },
+            "matchedTransitionLabel": "pay"
+          }
+        },
+        {
+          "state": { "status": "paid" },
+          "event": { "action": "pay" },
+          "result": { "success": false, "error": "No matching transition" }
+        }
+      ],
+      "steps": 2
+    }
+  },
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "reachableStates",
+    "label": "all-order-states",
+    "input": {},
+    "expected": [
+      { "status": "pending" },
+      { "status": "paid" },
+      { "status": "cancelled" },
+      { "status": "shipped" },
+      { "status": "delivered" }
+    ]
+  },
+  {
+    "fixtureId": "order-lifecycle",
+    "operation": "verifyInvariants",
+    "label": "all-order-invariants-hold",
+    "input": {},
+    "expected": { "allHold": true, "violations": [] }
+  },
+  {
+    "fixtureId": "guarded-machine",
+    "operation": "step",
+    "label": "guard-fails-at-50",
+    "input": {
+      "currentState": { "status": "pending", "amount": 50 },
+      "event": { "action": "pay" }
+    },
+    "expected": { "success": false, "error": "No matching transition" }
+  },
+  {
+    "fixtureId": "guarded-machine",
+    "operation": "step",
+    "label": "guard-passes-at-200",
+    "input": {
+      "currentState": { "status": "pending", "amount": 200 },
+      "event": { "action": "pay" }
+    },
+    "expected": {
+      "success": true,
+      "newState": { "status": "paid", "amount": 200 },
+      "matchedTransitionLabel": "pay-guarded"
+    }
+  },
+  {
+    "fixtureId": "guarded-machine",
+    "operation": "run",
+    "label": "initial-guard-fail",
+    "input": {
+      "initialState": { "status": "pending", "amount": 50 },
+      "events": [{ "action": "pay" }]
+    },
+    "expected": {
+      "finalState": { "status": "pending", "amount": 50 },
+      "trace": [
+        {
+          "state": { "status": "pending", "amount": 50 },
+          "event": { "action": "pay" },
+          "result": { "success": false, "error": "No matching transition" }
+        }
+      ],
+      "steps": 1
+    }
+  },
+  {
+    "fixtureId": "guarded-machine",
+    "operation": "run",
+    "label": "guarded-pay-success",
+    "input": {
+      "initialState": { "status": "pending", "amount": 200 },
+      "events": [{ "action": "pay" }]
+    },
+    "expected": {
+      "finalState": { "status": "paid", "amount": 200 },
+      "trace": [
+        {
+          "state": { "status": "pending", "amount": 200 },
+          "event": { "action": "pay" },
+          "result": {
+            "success": true,
+            "newState": { "status": "paid", "amount": 200 },
+            "matchedTransitionLabel": "pay-guarded"
+          }
+        }
+      ],
+      "steps": 1
+    }
+  },
+  {
+    "fixtureId": "guarded-machine",
+    "operation": "reachableStates",
+    "label": "guarded-initial-only",
+    "input": {},
+    "expected": [{ "status": "pending", "amount": 50 }]
+  },
+  {
+    "fixtureId": "guarded-machine",
+    "operation": "verifyInvariants",
+    "label": "guarded-no-invariants",
+    "input": {},
+    "expected": { "allHold": true, "violations": [] }
+  },
+  {
+    "fixtureId": "traffic-light",
+    "operation": "step",
+    "label": "red-to-green",
+    "input": { "currentState": { "color": "red" }, "event": { "action": "timer" } },
+    "expected": {
+      "success": true,
+      "newState": { "color": "green" },
+      "matchedTransitionLabel": "red→green"
+    }
+  },
+  {
+    "fixtureId": "traffic-light",
+    "operation": "step",
+    "label": "green-to-yellow",
+    "input": { "currentState": { "color": "green" }, "event": { "action": "timer" } },
+    "expected": {
+      "success": true,
+      "newState": { "color": "yellow" },
+      "matchedTransitionLabel": "green→yellow"
+    }
+  },
+  {
+    "fixtureId": "traffic-light",
+    "operation": "step",
+    "label": "yellow-to-red",
+    "input": { "currentState": { "color": "yellow" }, "event": { "action": "timer" } },
+    "expected": {
+      "success": true,
+      "newState": { "color": "red" },
+      "matchedTransitionLabel": "yellow→red"
+    }
+  },
+  {
+    "fixtureId": "traffic-light",
+    "operation": "run",
+    "label": "six-timers-cycle",
+    "input": {
+      "initialState": { "color": "red" },
+      "events": [
+        { "action": "timer" },
+        { "action": "timer" },
+        { "action": "timer" },
+        { "action": "timer" },
+        { "action": "timer" },
+        { "action": "timer" }
+      ]
+    },
+    "expected": {
+      "finalState": { "color": "red" },
+      "trace": [
+        {
+          "state": { "color": "red" },
+          "event": { "action": "timer" },
+          "result": {
+            "success": true,
+            "newState": { "color": "green" },
+            "matchedTransitionLabel": "red→green"
+          }
+        },
+        {
+          "state": { "color": "green" },
+          "event": { "action": "timer" },
+          "result": {
+            "success": true,
+            "newState": { "color": "yellow" },
+            "matchedTransitionLabel": "green→yellow"
+          }
+        },
+        {
+          "state": { "color": "yellow" },
+          "event": { "action": "timer" },
+          "result": {
+            "success": true,
+            "newState": { "color": "red" },
+            "matchedTransitionLabel": "yellow→red"
+          }
+        },
+        {
+          "state": { "color": "red" },
+          "event": { "action": "timer" },
+          "result": {
+            "success": true,
+            "newState": { "color": "green" },
+            "matchedTransitionLabel": "red→green"
+          }
+        },
+        {
+          "state": { "color": "green" },
+          "event": { "action": "timer" },
+          "result": {
+            "success": true,
+            "newState": { "color": "yellow" },
+            "matchedTransitionLabel": "green→yellow"
+          }
+        },
+        {
+          "state": { "color": "yellow" },
+          "event": { "action": "timer" },
+          "result": {
+            "success": true,
+            "newState": { "color": "red" },
+            "matchedTransitionLabel": "yellow→red"
+          }
+        }
+      ],
+      "steps": 6
+    }
+  },
+  {
+    "fixtureId": "traffic-light",
+    "operation": "reachableStates",
+    "label": "all-traffic-light-states",
+    "input": {},
+    "expected": [{ "color": "red" }, { "color": "green" }, { "color": "yellow" }]
+  },
+  {
+    "fixtureId": "traffic-light",
+    "operation": "verifyInvariants",
+    "label": "traffic-light-no-invariants",
+    "input": {},
+    "expected": { "allHold": true, "violations": [] }
+  }
+]

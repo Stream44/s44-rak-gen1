@@ -1,0 +1,54 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/host.auth/primitive/Challenge/1.0
+name: Challenge
+assetKind: primitive
+conformsToKind: host.auth
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    method:
+      type: string
+      enum: [queryParams, formBody, bearerHeader]
+    paramNames:
+      type: array
+      items: { type: string }
+  required: [method]
+contract: "declare how the auth challenge extracts a test credential carrier from the host request."
+render:
+  op: match
+  scrutinee: { op: get, path: "$input/props/method" }
+  cases:
+    - pattern: { kind: const, value: queryParams }
+      body:
+        op: record
+        fields:
+          kind: { op: const, value: challenge }
+          method: { op: const, value: queryParams }
+          extracted:
+            op: record
+            fields:
+              user: { op: get, path: "$input/request/query/test_user" }
+              caps: { op: get, path: "$input/request/query/test_caps" }
+    - pattern: { kind: const, value: formBody }
+      body:
+        op: record
+        fields:
+          kind: { op: const, value: challenge }
+          method: { op: const, value: formBody }
+          extracted:
+            op: record
+            fields:
+              user: { op: get, path: "$input/request/body/test_user" }
+              caps: { op: get, path: "$input/request/body/test_caps" }
+    - pattern: { kind: const, value: bearerHeader }
+      body:
+        op: record
+        fields:
+          kind: { op: const, value: challenge }
+          method: { op: const, value: bearerHeader }
+          extracted:
+            op: record
+            fields:
+              user: { op: get, path: "$input/request/auth/user" }
+              caps: { op: get, path: "$input/request/auth/caps" }

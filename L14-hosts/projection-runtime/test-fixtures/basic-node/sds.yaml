@@ -1,0 +1,32 @@
+name: basic-node
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/tests/basic-node"
+extends:
+  - ../base-node/sds.yaml
+models:
+  - path: ../models/orders.model.yaml
+    role: primary
+    initialBinding: true
+acceptanceSuites:
+  - id: orders-suite
+    name: Orders Suite
+    path: ../suites/orders.acceptance.yaml
+    default: true
+hostSurface:
+  urlSync:
+    - { key: activeTab, alias: t }
+    - { key: selection.instanceId, alias: instance }
+  inspectors:
+    - kind: instance
+      selectionKey: selection.instanceId
+      selectedBinding: "$bind.runtime.panels.selectedInstance"
+      tabs: [runtime/instances]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Current State", kind: code, text: "$selected.stateJson" }
+        - {
+            heading: "Timeline",
+            kind: table,
+            rows: "$selected.timeline",
+            columns: [ts, label, detail],
+          }

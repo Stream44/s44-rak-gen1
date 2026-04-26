@@ -1,0 +1,11 @@
+- targetKey: ord-001
+  state: { status: pending }
+  label: Order ord-001 in pending state
+
+- targetKey: ord-002
+  state: { status: pending }
+  label: Order ord-002 in pending state
+
+- targetKey: ord-003
+  state: { status: pending }
+  label: Order ord-003 in pending state

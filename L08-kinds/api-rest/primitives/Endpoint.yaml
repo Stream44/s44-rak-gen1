@@ -1,0 +1,25 @@
+conformsTo: adk:ProjectionAsset/1.0
+id: asset://adk.example/api.rest/primitive/Endpoint/1.0
+name: Endpoint
+assetKind: primitive
+conformsToKind: api.rest
+version: 1.0.0
+propSchema:
+  type: object
+  properties:
+    method: { type: string, enum: [GET, POST, PUT, PATCH, DELETE] }
+    path: { type: string }
+    summary: { type: string }
+    description: { type: string }
+    onRequest: { type: object }
+    params: { type: array }
+    requestBody: { type: object }
+    responses: { type: object }
+    errors: { type: array }
+  required: [method, path]
+contract: "contribute one entry under paths[path][method] in the emitted OpenAPI document; fold params, requestBody, responses, and errors from child nodes"
+render: module://./primitives/Endpoint.ts#default
+implementation:
+  kind: module
+  module: "./Endpoint.ts"
+  export: default

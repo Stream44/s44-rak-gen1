@@ -1,0 +1,285 @@
+conformsTo: adk:RulesDocument/1.0
+discriminator: compatibility
+version: 1.0.0
+rules:
+  - id: required-added
+    appliesTo: backward
+    severity: major
+    message: 'New required field "{field}" has no default — old data will fail'
+    semver: "added-required-field is major per ADK refinement of semver (JSON-Schema has no field-level semver; ADK projects required-field adds to a major bump)."
+    predicate:
+      op: call
+      fn: map
+      args:
+        - op: call
+          fn: filter
+          args:
+            - op: var
+              name: $fields
+            - op: lambda
+              param: $field
+              body:
+                op: call
+                fn: and
+                args:
+                  - op: call
+                    fn: not
+                    args:
+                      - op: get
+                        path: "$field/oldRequired"
+                  - op: get
+                    path: "$field/newRequired"
+                  - op: get
+                    path: "$field/newDefaultMissing"
+        - op: lambda
+          param: $field
+          body:
+            op: record
+            fields:
+              field:
+                op: get
+                path: "$field/name"
+              path:
+                op: get
+                path: "$field/path"
+              message:
+                op: get
+                path: "$field/requiredAddedMessage"
+  - id: field-removed
+    appliesTo: backward
+    severity: major
+    message: 'Field "{field}" removed and additionalProperties=false — old data with this field will fail'
+    semver: "field-removed is major only when additionalProperties=false on the new schema; otherwise ADK treats it as a minor compatibility softening."
+    predicate:
+      op: call
+      fn: map
+      args:
+        - op: call
+          fn: filter
+          args:
+            - op: var
+              name: $fields
+            - op: lambda
+              param: $field
+              body:
+                op: call
+                fn: and
+                args:
+                  - op: var
+                    name: $newClosed
+                  - op: get
+                    path: "$field/inOld"
+                  - op: call
+                    fn: not
+                    args:
+                      - op: get
+                        path: "$field/inNew"
+        - op: lambda
+          param: $field
+          body:
+            op: record
+            fields:
+              field:
+                op: get
+                path: "$field/name"
+              path:
+                op: get
+                path: "$field/path"
+              message:
+                op: get
+                path: "$field/fieldRemovedMessage"
+  - id: type-changed
+    appliesTo: backward
+    severity: major
+    message: 'Field "{field}" type changed'
+    semver: "type-changed is major per ADK semver refinement because existing payloads stop validating."
+    predicate:
+      op: call
+      fn: map
+      args:
+        - op: call
+          fn: filter
+          args:
+            - op: var
+              name: $fields
+            - op: lambda
+              param: $field
+              body:
+                op: get
+                path: "$field/typeChanged"
+        - op: lambda
+          param: $field
+          body:
+            op: record
+            fields:
+              field:
+                op: get
+                path: "$field/name"
+              path:
+                op: get
+                path: "$field/path"
+              message:
+                op: get
+                path: "$field/typeChangedMessage"
+  - id: range-narrowed
+    appliesTo: backward
+    severity: minor
+    message: 'Field "{field}" numeric range narrowed'
+    semver: "range-narrowed is minor in ADK: the schema is stricter, but the change is tracked separately from hard major breaks."
+    predicate:
+      op: call
+      fn: map
+      args:
+        - op: call
+          fn: filter
+          args:
+            - op: var
+              name: $fields
+            - op: lambda
+              param: $field
+              body:
+                op: call
+                fn: or
+                args:
+                  - op: get
+                    path: "$field/minimumTightened"
+                  - op: get
+                    path: "$field/maximumTightened"
+        - op: lambda
+          param: $field
+          body:
+            op: call
+            fn: filter
+            args:
+              - op: array
+                elements:
+                  - op: if
+                    cond:
+                      op: get
+                      path: "$field/minimumTightened"
+                    then:
+                      op: record
+                      fields:
+                        field:
+                          op: get
+                          path: "$field/name"
+                        path:
+                          op: get
+                          path: "$field/path"
+                        message:
+                          op: get
+                          path: "$field/minimumMessage"
+                    else:
+                      op: const
+                      value: false
+                  - op: if
+                    cond:
+                      op: get
+                      path: "$field/maximumTightened"
+                    then:
+                      op: record
+                      fields:
+                        field:
+                          op: get
+                          path: "$field/name"
+                        path:
+                          op: get
+                          path: "$field/path"
+                        message:
+                          op: get
+                          path: "$field/maximumMessage"
+                    else:
+                      op: const
+                      value: false
+              - op: lambda
+                param: $result
+                body:
+                  op: call
+                  fn: neq
+                  args:
+                    - op: var
+                      name: $result
+                    - op: const
+                      value: false
+  - id: required-added-forward
+    appliesTo: forward
+    severity: major
+    message: 'New required field "{field}" — old producers will not include it'
+    semver: "required-added-forward is major in ADK because older producers cannot satisfy the new consumer contract."
+    predicate:
+      op: call
+      fn: map
+      args:
+        - op: call
+          fn: filter
+          args:
+            - op: var
+              name: $fields
+            - op: lambda
+              param: $field
+              body:
+                op: call
+                fn: and
+                args:
+                  - op: call
+                    fn: not
+                    args:
+                      - op: get
+                        path: "$field/inOld"
+                  - op: get
+                    path: "$field/newRequired"
+        - op: lambda
+          param: $field
+          body:
+            op: record
+            fields:
+              field:
+                op: get
+                path: "$field/name"
+              path:
+                op: get
+                path: "$field/path"
+              message:
+                op: get
+                path: "$field/requiredAddedForwardMessage"
+  - id: required-removed
+    appliesTo: forward
+    severity: major
+    message: 'Required field "{field}" dropped — old consumers may break'
+    semver: "required-removed is major in ADK because existing consumers may still depend on the dropped required field."
+    predicate:
+      op: call
+      fn: map
+      args:
+        - op: call
+          fn: filter
+          args:
+            - op: var
+              name: $fields
+            - op: lambda
+              param: $field
+              body:
+                op: call
+                fn: and
+                args:
+                  - op: get
+                    path: "$field/oldRequired"
+                  - op: call
+                    fn: not
+                    args:
+                      - op: get
+                        path: "$field/newRequired"
+        - op: lambda
+          param: $field
+          body:
+            op: record
+            fields:
+              field:
+                op: get
+                path: "$field/name"
+              path:
+                op: get
+                path: "$field/path"
+              message:
+                op: get
+                path: "$field/requiredRemovedMessage"

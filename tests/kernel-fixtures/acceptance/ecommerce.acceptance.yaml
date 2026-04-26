@@ -1,0 +1,561 @@
+suite: ecommerce-acceptance
+name: E-Commerce Acceptance Suite v1
+model: ecommerce
+version: 1.0.0
+
+# External YAML references (relative to this file).
+personas: ./personas.yaml
+seeds: ./seeds.yaml
+
+useCases:
+  # ──────────────────────────────────────────────────────────────────
+  # UC1: Happy Path — Full Order Fulfillment (1 trace)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-happy-path
+    name: Happy Path — Full Order Fulfillment
+    description: Complete order lifecycle from pending through delivery.
+    scenarios:
+      - id: sc-full-lifecycle
+        name: Complete Order Lifecycle
+        description: Customer confirms, pays, warehouse ships and delivers.
+        tags: [smoke, critical, happy-path]
+        seeds: [ord-001]
+        steps:
+          - id: step-confirm
+            description: Alice confirms her order
+            persona: alice
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: confirmed }
+              - kind: event-emitted
+                targetKey: ord-001
+                newStateFields: { status: confirmed }
+            branches:
+              - label: proceed to payment
+                step:
+                  id: step-pay
+                  description: Payment system processes payment
+                  persona: payment-system
+                  verb: pay
+                  targetKey: ord-001
+                  payload: { amount: 39.97 }
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: paid }
+                  branches:
+                    - label: proceed to shipping
+                      step:
+                        id: step-ship
+                        description: Bob ships the order
+                        persona: bob
+                        verb: ship
+                        targetKey: ord-001
+                        payload: { carrier: FedEx }
+                        assertions:
+                          - kind: state-equals
+                            targetKey: ord-001
+                            expected: { status: shipped }
+                        branches:
+                          - label: proceed to delivery
+                            step:
+                              id: step-deliver
+                              description: Bob delivers the order
+                              persona: bob
+                              verb: deliver
+                              targetKey: ord-001
+                              assertions:
+                                - kind: state-equals
+                                  targetKey: ord-001
+                                  expected: { status: delivered }
+                                - kind: event-emitted
+                                  targetKey: ord-001
+                                  newStateFields: { status: delivered }
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC2: Cancellation Before Payment (1 trace)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-cancel-before-payment
+    name: Cancellation Before Payment
+    description: A pending order can be cancelled directly.
+    scenarios:
+      - id: sc-cancel-pending
+        name: Cancel a Pending Order
+        tags: [cancellation]
+        seeds: [ord-001]
+        steps:
+          - id: step-cancel-pending
+            description: Alice cancels the pending order
+            persona: alice
+            verb: cancel
+            targetKey: ord-001
+            payload: { reason: Changed my mind }
+            assertions:
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: cancelled }
+              - kind: event-emitted
+                targetKey: ord-001
+                newStateFields: { status: cancelled }
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC3: Cancellation After Confirmation (branching — 2 traces)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-cancel-after-confirm
+    name: Cancellation After Confirmation
+    description: After confirming, the customer may pay OR cancel.
+    scenarios:
+      - id: sc-confirm-then-branch
+        name: Confirm Then Branch — Pay or Cancel
+        tags: [cancellation, branching]
+        seeds: [ord-001]
+        steps:
+          - id: step-confirm-first
+            description: Alice confirms her order
+            persona: alice
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: confirmed }
+            branches:
+              - label: "happy path: proceed to payment"
+                step:
+                  id: step-pay-branch
+                  description: Payment system processes payment
+                  persona: payment-system
+                  verb: pay
+                  targetKey: ord-001
+                  payload: { amount: 39.97 }
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: paid }
+              - label: "cancel path: cancel after confirmation"
+                step:
+                  id: step-cancel-branch
+                  description: Alice cancels after confirmation
+                  persona: alice
+                  verb: cancel
+                  targetKey: ord-001
+                  payload: { reason: Found a better price }
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: cancelled }
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC4: Refund Boundary (3 traces)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-refund-boundary
+    name: Refund Boundary Verification
+    description: refund is not a valid verb in v1; happy path deliver still works.
+    scenarios:
+      - id: sc-paid-branch-ship-or-refund
+        name: From Paid — Ship Then Deliver or Attempt Refund
+        tags: [refund, negative, branching]
+        inlineSeeds:
+          - targetKey: ord-001
+            state: { status: paid }
+            label: Order already paid
+        steps:
+          - id: step-from-paid
+            description: Admin ships the paid order
+            persona: admin
+            verb: ship
+            targetKey: ord-001
+            assertions:
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: shipped }
+            branches:
+              - label: "happy path: deliver"
+                step:
+                  id: step-deliver-after-ship
+                  description: Admin delivers the shipped order
+                  persona: admin
+                  verb: deliver
+                  targetKey: ord-001
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: delivered }
+              - label: "negative: attempt refund from shipped"
+                step:
+                  id: step-refund-shipped-fail
+                  description: Admin attempts refund from shipped — not a model verb
+                  persona: admin
+                  verb: refund
+                  targetKey: ord-001
+                  expectSuccess: false
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: shipped }
+
+      - id: sc-refund-from-paid
+        name: Refund From Paid — verb not in model
+        tags: [refund, negative]
+        inlineSeeds:
+          - targetKey: ord-001
+            state: { status: paid }
+        steps:
+          - id: step-refund-paid
+            description: Admin attempts refund from paid — verb not in model
+            persona: admin
+            verb: refund
+            targetKey: ord-001
+            expectSuccess: false
+            assertions: []
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC5: Invalid Actions (4 traces)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-invalid-actions
+    name: Invalid Actions
+    description: Unknown verbs, wrong transitions, and unauthorized personas are rejected.
+    scenarios:
+      - id: sc-unknown-verb
+        name: Unknown Verb Rejected
+        tags: [negative, validation]
+        seeds: [ord-001]
+        steps:
+          - id: step-unknown-verb
+            description: Admin submits a nonexistent verb 'archive'
+            persona: admin
+            verb: archive
+            targetKey: ord-001
+            expectSuccess: false
+            assertions:
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: pending }
+
+      - id: sc-wrong-state-transition
+        name: Wrong State Transition Rejected
+        tags: [negative, state-machine]
+        seeds: [ord-001]
+        steps:
+          - id: step-ship-pending
+            description: Admin attempts to ship a pending order
+            persona: admin
+            verb: ship
+            targetKey: ord-001
+            expectSuccess: false
+            assertions:
+              - kind: error-expected
+                messageContains: transition
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: pending }
+
+      - id: sc-unauthorized-persona
+        name: Unauthorized Persona Rejected
+        description: Bob (warehouse) has no confirm capability.
+        tags: [negative, authorization]
+        seeds: [ord-001]
+        steps:
+          - id: step-bob-confirms
+            description: Bob attempts to confirm — denied
+            persona: bob
+            verb: confirm
+            targetKey: ord-001
+            expectSuccess: false
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: pending }
+
+      - id: sc-deliver-before-ship
+        name: Deliver Before Ship Rejected
+        tags: [negative, state-machine]
+        inlineSeeds:
+          - targetKey: ord-001
+            state: { status: paid }
+        steps:
+          - id: step-deliver-paid
+            description: Admin attempts to deliver a paid (not shipped) order
+            persona: admin
+            verb: deliver
+            targetKey: ord-001
+            expectSuccess: false
+            assertions:
+              - kind: error-expected
+                messageContains: transition
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: paid }
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC6: Multiple Orders — Independent Processing (1 trace)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-multiple-orders
+    name: Multiple Orders — Independent Processing
+    description: Two orders proceed through the lifecycle independently.
+    scenarios:
+      - id: sc-two-orders-diverge
+        name: Two Orders — One Delivered, One Cancelled
+        tags: [multi-instance, isolation]
+        seeds: [ord-001, ord-002]
+        steps:
+          - id: step-confirm-ord1
+            description: Alice confirms order 1
+            persona: alice
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: confirmed }
+              - kind: state-field-match
+                targetKey: ord-002
+                fields: { status: pending }
+            branches:
+              - label: process both orders
+                step:
+                  id: step-cancel-ord2
+                  description: Alice cancels order 2
+                  persona: alice
+                  verb: cancel
+                  targetKey: ord-002
+                  payload: { reason: Duplicate order }
+                  assertions:
+                    - kind: state-field-match
+                      targetKey: ord-001
+                      fields: { status: confirmed }
+                    - kind: state-equals
+                      targetKey: ord-002
+                      expected: { status: cancelled }
+                  branches:
+                    - label: continue order 1 to payment
+                      step:
+                        id: step-pay-ord1
+                        description: Pay order 1
+                        persona: payment-system
+                        verb: pay
+                        targetKey: ord-001
+                        payload: { amount: 39.97 }
+                        assertions:
+                          - kind: state-field-match
+                            targetKey: ord-001
+                            fields: { status: paid }
+                          - kind: state-equals
+                            targetKey: ord-002
+                            expected: { status: cancelled }
+                        branches:
+                          - label: ship and deliver order 1
+                            step:
+                              id: step-ship-ord1
+                              description: Bob ships order 1
+                              persona: bob
+                              verb: ship
+                              targetKey: ord-001
+                              assertions:
+                                - kind: state-field-match
+                                  targetKey: ord-001
+                                  fields: { status: shipped }
+                              branches:
+                                - label: deliver order 1
+                                  step:
+                                    id: step-deliver-ord1
+                                    description: Bob delivers order 1
+                                    persona: bob
+                                    verb: deliver
+                                    targetKey: ord-001
+                                    assertions:
+                                      - kind: state-equals
+                                        targetKey: ord-001
+                                        expected: { status: delivered }
+                                      - kind: state-equals
+                                        targetKey: ord-002
+                                        expected: { status: cancelled }
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC7: Schema Validation (5 traces)
+  # ──────────────────────────────────────────────────────────────────
+  - id: uc-schema-validation
+    name: Schema Validation
+    description: Intent pipeline enforces input schemas from the model.
+    scenarios:
+      - id: sc-valid-payload-accepted
+        name: Valid Payload Accepted
+        tags: [validation, positive]
+        seeds: [ord-001]
+        steps:
+          - id: step-valid-confirm
+            description: Admin confirms with valid payload
+            persona: admin
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: confirmed }
+
+      - id: sc-missing-required-field
+        name: Missing Required Field Rejected
+        tags: [validation, negative]
+        inlineSeeds:
+          - targetKey: ord-001
+            state: { status: confirmed }
+        steps:
+          - id: step-pay-no-amount
+            description: Admin submits pay without required amount
+            persona: admin
+            verb: pay
+            targetKey: ord-001
+            payload: {}
+            expectSuccess: false
+            assertions:
+              - kind: error-expected
+                messageContains: validation
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: confirmed }
+
+      - id: sc-negative-amount-rejected
+        name: Negative Amount Rejected
+        tags: [validation, negative]
+        inlineSeeds:
+          - targetKey: ord-001
+            state: { status: confirmed }
+        steps:
+          - id: step-pay-negative
+            description: Admin submits pay with a negative amount
+            persona: admin
+            verb: pay
+            targetKey: ord-001
+            payload: { amount: -50 }
+            expectSuccess: false
+            assertions:
+              - kind: error-expected
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: confirmed }
+
+      - id: sc-valid-then-invalid-branching
+        name: Valid Confirm Then Branch — Valid Pay vs Invalid Pay
+        tags: [validation, branching]
+        seeds: [ord-001]
+        steps:
+          - id: step-confirm-valid
+            description: Admin confirms the order (valid)
+            persona: admin
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-field-match
+                targetKey: ord-001
+                fields: { status: confirmed }
+            branches:
+              - label: "valid pay"
+                step:
+                  id: step-pay-valid
+                  description: Admin pays with valid amount
+                  persona: admin
+                  verb: pay
+                  targetKey: ord-001
+                  payload: { amount: 39.97 }
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: paid }
+              - label: "invalid pay"
+                step:
+                  id: step-pay-invalid
+                  description: Admin pays without amount (schema violation)
+                  persona: admin
+                  verb: pay
+                  targetKey: ord-001
+                  payload: {}
+                  expectSuccess: false
+                  assertions:
+                    - kind: error-expected
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: confirmed }
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC8: Reorder After Cancellation (cyclic — 1 trace with back-edge)
+  # ──────────────────────────────────────────────────────────────────
+  # Demonstrates a "try again" cycle: the customer confirms an order,
+  # cancels it, then (via state reset representing a fresh order) loops
+  # back to the initial confirm step. The ref branch closes the cycle.
+  - id: uc-reorder-after-cancel
+    name: Reorder After Cancellation
+    description: |
+      After cancelling, the customer places a new order for the same key.
+      The cycle demonstrates the "try again" pattern with state reset.
+    scenarios:
+      - id: sc-reorder-after-cancel
+        name: Customer Cancels Then Reorders
+        tags: [cycle, reorder]
+        seeds: [ord-001]
+        steps:
+          - id: step-confirm-initial
+            description: Alice confirms her initial order
+            persona: alice
+            verb: confirm
+            targetKey: ord-001
+            assertions:
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: confirmed }
+            branches:
+              - label: "changed mind — cancel"
+                step:
+                  id: step-cancel-for-reorder
+                  description: Alice cancels the confirmed order
+                  persona: alice
+                  verb: cancel
+                  targetKey: ord-001
+                  payload: { reason: Changed my mind }
+                  assertions:
+                    - kind: state-equals
+                      targetKey: ord-001
+                      expected: { status: cancelled }
+                  branches:
+                    - label: "reorder: reset and confirm again"
+                      ref: step-confirm-initial
+                      resetBeforeCycle: true
+
+  # ──────────────────────────────────────────────────────────────────
+  # UC9: Retry After Invalid Payment (cyclic — retry loop)
+  # ──────────────────────────────────────────────────────────────────
+  # Demonstrates a retry pattern: after a failed payment attempt, the
+  # caller can retry from the confirmed state. The ref branch closes the
+  # cycle back to the pay step. No reset is needed because the invalid
+  # pay attempt is expected to fail and leave the state unchanged.
+  - id: uc-retry-invalid-pay
+    name: Retry After Invalid Payment
+    description: |
+      Failed payment attempts leave the order in its prior state; the
+      customer (or system) can retry. The cycle demonstrates the retry
+      pattern without state reset.
+    scenarios:
+      - id: sc-retry-invalid-pay
+        name: Invalid Pay Then Retry
+        tags: [cycle, retry, validation]
+        inlineSeeds:
+          - targetKey: ord-001
+            state: { status: confirmed }
+        steps:
+          - id: step-pay-attempt
+            description: Admin attempts payment with invalid (missing) amount
+            persona: admin
+            verb: pay
+            targetKey: ord-001
+            payload: {}
+            expectSuccess: false
+            assertions:
+              - kind: error-expected
+              - kind: state-equals
+                targetKey: ord-001
+                expected: { status: confirmed }
+            branches:
+              - label: "retry the payment"
+                ref: step-pay-attempt

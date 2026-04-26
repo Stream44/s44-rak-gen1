@@ -1,0 +1,151 @@
+name: observatory
+version: 1.0.0
+origin: "https://github.com/Stream44/s44-rak-gen1@1.0/examples/observatory"
+description: Generic model-agnostic review surface. Extend this node and declare models/acceptanceSuites/seeds.
+
+provides:
+  - projection://examples.observatory/projection/1.0
+
+kinds:
+  - kind://adk/ui.html.ws/1.0
+
+storageSpaces:
+  - { name: observatory-eph, kind: ephemeral }
+
+hostSurface:
+  tabs:
+    - { id: kernel, from: "$runtime.kernel.types" }
+    - { id: runtime, from: "$runtime.instances" }
+    - { id: meta, from: "$runtime.kernel.metamodels" }
+    - { id: dynamics, from: "$runtime.machines" }
+    - { id: acceptance, from: "$runtime.sds.acceptanceSuites" }
+    - { id: reflective, from: "$runtime.kernel.modelTypes" }
+  urlSync:
+    - { key: activeTab, alias: t }
+    - { key: activeNestedTab, alias: n }
+    - { key: selection.typeId, alias: type }
+    - { key: selection.morphismId, alias: morphism }
+    - { key: selection.actionId, alias: action }
+    - { key: selection.instanceId, alias: instance }
+    - { key: selection.contractId, alias: contract }
+    - { key: selection.machineId, alias: machine }
+    - { key: scenarioId, alias: suite }
+    - { key: traceIndex, alias: trace }
+  inspectors:
+    - kind: type
+      selectionKey: selection.typeId
+      selectedBinding: "$bind.runtime.panels.selectedType"
+      tabs: [kernel/types]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Schema", kind: keyvalue, items: "$selected.summary" }
+        - {
+            heading: "Attributes",
+            kind: table,
+            rows: "$selected.properties",
+            columns: [name, type, required],
+          }
+        - { heading: "Conforms to", kind: chain, items: "$selected.conformsToChain" }
+        - {
+            heading: "Referenced by",
+            kind: list,
+            items: "$selected.referencedBy",
+            emptyMessage: "No cross-refs.",
+          }
+        - {
+            heading: "Actions",
+            kind: list,
+            items: "$selected.actionsTargeting",
+            emptyMessage: "No actions target this type.",
+          }
+        - {
+            heading: "Morphisms",
+            kind: list,
+            items: "$selected.morphismsProducing",
+            emptyMessage: "No morphisms produce this type.",
+          }
+    - kind: morphism
+      selectionKey: selection.morphismId
+      selectedBinding: "$bind.runtime.panels.selectedMorphism"
+      tabs: [kernel/morphisms]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Identity", kind: keyvalue, items: "$selected.identity" }
+        - { heading: "Signature", kind: keyvalue, items: "$selected.signature" }
+        - {
+            heading: "Used in",
+            kind: list,
+            items: "$selected.usedIn",
+            emptyMessage: "Not used yet.",
+          }
+    - kind: operator
+      selectionKey: selection.operatorId
+      selectedBinding: "$bind.runtime.panels.selectedOperator"
+      tabs: [kernel/operators]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Operator", kind: keyvalue, items: "$selected.summary" }
+    - kind: action
+      selectionKey: selection.actionId
+      selectedBinding: "$bind.runtime.panels.selectedAction"
+      tabs: [runtime/actions]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Verb", kind: keyvalue, items: "$selected.summary" }
+        - { heading: "Input Schema", kind: code, text: "$selected.inputSchema" }
+        - {
+            heading: "Preconditions",
+            kind: list,
+            items: "$selected.preconditions",
+            emptyMessage: "No preconditions.",
+          }
+        - { heading: "Authorizing Personas", kind: list, items: "$selected.authorizingPersonas" }
+        - { heading: "Target Machine", kind: text, text: "$selected.targetMachine" }
+    - kind: instance
+      selectionKey: selection.instanceId
+      selectedBinding: "$bind.runtime.panels.selectedInstance"
+      tabs: [runtime/instances, acceptance]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Current State", kind: code, text: "$selected.stateJson" }
+        - { heading: "Model", kind: text, text: "$selected.modelName" }
+        - {
+            heading: "Timeline",
+            kind: table,
+            rows: "$selected.timeline",
+            columns: [ts, label, detail],
+          }
+    - kind: machine
+      selectionKey: selection.machineId
+      selectedBinding: "$bind.runtime.panels.selectedMachine"
+      tabs: [dynamics]
+      autoSelectFirst: true
+      sections:
+        - { heading: "States", kind: list, items: "$selected.states" }
+        - {
+            heading: "Transitions",
+            kind: table,
+            rows: "$selected.transitions",
+            columns: [from, to, verb],
+          }
+        - { heading: "Current States", kind: keyvalue, items: "$selected.currentStates" }
+    - kind: contract
+      selectionKey: selection.contractId
+      selectedBinding: "$bind.runtime.panels.selectedContract"
+      tabs: [meta/contracts]
+      autoSelectFirst: true
+      sections:
+        - { heading: "Claim", kind: text, text: "$selected.claim" }
+        - { heading: "Expression", kind: code, text: "$selected.expression" }
+        - {
+            heading: "Evaluations",
+            kind: table,
+            rows: "$selected.evaluations",
+            columns: [instanceKey, passed, actual],
+          }
+    - kind: bundle
+      selectionKey: selection.bundleId
+      selectedBinding: "$bind.runtime.panels.selectedBundle"
+      tabs: [meta/bundles]
+      sections:
+        - { heading: "Bundle", kind: keyvalue, items: "$selected.summary" }

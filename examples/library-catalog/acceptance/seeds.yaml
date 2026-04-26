@@ -1,0 +1,13 @@
+- targetKey: book-001
+  state:
+    { status: available, title: "Gödel, Escher, Bach", isbn: "0465026567", authorId: hofstadter }
+- targetKey: book-002
+  state:
+    {
+      status: checked-out,
+      title: "Structure and Interpretation of Computer Programs",
+      isbn: "0262510871",
+      authorId: abelson,
+    }
+- targetKey: book-003
+  state: { status: available, title: "A Pattern Language", isbn: "0195019199", authorId: alexander }

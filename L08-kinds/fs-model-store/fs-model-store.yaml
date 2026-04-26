@@ -1,0 +1,6 @@
+kind: fs-model-store
+version: 1.0.0
+conformsTo: kind://adk/model-store/1.0
+provides:
+  - hydrate
+  - subscribe
