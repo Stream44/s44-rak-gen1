@@ -21,8 +21,9 @@ Nothing other than this readme has been touched by human hands.
 
 It is an early research preview released for feedback. The code has not been thoroughly reviewed yet as it still changes too much.
 
-You are encouraged to use AI to explore the project and have AI explain it to you.
 See [PAPER.md](./PAPER.md) and [OVERVIEW.md](./OVERVIEW.md) for an introduction.
+
+You are encouraged to use AI to explore the project and have AI explain it to you.
 
 Look at [examples/todomvc/](./examples/todomvc/) which is a simple complete example of the famous application. The other examples are only partially working.
 
